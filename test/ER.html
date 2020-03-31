@@ -1,0 +1,76 @@
+<canvas id="gc" width="400" height="400"></canvas>
+<script id="gc">
+	window.onload=function() {
+		canv=document.getElementById("gc");
+		ctx=canv.getContext("2d");
+		document.addEventListener("keydown",keyPush);
+		document.addEventListener("click",keyPress);
+		setInterval(game,1000/15);
+	}
+	serpienteX=serpienteY=10;
+	pixeles=10
+	mapa=40;
+	manzanaX=manzanay=15;
+	movimientoX=movimientoY=0;
+	trail=[];
+	tail = 5;
+	function game() {
+		serpienteX+=movimientoX;
+		serpienteY+=movimientoY;
+		if(serpienteX<0) {
+			serpienteX= mapa-1;
+		}
+		if(serpienteX>mapa-1) {
+			serpienteX= 0;
+		}
+		if(serpienteY<0) {
+			serpienteY= mapa-1;
+		}
+		if(serpienteY>mapa-1) {
+			serpienteY= 0;
+		}
+		ctx.fillStyle="black";
+		ctx.fillRect(0,0,canv.width,canv.height);
+
+		ctx.fillStyle="yellow";
+		for(var i=0;i<trail.length;i++) {
+			ctx.fillRect(trail[i].x*pixeles,trail[i].y*pixeles,pixeles-2,pixeles-2);
+			if(trail[i].x==serpienteX && trail[i].y==serpienteY) {
+				tail = 5;
+			}
+		}
+		trail.push({x:serpienteX,y:serpienteY});
+		
+		while(trail.length>tail) {
+			trail.shift();
+		}
+
+		if(manzanaX==serpienteX && manzanay==serpienteY) {
+			tail++;
+			manzanaX=Math.floor(Math.random()*mapa);
+			manzanay=Math.floor(Math.random()*mapa);
+		}
+		ctx.fillStyle="red";
+		ctx.fillRect(manzanaX*pixeles,manzanay*pixeles,pixeles-2,pixeles-2);
+	}
+	function keyPush(evt) {
+		switch(evt.keyCode) {
+			case 37:
+				movimientoX=-1;
+				movimientoY=0;
+				break;
+			case 38:
+				movimientoX=0;
+				movimientoY=-1;
+				break;
+			case 39:
+				movimientoX=1;
+				movimientoY=0;
+				break;
+			case 40:
+				movimientoX=0;
+				movimientoY=1;
+				break;
+		}
+	}
+</script>
