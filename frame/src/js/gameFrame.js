@@ -1,8 +1,8 @@
 class Game {
 
     KEY = {LEFT : 37,UP : 38,RIGHT : 39,DOWN : 40}
-    ELEMENT = {CIRCLE : 'circle',RECT : 'rect',TEXT : 'text',}
-    STATE = {PAUSE : 'pause',PLAY : 'play',MENU : 'menu',}
+    ELEMENT = {CIRCLE : 'circle',RECT : 'rect',TEXT : 'text',IMAGE:'image',SOUND:'sound'}
+    STATE = {PAUSE : 'pause',PLAY : 'play',MENU : 'menu'}
 
     constructor(element, width, height){
         this.canvas = new GameCanvas(element, width, height);
@@ -15,10 +15,12 @@ class Game {
         this.state = this.STATE.PAUSE;
         this.canvas.clear();
         this.canvas.print();
+        var image = this.addElement(this.ELEMENT.IMAGE, "src/img/background-grid.svg", 
+        this.canvas.width, this.canvas.height, 0, 0)
+        this.canvas.setBackgroundImage(image);
     }
     draw(drawing){
         if(this.state == this.STATE.PAUSE) return;
-
         this.canvas.clear();
         this.canvas.print();
         drawing();
@@ -47,6 +49,9 @@ class Game {
             case this.ELEMENT.TEXT:
                 element = new TextElement(this.canvas, color, var1, var2, var3, var4);
                 break;
+            case this.ELEMENT.IMAGE:
+                element = new ImageElement(this.canvas, color, var1, var2, var3, var4);
+                break;
         }
         this.elements[element.id+''] = element;
         return element;
@@ -71,6 +76,7 @@ class GameCanvas{
     print(){
         this.context.fillStyle=this.backgroundColor;
         this.context.fillRect(0,0,this.width,this.height);
+        if(this.backgroundImage) this.backgroundImage.print();
     }
     clear(){
         this.context.clearRect(0, 0, this.width, this.height);
@@ -88,6 +94,9 @@ class GameCanvas{
     }
     setBackgroundColor(backgroundColor) {
         this.backgroundColor = backgroundColor;
+    }
+    setBackgroundImage(backgroundImage) {
+        this.backgroundImage = backgroundImage;
     }
 }
 
@@ -109,22 +118,32 @@ class CanvasElement{
         this.angle = 0;
         this.rotate = false;
 
-
-        this.xMovement = true;
-        this.yMovement = true;
-
         this.gravity = 0;
         this.gravitySpeed = 0;
         this.bounce = 0;
 
         this.listeners = {};
+
+        this.sounds = {};
     }
 
     /* Methods */
     move(vector){
         this.gravitySpeed += this.gravity;
-        if(vector == 'x' && this.xMovement) this.x += this.xSpeed;
-        if(vector == 'y' && this.yMovement) this.y += this.ySpeed + this.gravitySpeed;
+        if(vector == 'x') this.x += this.xSpeed;
+        if(vector == 'y') this.y += this.ySpeed + this.gravitySpeed;
+    }
+    addSound(event, track){
+        if(!this.sounds[event+'']) this.sounds[event+''] = new sound(track);
+    }
+    playSound(event){
+        if(!this.sounds[event+'']) this.sounds[event+''].play();
+    }
+    removeSound(event){
+        if(this.sounds[event+'']){
+            this.sounds[event+''] = undefined;
+            delete this.sounds[event+'']; 
+        }
     }
     addListener(event, callback){
         if(!callback){
@@ -153,11 +172,7 @@ class CanvasElement{
             this.setYSpeed(0);
             var number1 = Number(this.gravitySpeed-(this.gravitySpeed * this.bounce)).toFixed(2);
             var number2 = Number(this.gravitySpeed+(this.gravitySpeed * this.bounce)).toFixed(2)
-
-            if(Math.abs(number1 - number2) < 0.02){
-                console.log("STOP");
-                this.xMovement = false;
-            }
+            if(Math.abs(number1 - number2) < 0.02) this.setXSpeed(0);
         }
     }
 
@@ -288,6 +303,36 @@ class TextElement extends CanvasElement{
         this.context.textAlign = this.align; 
         this.context.fillStyle = this.color;
         this.context.fillText(this.text, this.x, this.y);
+    }
+
+    /* Setters */
+    setSize(size) {
+        this.size = size;
+    }    
+    setText(text) {
+        this.text = text;
+    }    
+    setAlign(align) {
+        this.align = align;
+    }    
+    setFont(font) {
+        this.font = font;
+    }
+}
+
+class ImageElement extends CanvasElement{
+
+    constructor(canvas, src, width, height, x, y){
+        super(canvas, src, x, y);
+        this.image = new Image();
+        this.image.src = src;
+        this.width = width;
+        this.height = height;
+    }
+
+    /* Methods */
+    print(){
+        this.context.drawImage(this.image,this.x,this.y,this.width,this.height);
     }
 
     /* Setters */
