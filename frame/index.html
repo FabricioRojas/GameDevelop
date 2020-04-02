@@ -1,31 +1,60 @@
 <canvas id=gc></canvas>
+<button id=stop>Stop</button>
 <script src=main.js></script>
 <script>
 	window.onload=function() {
         var game = new Game("gc", 800, 600);        
-        var circle =  game.addElement(game.ELEMENT.CIRCLE, "red", 5, 22, 33);
-        var circle1 =  game.addElement(game.ELEMENT.CIRCLE, "blue", 5, 22, 43);
-        var rect =  game.addElement(game.ELEMENT.RECT, "red", 10, 50, 50, 60);
+        var circle = game.addElement(game.ELEMENT.CIRCLE, "red", 5, 22, 33);
+        var circle1 = game.addElement(game.ELEMENT.CIRCLE, "blue", 5, 22, 43);
+        var rect = game.addElement(game.ELEMENT.RECT, "red", 10, 50, 50, 60);
+        var rect2 = game.addElement(game.ELEMENT.RECT, "blue", 10, 50, 50, 60);
         var text = game.addElement(game.ELEMENT.TEXT, "yellow", 50, "Hello", 100, 240);
         
+        
+        rect.setGravity(0.1);
+        rect.setBounce(0.5);
+        rect.setYSpeed(20);
+        rect.setXSpeed(2);
+        // rect.setRotate(true);
+
+        // circle1.setGravity(0.1);
+        // circle1.setBounce(0.9);
+        
+
         var drawing = function(){
             rect.print();
+            rect.move('y');
+            rect.move('x');
+            // rect.setAngle(rect.angle+(1 * Math.PI / 180));
+            
+            
+            rect.hitBottom();
+            // circle1.hitBottom();
+            
             text.print();
+            // rect.rotate();
 
             circle.print();
-            circle.move('x');
+            // circle.move('x');
 
             circle1.print();
+            // circle1.move('y');
         }
 
-        circle1.addListener("keydown");
+        // circle1.addListener("keydown");
         // circle.addListener("keydown");
+        // rect.addListener("keydown");        
 
+        var buttonStop = document.getElementById("stop");
+        buttonStop.addEventListener('click', function(){
+            if(game.state == game.STATE.PLAY) game.pause(); 
+            else game.play();
+        } );
 
         game.init();
-        game.play();
+        // game.play();
 
         let gameInterval = setInterval(() => game.draw(drawing), 1000/60);
-        setTimeout(() => game.pause(),5000);        
+        // setTimeout(() => game.pause(),10000);        
 	}
 </script>

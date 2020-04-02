@@ -6,7 +6,6 @@ class Game {
 
     constructor(element, width, height){
         this.canvas = new GameCanvas(element, width, height);
-        // this.canvas = canvas;
         this.elements = {};
         this.init();
     }
@@ -40,13 +39,13 @@ class Game {
         var element;
         switch(type){
             case this.ELEMENT.CIRCLE:
-                element = new CircleElement(this.canvas.context, color, var1, var2, var3);
+                element = new CircleElement(this.canvas, color, var1, var2, var3);
                 break;
             case this.ELEMENT.RECT:
-                element = new RectElement(this.canvas.context, color, var1, var2, var3, var4);
+                element = new RectElement(this.canvas, color, var1, var2, var3, var4);
                 break;
             case this.ELEMENT.TEXT:
-                element = new TextElement(this.canvas.context, color, var1, var2, var3, var4);
+                element = new TextElement(this.canvas, color, var1, var2, var3, var4);
                 break;
         }
         this.elements[element.id+''] = element;
@@ -94,21 +93,38 @@ class GameCanvas{
 
 class CanvasElement{
 
-    constructor(context, color, x, y){
-        this.context = context;
+    constructor(canvas, color, x, y){
+        this.canvas = canvas;
+        this.context = canvas.context;
+        
+        this.id = '_' + Math.random().toString(36).substr(2, 9);
         this.color = color;
         this.x = x ? x : 0;
         this.y = y ? y : 0;
         this.xSpeed = 1;
         this.ySpeed = 1;
-        this.id = '_' + Math.random().toString(36).substr(2, 9);
+        this.width = 0;
+        this.height = 0;
+
+        this.angle = 0;
+        this.rotate = false;
+
+
+        this.xMovement = true;
+        this.yMovement = true;
+
+        this.gravity = 0;
+        this.gravitySpeed = 0;
+        this.bounce = 0;
+
         this.listeners = {};
     }
 
     /* Methods */
     move(vector){
-        if(vector == 'x') this.x += this.xSpeed;
-        if(vector == 'y') this.y += this.ySpeed;
+        this.gravitySpeed += this.gravity;
+        if(vector == 'x' && this.xMovement) this.x += this.xSpeed;
+        if(vector == 'y' && this.yMovement) this.y += this.ySpeed + this.gravitySpeed;
     }
     addListener(event, callback){
         if(!callback){
@@ -128,11 +144,28 @@ class CanvasElement{
         }
     }
 
+    hitBottom() {
+        var elementBottom = this.canvas.height - this.height;
+        if (this.y > elementBottom) {
+          this.y = elementBottom;
+          this.gravitySpeed = -(this.gravitySpeed * this.bounce);
+        }else{
+            this.setYSpeed(0);
+            var number1 = Number(this.gravitySpeed-(this.gravitySpeed * this.bounce)).toFixed(2);
+            var number2 = Number(this.gravitySpeed+(this.gravitySpeed * this.bounce)).toFixed(2)
+
+            if(Math.abs(number1 - number2) < 0.02){
+                console.log("STOP");
+                this.xMovement = false;
+            }
+        }
+    }
+
+    /* Listeners */
     keyDown(evt){
         switch(evt.keyCode) {
             case 37:
                 this.setXSpeed(-10);
-                this.setYSpeed(0);
                 this.move('x');
                 break;
             case 38:
@@ -167,13 +200,30 @@ class CanvasElement{
     setYSpeed(ySpeed) {
         this.ySpeed = ySpeed;
     }
+    setGravity(gravity) {
+        this.gravity = gravity;
+    }
+    setGravitySpeed(gravitySpeed) {
+        this.gravitySpeed = gravitySpeed;
+    }
+    setBounce(bounce) {
+        this.bounce = bounce;
+    }
+    setAngle(angle) {
+        this.angle = angle;
+    }
+    setRotate(rotate) {
+        this.rotate = rotate;
+    }
 }
 
 class CircleElement extends CanvasElement{
 
-    constructor(context, color, radius, x, y){
-        super(context, color, x, y);
+    constructor(canvas, color, radius, x, y){
+        super(canvas, color, x, y);
         this.radius = radius;
+        this.width = radius*2;
+        this.height = radius*2;
     }
 
     /* Methods */
@@ -192,16 +242,25 @@ class CircleElement extends CanvasElement{
 
 class RectElement extends CanvasElement{
 
-    constructor(context, color, width, height, x, y){
-        super(context, color, x, y);
+    constructor(canvas, color, width, height, x, y){
+        super(canvas, color, x, y);
         this.width = width;
         this.height = height;
     }
 
     /* Methods */
     print(){
-        this.context.fillStyle = this.color;
-        this.context.fillRect(this.x, this.y, this.width, this.height); 
+        if(this.rotate){
+            this.context.save();
+            this.context.translate(this.x, this.y);
+            this.context.rotate(this.angle);
+            this.context.fillStyle = this.color;
+            this.context.fillRect(this.width / -2, this.height / -2, this.width, this.height);
+            this.context.restore();
+        }else{
+            this.context.fillStyle = this.color;
+            this.context.fillRect(this.x, this.y, this.width, this.height); 
+        }
     }
 
     /* Setters */
@@ -215,8 +274,8 @@ class RectElement extends CanvasElement{
 
 class TextElement extends CanvasElement{
 
-    constructor(context, color, size, text, x, y){
-        super(context, color, x, y);
+    constructor(canvas, color, size, text, x, y){
+        super(canvas, color, x, y);
         this.size = size;
         this.text = text;
         this.align = "center";
