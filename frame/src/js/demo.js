@@ -60,7 +60,7 @@ window.onload=function() {
     buttonStop.addEventListener('click', function(){
         if(game.state == game.STATE.PLAY) game.pause(); 
         else game.play();
-    } );
-    
+    });
+
     setInterval(() => game.draw(drawing), 1000/60);     
 }

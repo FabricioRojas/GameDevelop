@@ -15,15 +15,17 @@ class Game {
         this.state = this.STATE.PAUSE;
         this.canvas.clear();
         this.canvas.print();
-        var image = this.addElement(this.ELEMENT.IMAGE, "src/img/background-grid.svg", 
+        var image = this.addElement(this.ELEMENT.IMAGE, "../frame/src/img/background-grid.svg", 
         this.canvas.width, this.canvas.height, 0, 0)
         this.canvas.setBackgroundImage(image);
     }
     draw(drawing){
         if(this.state == this.STATE.PAUSE) return;
-        this.canvas.clear();
+        if(this.beforeDraw) this.beforeDraw();
+        if(this.canvas.shouldClear) this.canvas.clear();
         this.canvas.print();
-        drawing();
+        if(drawing) drawing();
+        if(this.afterDraw) this.afterDraw();
     }
     pause(){
         this.state = this.STATE.PAUSE;
@@ -36,6 +38,12 @@ class Game {
     /* Setters */
     setState(state) {
         this.state = state;
+    }
+    setBeforeDraw(beforeDraw) {
+        this.beforeDraw = beforeDraw;
+    }
+    setAfterDraw(afterDraw) {
+        this.afterDraw = afterDraw;
     }
     addElement(type, color, var1, var2, var3, var4) {
         var element;
@@ -64,6 +72,7 @@ class GameCanvas{
     constructor(element, width, height){
         this.canvas = document.getElementById(element);
         this.backgroundColor = "black";
+        this.shouldClear = true;
         this.width = width;
         this.height = height;
         this.canvas.width = this.width;
@@ -98,6 +107,9 @@ class GameCanvas{
     setBackgroundImage(backgroundImage) {
         this.backgroundImage = backgroundImage;
     }
+    setShouldClear(shouldClear) {
+        this.shouldClear = shouldClear;
+    }
 }
 
 class CanvasElement{
@@ -125,13 +137,28 @@ class CanvasElement{
         this.listeners = {};
 
         this.sounds = {};
+
+        this.infiniteMoveX = false;
+        this.infiniteMoveY = false;
     }
 
     /* Methods */
     move(vector){
         this.gravitySpeed += this.gravity;
-        if(vector == 'x') this.x += this.xSpeed;
-        if(vector == 'y') this.y += this.ySpeed + this.gravitySpeed;
+        if(vector == 'x'){
+            if(this.infiniteMoveX){
+                if(this.x<0) this.x=this.canvas.width-1;
+                if(this.x>this.canvas.width-1) this.x=0;
+            }
+            this.x += this.xSpeed;
+        }
+        if(vector == 'y'){
+            if(this.infiniteMoveY){
+                if(this.y<0) this.y=this.canvas.height-1;
+                if(this.y>this.canvas.height-1) this.y=0;
+            }
+            this.y += this.ySpeed + this.gravitySpeed;
+        }
     }
     addSound(event, track){
         if(!this.sounds[event+'']) this.sounds[event+''] = new sound(track);
@@ -162,7 +189,6 @@ class CanvasElement{
             delete this.listeners[event+'']; 
         }
     }
-
     hitBottom() {
         var elementBottom = this.canvas.height - this.height;
         if (this.y > elementBottom) {
@@ -229,6 +255,12 @@ class CanvasElement{
     }
     setRotate(rotate) {
         this.rotate = rotate;
+    }
+    setInfiniteMoveX(infiniteMoveX) {
+        this.infiniteMoveX = infiniteMoveX;
+    }
+    setInfiniteMoveY(infiniteMoveY) {
+        this.infiniteMoveY = infiniteMoveY;
     }
 }
 
