@@ -1,5 +1,6 @@
 window.onload=function() {
-    var game = new Game("gc", 800, 600);        
+    var game = new Game("gc", 800, 600);
+    
     var circle1 = game.addElement(game.ELEMENT.CIRCLE, "red", 5, 22, 33);
     var circle2 = game.addElement(game.ELEMENT.CIRCLE, "blue", 5, 22, 43);
     var circle3 = game.addElement(game.ELEMENT.CIRCLE, "orange", 5, 12, 43);
@@ -11,6 +12,7 @@ window.onload=function() {
     40, 40, 100, 160);
     
     game.canvas.setBackgroundColor("white");
+    game.control.setStep(10);
 
     rect1.setGravity(0.1);
     rect1.setBounce(0.5);
@@ -26,7 +28,7 @@ window.onload=function() {
     circle2.setGravity(0.1);
 
     circle3.setGravity(0.1);
-    
+
     var drawing = function(){
         image.print();
         text.print();
@@ -40,6 +42,8 @@ window.onload=function() {
         rect2.setAngle(rect2.angle+(1 * Math.PI / 180));
 
         rect3.print();
+        rect3.x += game.control.x;
+        rect3.y += game.control.y;
 
         circle1.print();
         circle1.move('x');
@@ -53,8 +57,7 @@ window.onload=function() {
         circle3.hitBottom();
     }
     
-    rect3.addListener("keydown");       
-    game.init(); 
+    // rect3.addListener("keydown");       
 
     var buttonStop = document.getElementById("stop");
     buttonStop.addEventListener('click', function(){
