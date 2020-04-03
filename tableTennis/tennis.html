@@ -1,0 +1,208 @@
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	</head>
+	<body>
+		<!-- <img id="scream" src="img_the_scream.jpg" alt="The Scream" width="220" height="277"> -->
+		<canvas style="width: 100%;" id=gameCanvas width=800 height=600></canvas><br>
+		<script>
+			var canvas;
+			var canvasContext;
+
+			var fps = 1000/60;
+
+			var ballWidth = 12;
+			var ballHeight = 12;
+			var ballSpeedX = 3;
+			var randm = Math.random() * 1.5;
+			var ballSpeedY = Math.floor((Math.random() * 2)) ? randm : -randm;
+			var ballX = 50;
+			var ballY = 50;
+			var reflectionSpeed = 0.1;
+
+			var paddle1Width = 10;
+			var paddle1Height = 100;
+			var paddle1X = 15;
+			var paddle1Y = 50;
+
+			var paddle2Width = paddle1Width;
+			var paddle2Height = paddle1Height;
+			var paddle2X;
+			var paddle2Y = 40;
+
+			var score1 = 0;
+			var score1X = 150
+			var score1Y = 80;
+
+			var score2 = score1;
+			var score2X;
+			var score2Y = score1Y;
+			var winningScore = 10;
+
+			var showingWinScreen = true;
+
+			var intervaloLoco;
+			
+			var img = document.getElementById("scream");
+
+
+			$(document).on('touchmove', '#gameCanvas', function(e){
+				var yPos = e.originalEvent.touches[0].pageY;
+				paddle1Y = yPos
+				return false;
+			});
+
+			window.onload = function(){
+				canvas = document.getElementById('gameCanvas');
+				canvasContext = canvas.getContext('2d');
+				paddle2X = canvas.width-paddle1Width*2;
+				score2X = canvas.width - score1X;
+				ballX = canvas.width/2;
+				ballY = canvas.height/2;
+				setInterval(start, fps);
+				document.addEventListener("keydown", keyPush);
+				canvas.addEventListener('click', handlemouseClick);
+				canvas.addEventListener('mousemove', 
+					function(e){
+						var mousePos = getMousePosition(e);
+						paddle1Y = mousePos.y;
+					}
+				);
+			}
+
+			function handlemouseClick(){
+				if(showingWinScreen){
+					score1 = 0;
+					score2 = 0;
+					ballX = canvas.width/2;
+					ballY = canvas.height/2;
+					showingWinScreen = false;
+				}
+			}
+
+			function start(){
+				if(showingWinScreen){
+					// canvasContext.drawImage(img,canvas.width,canvas.height);
+					colorRect(0, 0, canvas.width, canvas.height, 'black');
+					if(score1 == winningScore) setText(canvas.width/2, canvas.height/2, "Player 1 wins",'white', 30);
+					else if(score2 == winningScore)setText(canvas.width/2, canvas.height/2, "Player 2 wins",'white', 30);
+					else setText(canvas.width/2, canvas.height/2, "Ready?",'white', 30);
+					setText(canvas.width/2, canvas.height/2+50, "Click to start",'white', 15);
+					return;
+				}else{
+					draw();
+					move();
+				};
+			}
+
+			function draw(){
+				move();		
+				
+				// canvasContext.drawImage(img,canvas.width,canvas.height);
+				colorRect(0, 0, canvas.width, canvas.height, 'black');
+				colorCirc(ballX, ballY, ballHeight/2, 'white');
+				colorRect(paddle1X, paddle1Y, paddle1Width, paddle1Height, 'white');
+				colorRect(paddle2X, paddle2Y, paddle2Width, paddle2Height, 'white');
+				setText(score1X, score1Y, score1,'white', 15);
+				setText(score2X, score2Y, score2,'white', 15);
+			}
+
+			function move(){
+				computerMovement();
+				
+				ballX += ballSpeedX;
+				ballY += ballSpeedY;
+					
+				//left side
+				if(isPaddle() == 2){
+					ballSpeedX = -ballSpeedX;
+					var deltaY = ballY - (paddle1Y + paddle1Height/2);
+					ballSpeedY = deltaY * 0.1;
+				}else if(ballX >= (canvas.width)){
+					score1 ++;
+					ballReset();
+				}
+
+				//right side
+				if(isPaddle() == 1){
+					ballSpeedX = -ballSpeedX;
+					var deltaY = ballY - (paddle2Y + paddle2Height/2);
+					ballSpeedY = deltaY * 0.1;
+				}else if(ballX <= 0){
+					score2 ++;
+					ballReset();
+				}
+				
+				//up
+				if(ballY < 0) ballSpeedY = -ballSpeedY;
+				
+				//down
+				if(ballY > canvas.height) ballSpeedY = -ballSpeedY;	
+			}
+
+			function ballReset(){
+				if(score1 >= winningScore || score2 >= winningScore) showingWinScreen = true;
+				
+				ballX = canvas.width/2;
+				ballY = canvas.height/2;
+				//ballSpeedX = -ballSpeedX;
+				var randNum = Math.random() * 1.5;
+				ballSpeedY = Math.floor((Math.random() * 2)) ? randNum : -randNum;
+			}
+
+			function isPaddle(){
+				var a = paddle1Y + paddle1Height;
+				var b = paddle2Y + paddle2Height;
+				
+				if(ballX >= paddle2X && (ballY < b && ballY > paddle2Y)) return 1;
+				else if(ballX <= paddle1X+ballWidth && (ballY < a && ballY > paddle1Y)) return 2;
+				else return false;
+			}
+
+			function getMousePosition(e){
+				var rect = canvas.getBoundingClientRect();
+				var root = document.documentElement;
+				var mouseX = e.clientX - rect.left - root.scrollLeft;
+				var mouseY = e.clientY - rect.top - root.scrollTop - paddle1Height/2;
+				return { x:mouseX, y:mouseY}
+			}
+
+			function computerMovement(){
+				var paddle2Center = paddle2Y + paddle2Height/2
+
+				if(paddle2Center < ballY - 35) paddle2Y += 4;
+				else if(paddle2Center > ballY + 35)paddle2Y -= 4;
+			}
+
+			function keyPush(evt) {
+				switch(evt.keyCode) {
+					case 38:
+						paddle2Y -= 30;
+						break;
+					case 40:
+						paddle2Y += 30;
+						break;
+				}
+			}
+
+			function colorCirc(x, y, radius, color){
+				canvasContext.fillStyle = color;
+				canvasContext.beginPath();
+				canvasContext.arc(x, y, radius, 0, Math.PI*2, true);
+				canvasContext.fill(); 
+			}
+
+			function colorRect(x, y, width, height, color){
+				canvasContext.fillStyle = color;
+				canvasContext.fillRect(x, y, width, height); 
+			}
+
+			function setText(x, y, text, color, size){
+				canvasContext.font = size + "px Verdana";
+				canvasContext.textAlign = "center"; 
+				canvasContext.fillStyle = color;
+				canvasContext.fillText(text, x, y) 
+			}
+		</script>
+	</body>
+</html>
