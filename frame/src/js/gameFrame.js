@@ -96,6 +96,7 @@ class GameUI {
             'gravity',
             'gravitySpeed',
             'bounce',
+            'isSolid',
 
             
             'radius',
@@ -300,6 +301,8 @@ class CanvasElement{
         this.canvas = canvas;
         this.context = canvas.context;
 
+        this.isSolid = false;
+
         this.type = type;
         this.ui = ui;
         
@@ -450,6 +453,9 @@ class CanvasElement{
     }
     setInfiniteMoveY(infiniteMoveY) {
         this.infiniteMoveY = infiniteMoveY;
+    }
+    setIsSolid(isSolid) {
+        this.isSolid = isSolid;
     }
 }
 

@@ -15,27 +15,24 @@
 
             var paddle = game.addElement(game.ELEMENT.RECT, "white", 100, 10, 350, 550);
             var ball = game.addElement(game.ELEMENT.RECT, "white", 10, 10, 395, 540);
+           
+            paddle.addListener("keydown", keydown);
+            paddle.setIsSolid(true);
+           
             ball.setXSpeed(0);
             ball.setYSpeed(0);
+            ball.setIsSolid(true);
             
-            paddle.addListener("keydown", keydown);
-
+            var gameStarted = false;
             var brickWidth = 80;
             var brickHeight = 30;
-            var bricks = [
-                {x:60,y:70},{x:160,y:70},{x:260,y:70},{x:360,y:70},{x:460,y:70},{x:560,y:70},{x:660,y:70},
-                {x:110,y:120},{x:210,y:120},{x:310,y:120},{x:410,y:120},{x:510,y:120},{x:610,y:120},
-                {x:60,y:170},{x:160,y:170},{x:260,y:170},{x:360,y:170},{x:460,y:170},{x:560,y:170},{x:660,y:170},
-                {x:110,y:220},{x:210,y:220},{x:310,y:220},{x:410,y:220},{x:510,y:220},{x:610,y:220},
-                // {x:60,y:270},{x:160,y:270},{x:260,y:270},{x:360,y:270},{x:460,y:270},{x:560,y:270},{x:660,y:270},
-            ];
+            var bricks = [];
             
-            // var brick1 = game.addElement(game.ELEMENT.RECT, "white", brickWidth, brickHeight, 250, 320);
-
+            generateBlocks(4, 7, 20, brickWidth, brickHeight);
 			var drawing = function(){
                 ball.print();
                 paddle.print();
-                // brick1.print();
+                
                 ball.move('x');
                 ball.move('y');
 
@@ -49,8 +46,28 @@
             };
 
             function moveBall(){
+                if(gameStarted) return;
                 ball.setXSpeed(2);
                 ball.setYSpeed(-2);
+                gameStarted = true;
+            }
+
+            function generateBlocks(rows, columns, separation, brickWidth, brickHeight){
+                bricks = [];
+                var bricksSize = ((brickWidth+separation)*columns)-separation;
+                var bricksStart = (game.canvas.width-bricksSize)/2;
+                var yStart = 70;
+
+                var bricksX = bricksStart;
+                for(var i=0;i<rows; i++){
+                    
+                    for(var j=0;j<columns; j++){
+                        bricks.push({x:bricksX, y:yStart})
+                        bricksX += brickWidth+separation;
+                    }
+                    bricksX = bricksStart;
+                    yStart += brickHeight+separation;
+                }
             }
             
 
