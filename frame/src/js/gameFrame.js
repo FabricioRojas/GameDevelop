@@ -67,6 +67,15 @@ class Game {
         this.elements[element.id+''] = element;
         return element;
     }
+    removeElement(element){
+        if(this.elements[element.id+'']){
+            console.log(">>",Object.keys(this.elements).length);
+            this.elements[element.id+''] = undefined;
+            delete this.elements[element.id+'']; 
+            console.log(">>",Object.keys(this.elements).length);
+            this.ui.removeElement(element);
+        }
+    }
 }
 
 class GameUI {
@@ -168,6 +177,9 @@ class GameUI {
                 else ulElementR.appendChild(liElement);
             }
         }
+    }
+    removeElement(element){
+        document.getElementById('elementUl-'+element.id+'-L').parentNode.parentNode.remove();
     }
 }
 

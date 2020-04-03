@@ -57,7 +57,7 @@ window.onload=function() {
         circle3.hitBottom();
     }
     
-    // rect3.addListener("keydown");       
+    rect3.addListener("keydown");       
 
     var buttonStop = document.getElementById("stop");
     buttonStop.addEventListener('click', function(){

@@ -1,0 +1,71 @@
+<html>
+	<head>
+        <link rel="shortcut icon" type="image/png" href="../frame/src/img/game-development.png"/>
+	</head>
+	<body>
+		<canvas id=gc></canvas>
+		<button id=stop>Play/Pause</button>
+        <script src=../frame/src/js/gameFrame.js></script>
+        <link rel=stylesheet href=../frame/src/css/main.css charset="utf-8">
+		<script>
+			var game = new Game("gc", 800, 600);
+			setInterval(() => game.draw(drawing), 1000/30); 
+			var square = 10;
+			var apple = game.addElement(game.ELEMENT.RECT, "red", square, square, 600, 270);
+			var snakeHead = game.addElement(game.ELEMENT.RECT, "green", square, square, 50, 60);
+			var snakeTail = 5;
+			var snakeTrail = [];	
+			snakeHead.addListener("keydown", keyPress);
+			snakeHead.setInfiniteMoveX(true);
+			snakeHead.setInfiniteMoveY(true);	
+			snakeHead.setXSpeed(0);
+			snakeHead.setYSpeed(0);	
+			var drawing = function(){
+				snakeHead.move('x');
+				snakeHead.move('y');
+				snakeHead.print();
+				game.canvas.context.fillStyle = "green";
+				for(var i in snakeTrail){
+					game.canvas.context.fillRect(snakeTrail[i].x, snakeTrail[i].y, square,square)
+				}
+				snakeTrail.push({x:snakeHead.x,y:snakeHead.y});
+				if(snakeTrail.length > snakeTail) snakeTrail.shift();
+				if((snakeHead.x==apple.x) && (snakeHead.y>=apple.y && snakeHead.y <(apple.y+square))){
+					apple.setX(rand(game.canvas.width-square, square));
+					apple.setY(rand(game.canvas.height-square, square));
+					snakeTail++;
+				}
+				apple.print();
+			};
+			function rand(maxNum, factorial) { 
+				return Math.floor(Math.floor(Math.random() * (maxNum + factorial)) / factorial) * factorial; 
+			};
+			/* Custom listeners */
+			var buttonStop = document.getElementById("stop");
+			buttonStop.addEventListener('click', function(){
+				if(game.state == game.STATE.PLAY) game.pause(); 
+				else game.play();
+			});
+			function keyPress(evt){
+				switch(evt.keyCode) {
+					case game.KEY.LEFT:
+						snakeHead.setXSpeed(-square);
+						snakeHead.setYSpeed(0);
+						break;
+					case game.KEY.UP:
+						snakeHead.setXSpeed(0);
+						snakeHead.setYSpeed(-square);
+						break;
+					case game.KEY.RIGHT:
+						snakeHead.setXSpeed(square);
+						snakeHead.setYSpeed(0);
+						break;
+					case game.KEY.DOWN:
+						snakeHead.setXSpeed(0);
+						snakeHead.setYSpeed(square);
+						break;
+				}
+			}
+		</script>
+	</body>
+</html>
