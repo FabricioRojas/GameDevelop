@@ -20,6 +20,12 @@ class Game {
         var image = this.addElement(this.ELEMENT.IMAGE, "../frame/src/img/background-grid.svg", 
         this.canvas.width, this.canvas.height, 0, 0)
         this.canvas.setBackgroundImage(image);
+
+        var buttonStop = document.getElementById("ui-stop");
+		buttonStop.addEventListener('click', () => {
+			if(this.state == this.STATE.PLAY) this.pause(); 
+			else this.play();
+		});
     }
     draw(drawing){
         if(this.state == this.STATE.PAUSE) return;
@@ -69,10 +75,8 @@ class Game {
     }
     removeElement(element){
         if(this.elements[element.id+'']){
-            console.log(">>",Object.keys(this.elements).length);
             this.elements[element.id+''] = undefined;
-            delete this.elements[element.id+'']; 
-            console.log(">>",Object.keys(this.elements).length);
+            delete this.elements[element.id+''];
             this.ui.removeElement(element);
         }
     }
@@ -108,10 +112,19 @@ class GameUI {
     }
 
     init(){        
-        console.log("GameUI");
         this.rightPanel = document.createElement('div');
-        this.rightPanel.id='rightpanel'
-        this.rightPanel.innerHTML = 'Development Panel'; 
+        this.rightPanel.id='rightpanel';
+
+        var h2Title = document.createElement('h2');
+        h2Title.innerHTML = 'Development Panel'; 
+
+        var button = document.createElement('button');
+        button.id = 'ui-stop';
+        button.innerText = 'Play/Pause';
+
+        this.rightPanel.appendChild(h2Title);
+        this.rightPanel.appendChild(button);
+
         this.canvas.parentNode.insertBefore(this.rightPanel, this.canvas.nextSibling);
         this.addElement('ul',"test");
     }

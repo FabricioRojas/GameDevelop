@@ -4,7 +4,6 @@
 	</head>
 	<body>
 		<canvas id=gc></canvas>
-		<button id=stop>Play/Pause</button>
         <script src=../frame/src/js/gameFrame.js></script>
         <link rel=stylesheet href=../frame/src/css/main.css charset="utf-8">
 		<script>
@@ -41,11 +40,6 @@
 				return Math.floor(Math.floor(Math.random() * (maxNum + factorial)) / factorial) * factorial; 
 			};
 			/* Custom listeners */
-			var buttonStop = document.getElementById("stop");
-			buttonStop.addEventListener('click', function(){
-				if(game.state == game.STATE.PLAY) game.pause(); 
-				else game.play();
-			});
 			function keyPress(evt){
 				switch(evt.keyCode) {
 					case game.KEY.LEFT:

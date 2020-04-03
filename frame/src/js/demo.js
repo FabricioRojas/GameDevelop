@@ -23,6 +23,8 @@ window.onload=function() {
 
     rect3.setXSpeed(20);
     rect3.setYSpeed(20);
+    
+    circle1.setInfiniteMoveX(true);
 
     circle2.setBounce(0.9);    
     circle2.setGravity(0.1);
@@ -57,13 +59,6 @@ window.onload=function() {
         circle3.hitBottom();
     }
     
-    rect3.addListener("keydown");       
-
-    var buttonStop = document.getElementById("stop");
-    buttonStop.addEventListener('click', function(){
-        if(game.state == game.STATE.PLAY) game.pause(); 
-        else game.play();
-    });
-
+    rect3.addListener("keydown");
     setInterval(() => game.draw(drawing), 1000/60);     
 }
