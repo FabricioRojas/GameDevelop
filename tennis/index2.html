@@ -41,9 +41,9 @@
 					clickMessage.print();
 					return;
 				}else{				
-					paddle2.y += game.control.y;
 					ball.move('x');
 					ball.move('y');
+					paddle2.y += game.control.y;
 
 					if(isPaddle() == 2){
 						ball.setXSpeed(-ball.xSpeed);
@@ -78,20 +78,23 @@
 			function isPaddle(){
 				var a = paddle1.y + paddle1.height;
 				var b = paddle2.y + paddle2.height;
-				
 				if(ball.x >= paddle2.x && (ball.y < b && ball.y > paddle2.y)) return 1;
 				else if(ball.x <= paddle1.x+ball.width && (ball.y < a && ball.y > paddle1.y)) return 2;
 				else return false;
 			}			
 			function ballReset(){
 				if(score1Val >= winningScore || score2Val >= winningScore) showingWinScreen = true;
-				
 				ball.setX(game.canvas.width/2-(ball.width/2));
 				ball.setY(game.canvas.height/2-(ball.width/2));
-				//ballSpeedX = -ballSpeedX;
 				var randNum = Math.random() * 1.5;
 				ballSpeedY = Math.floor((Math.random() * 2)) ? randNum : -randNum;
 			}
+			
+			/* Custom Listeners */
+			game.canvas.canvas.addEventListener('click', handlemouseClick);
+			game.canvas.canvas.addEventListener('mousemove',function(e){
+				var mousePos = getMousePosition(e);paddle1.y = mousePos.y;
+			});
 			function handlemouseClick(){
 				if(showingWinScreen){
 					score1Val = 0,score2Val = 0;
@@ -102,31 +105,12 @@
 					showingWinScreen = false;
 				}
 			}
-			/* Custom Listeners */
-			// document.addEventListener("keydown", keyPush);
-			game.canvas.canvas.addEventListener('click', handlemouseClick);
-			game.canvas.canvas.addEventListener('mousemove', 
-				function(e){
-					var mousePos = getMousePosition(e);
-					paddle1.y = mousePos.y;
-				}
-			);
 			function getMousePosition(e){
 				var rect = game.canvas.canvas.getBoundingClientRect();
 				var root = document.documentElement;
 				var mouseX = e.clientX - rect.left - root.scrollLeft;
 				var mouseY = e.clientY - rect.top - root.scrollTop - paddle1.height/2;
 				return { x:mouseX, y:mouseY}
-			}
-			function keyPush(evt) {
-				switch(evt.keyCode) {
-					case game.KEY.UP:
-						paddle2.y -= 30;
-						break;
-					case game.KEY.DOWN:
-						paddle2.y += 30;
-						break;
-				}
 			}
 		</script>
     </body>
