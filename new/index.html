@@ -9,11 +9,16 @@
         <script>
             var game = new Game("gc", 800, 600);
             game.control.setStep(10);
+            game.canvas.setSolidBorders(true);
 			setInterval(() => game.draw(drawing), 1000/60);
 
             var paddle = game.addElement(game.ELEMENT.RECT, "white", 100, 10, 350, 550);
             var ball = game.addElement(game.ELEMENT.RECT, "white", 10, 10, 395, 540);
+            ball.setXSpeed(0);
+            ball.setYSpeed(0);
             
+            paddle.addListener("keydown", keydown);
+
             var brickWidth = 80;
             var brickHeight = 30;
             var bricks = [
@@ -30,6 +35,9 @@
                 ball.print();
                 paddle.print();
                 // brick1.print();
+                ball.move('x');
+                ball.move('y');
+
                 paddle.x += game.control.x;
 
                 game.canvas.context.fillStyle="white";
@@ -37,10 +45,18 @@
                     var brick=bricks[i];
                     game.canvas.context.fillRect(brick.x,brick.y,brickWidth,brickHeight);
                 }
-			};
+            };
+
+            function moveBall(){
+                ball.setXSpeed(2);
+                ball.setYSpeed(-2);
+            }
+            
 
 			/* Custom listeners */
-			
+			function keydown(){
+                moveBall();
+            }
 		</script>
     </body>
 </html>

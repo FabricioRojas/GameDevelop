@@ -247,6 +247,7 @@ class GameCanvas{
         this.canvas = document.getElementById(element);
         this.backgroundColor = "black";
         this.shouldClear = true;
+        this.solidBorders = false;
         this.width = width;
         this.height = height;
         this.canvas.width = this.width;
@@ -283,6 +284,9 @@ class GameCanvas{
     }
     setShouldClear(shouldClear) {
         this.shouldClear = shouldClear;
+    }
+    setSolidBorders(solidBorders) {
+        this.solidBorders = solidBorders;
     }
 }
 
@@ -326,6 +330,8 @@ class CanvasElement{
             if(this.infiniteMoveX){
                 if(this.x<0) this.x=this.canvas.width-1;
                 if(this.x>this.canvas.width-1) this.x=0;
+            }else if(this.canvas.setSolidBorders && (this.x<0 || this.x>this.canvas.width-1)){
+                this.xSpeed *= -1;
             }
             this.x += this.xSpeed;
         }
@@ -333,6 +339,8 @@ class CanvasElement{
             if(this.infiniteMoveY){
                 if(this.y<0) this.y=this.canvas.height-1;
                 if(this.y>this.canvas.height-1) this.y=0;
+            }else if(this.canvas.setSolidBorders && (this.y<0 || this.y>this.canvas.height-1)){
+                this.ySpeed *= -1;
             }
             this.y += this.ySpeed + this.gravitySpeed;
         }
