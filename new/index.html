@@ -1,0 +1,46 @@
+<html>
+	<head>
+        <link rel="shortcut icon" type="image/png" href="../frame/src/img/game-development.png"/>
+	</head>
+	<body>
+		<canvas id=gc></canvas>
+        <script src=../frame/src/js/gameFrame.js></script>
+        <link rel=stylesheet href=../frame/src/css/main.css charset="utf-8">
+        <script>
+            var game = new Game("gc", 800, 600);
+            game.control.setStep(10);
+			setInterval(() => game.draw(drawing), 1000/60);
+
+            var paddle = game.addElement(game.ELEMENT.RECT, "white", 100, 10, 350, 550);
+            var ball = game.addElement(game.ELEMENT.RECT, "white", 10, 10, 395, 540);
+            
+            var brickWidth = 80;
+            var brickHeight = 30;
+            var bricks = [
+                {x:60,y:70},{x:160,y:70},{x:260,y:70},{x:360,y:70},{x:460,y:70},{x:560,y:70},{x:660,y:70},
+                {x:110,y:120},{x:210,y:120},{x:310,y:120},{x:410,y:120},{x:510,y:120},{x:610,y:120},
+                {x:60,y:170},{x:160,y:170},{x:260,y:170},{x:360,y:170},{x:460,y:170},{x:560,y:170},{x:660,y:170},
+                {x:110,y:220},{x:210,y:220},{x:310,y:220},{x:410,y:220},{x:510,y:220},{x:610,y:220},
+                // {x:60,y:270},{x:160,y:270},{x:260,y:270},{x:360,y:270},{x:460,y:270},{x:560,y:270},{x:660,y:270},
+            ];
+            
+            // var brick1 = game.addElement(game.ELEMENT.RECT, "white", brickWidth, brickHeight, 250, 320);
+
+			var drawing = function(){
+                ball.print();
+                paddle.print();
+                // brick1.print();
+                paddle.x += game.control.x;
+
+                game.canvas.context.fillStyle="white";
+                for(var i in bricks){
+                    var brick=bricks[i];
+                    game.canvas.context.fillRect(brick.x,brick.y,brickWidth,brickHeight);
+                }
+			};
+
+			/* Custom listeners */
+			
+		</script>
+    </body>
+</html>
