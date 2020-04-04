@@ -17,14 +17,17 @@
             var brickWidth = 80;
             var brickHeight = 30;
             var bricks = [];
-            var ballSpeed = 10;
+            var lives = 3;
+            var ballSpeed = 5;
             
             generateBlocks(4, 7, 20, brickWidth, brickHeight);
 
             var paddle = game.addElement(game.ELEMENT.RECT, "white", 100, 10, 350, 550);
             var ball = game.addElement(game.ELEMENT.RECT, "white", 10, 10, 395, 540);
             var brickCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, bricks.length, 760, 50);
+            var livesCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, lives, 30, 50);
             var winText = game.addElement(game.ELEMENT.TEXT, "white", 50,"Stage cleared!", 300, 300);
+            var loseText = game.addElement(game.ELEMENT.TEXT, "white", 50,"You lose!", 300, 300);
            
             paddle.addListener("keydown", keydown);
             paddle.setIsSolid(true);
@@ -33,17 +36,17 @@
             ball.setYSpeed(0);
             ball.setIsSolid(true);
             
-            
-            
 			var drawing = function(){
                 ball.print();
                 paddle.print();
                 brickCounter.print();
-                
+                livesCounter.print();
                 
                 ball.move('x');
                 ball.move('y');
                 paddle.x += game.control.x;
+
+                hitBottom();
                 
                 ballPaddleCollision(ball.collide(paddle));
                 for(var i in bricks){
@@ -59,12 +62,35 @@
                 game.removeElement(brick);
                 brickCounter.setText(bricks.length);
                 brickCounter.print();
-                if(bricks.length == 0){
-                    win();
-                }
-
+                if(bricks.length == 0) win();
+                
                 // TODO: Improve brick collision
                 ball.setYSpeed(ball.ySpeed*-1);
+            }
+            
+            function hitBottom(){
+                
+                if(ball.y < game.canvas.height - ball.height) return;
+
+                lives--;
+                livesCounter.setText(lives);
+                livesCounter.print();
+                ball.setXSpeed(0);
+                ball.setYSpeed(0);
+                ball.setX(395);
+                ball.setY(540);
+                paddle.setX(350);
+                paddle.setY(550);
+                gameStarted = false;
+
+                if(lives == 0) lose();
+            }
+
+            function lose(){
+                game.canvas.clear();
+                game.canvas.print();
+                loseText.print();
+                game.pause();
             }
 
             function win(){
