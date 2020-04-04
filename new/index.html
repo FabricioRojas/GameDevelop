@@ -36,6 +36,8 @@
                 ball.move('x');
                 ball.move('y');
 
+                ballPaddleCollision(ball.collide(paddle));
+
                 paddle.x += game.control.x;
 
                 game.canvas.context.fillStyle="white";
@@ -44,6 +46,13 @@
                     game.canvas.context.fillRect(brick.x,brick.y,brickWidth,brickHeight);
                 }
             };
+
+            function ballPaddleCollision(collided){
+                if(!collided || !gameStarted) return;
+
+                ball.setYSpeed(-2);
+
+            }
 
             function moveBall(){
                 if(gameStarted) return;

@@ -393,6 +393,16 @@ class CanvasElement{
             if(Math.abs(number1 - number2) < 0.02) this.setXSpeed(0);
         }
     }
+    collide = function(otherobj) {
+        var crash = true;
+        if (((this.y + (this.height)) < otherobj.y) ||
+        (this.y > (otherobj.y + (otherobj.height))) ||
+        ((this.x + (this.width)) < otherobj.x) ||
+        (this.x > (otherobj.x + (otherobj.width)))) {
+          crash = false;
+        }
+        return crash;
+    }
 
     /* Listeners */
     keyDown(evt){
