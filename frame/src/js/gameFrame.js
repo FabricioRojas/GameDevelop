@@ -23,8 +23,7 @@ class Game {
 
         var buttonStop = document.getElementById("ui-stop");
 		buttonStop.addEventListener('click', () => {
-			if(this.state == this.STATE.PLAY) this.pause(); 
-			else this.play();
+			this.toglePlayState();
 		});
     }
     draw(drawing){
@@ -40,6 +39,10 @@ class Game {
     }
     play(){
         this.state = this.STATE.PLAY;
+    }
+    toglePlayState(){
+        if(this.state == this.STATE.PLAY) this.pause(); 
+        else this.play();
     }
 
 
@@ -353,10 +356,29 @@ class CanvasElement{
         }
     }
     addSound(event, track){
-        if(!this.sounds[event+'']) this.sounds[event+''] = new sound(track);
+        if(!this.sounds[event+'']) this.sounds[event+''] = new Audio(track);
+    }
+    setSoundVolume(event, volume){
+        if(this.sounds[event+'']) this.sounds[event+''].volume = volume;
+    }
+    setSoundLoop(event, loop){
+        if(this.sounds[event+'']) this.sounds[event+''].loop = loop;
+    }
+    setSoundDuration(event, duration){
+        if(this.sounds[event+'']) this.sounds[event+''].timeOut = duration;
     }
     playSound(event){
-        if(!this.sounds[event+'']) this.sounds[event+''].play();
+        if(this.sounds[event+'']){
+            this.sounds[event+''].play();
+            if(this.sounds[event+''].timeOut)
+            setTimeout(() => {
+                this.sounds[event+''].pause();
+                this.sounds[event+''].load();
+            }, this.sounds[event+''].timeOut*1000);
+        } 
+    }
+    pauseSound(event){
+        if(this.sounds[event+'']) this.sounds[event+''].pause();
     }
     removeSound(event){
         if(this.sounds[event+'']){

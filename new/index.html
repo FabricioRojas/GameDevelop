@@ -18,24 +18,38 @@
             var brickHeight = 30;
             var bricks = [];
             var lives = 3;
-            var ballSpeed = 5;
+            const BALLSPEDD = 3;
+            const BALLSPEDDLIMIT = BALLSPEDD+4;
+            var ballSpeed = BALLSPEDD;
             
             generateBlocks(4, 7, 20, brickWidth, brickHeight);
 
             var paddle = game.addElement(game.ELEMENT.RECT, "white", 100, 10, 350, 550);
-            var ball = game.addElement(game.ELEMENT.RECT, "white", 10, 10, 395, 540);
+            var ball = game.addElement(game.ELEMENT.CIRCLE, "white", 5, 395, 540);
+            // var ball = game.addElement(game.ELEMENT.RECT, "white", 10, 10, 395, 540);
             var brickCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, bricks.length, 760, 50);
             var livesCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, lives, 30, 50);
             var winText = game.addElement(game.ELEMENT.TEXT, "white", 50,"Stage cleared!", 300, 300);
             var loseText = game.addElement(game.ELEMENT.TEXT, "white", 50,"You lose!", 300, 300);
            
+            winText.addSound('win','wining.mp3');
+            loseText.addSound('lose','losing.mp3');
+
             paddle.addListener("keydown", keydown);
             paddle.setIsSolid(true);
            
             ball.setXSpeed(0);
             ball.setYSpeed(0);
             ball.setIsSolid(true);
-            
+            ball.addSound('hit_wall','ball_hit_2.mp3');
+            ball.setSoundDuration('hit_wall',0.1);
+            ball.addSound('hit_paddle','ball_hit.mp3');
+            // ball.setSoundDuration('hit_paddle',0.2);
+            ball.addSound('ball_fall','ball_fall.mp3');
+            ball.setSoundDuration('ball_fall',0.5);
+            ball.addSound('background','background.mp3');
+            ball.setSoundVolume('background',0.1);
+
 			var drawing = function(){
                 ball.print();
                 paddle.print();
@@ -43,21 +57,95 @@
                 livesCounter.print();
                 
                 ball.move('x');
+                if(game.canvas.solidBordersX && (ball.x<0 || ball.x>game.canvas.width-1)){
+                    ball.playSound('hit_wall');
+                }
                 ball.move('y');
+                if(game.canvas.solidBordersY && (ball.y<0 || ball.y>game.canvas.height-1)){
+                    ball.playSound('hit_wall');
+                }
                 paddle.x += game.control.x;
+
+                
 
                 hitBottom();
                 
                 ballPaddleCollision(ball.collide(paddle));
                 for(var i in bricks){
-                    bricks[i].print();
                     ballBrickCollision(ball.collide(bricks[i]),bricks[i], i);
+                    if(bricks[i]) bricks[i].print();
                 }
             };
+
+            
+            function hitBottom(){
+                
+                if(ball.y < game.canvas.height - ball.height) return;
+                ball.pauseSound('background');
+                ball.playSound('ball_fall');
+                lives--;
+                livesCounter.setText(lives);
+                livesCounter.print();
+                reset()
+
+                if(lives == 0) lose();
+                // ball.playSound('background');
+            }
+
+            function reset(){
+                ball.setXSpeed(0);
+                ball.setYSpeed(0);
+                ball.setX(395);
+                ball.setY(540);
+                paddle.setX(350);
+                paddle.setY(550);
+                gameStarted = false;
+            }
+
+            function lose(){
+                game.pause();
+                ball.pauseSound('background');
+                loseText.playSound('lose');
+                game.canvas.clear();
+                game.canvas.print();
+                loseText.print();
+                reset();
+                lives = 3;
+                generateBlocks(4, 7, 20, brickWidth, brickHeight);
+            }
+
+            function win(){
+                game.pause();
+                ball.pauseSound('background');
+                winText.playSound('win');
+                game.canvas.clear();
+                game.canvas.print();
+                winText.print();
+            }
+
+            function ballPaddleCollision(collided){
+                if(!collided || !gameStarted) return;
+
+                if(game.control.x < 0 && ball.xSpeed > 0){
+                    ball.setXSpeed(-ballSpeed);
+                    ballSpeed = BALLSPEDD;
+                }
+                if(game.control.x > 0 && ball.xSpeed < 0){
+                    ball.setXSpeed(ballSpeed);
+                    ballSpeed = BALLSPEDD;
+                }
+                if(game.control.x < 0 && ball.xSpeed < 0 || game.control.x < 0 && ball.xSpeed < 0){
+                    if(ballSpeed < BALLSPEDDLIMIT) ballSpeed += 2;
+                }
+
+                ball.playSound('hit_paddle');
+                ball.setYSpeed(-ballSpeed);
+            }
 
             function ballBrickCollision(collided, brick, index){
                 if(!collided || !gameStarted) return;
 
+                brick.playSound('crash');
                 bricks.splice(index, 1);
                 game.removeElement(brick);
                 brickCounter.setText(bricks.length);
@@ -67,45 +155,6 @@
                 // TODO: Improve brick collision
                 ball.setYSpeed(ball.ySpeed*-1);
             }
-            
-            function hitBottom(){
-                
-                if(ball.y < game.canvas.height - ball.height) return;
-
-                lives--;
-                livesCounter.setText(lives);
-                livesCounter.print();
-                ball.setXSpeed(0);
-                ball.setYSpeed(0);
-                ball.setX(395);
-                ball.setY(540);
-                paddle.setX(350);
-                paddle.setY(550);
-                gameStarted = false;
-
-                if(lives == 0) lose();
-            }
-
-            function lose(){
-                game.canvas.clear();
-                game.canvas.print();
-                loseText.print();
-                game.pause();
-            }
-
-            function win(){
-                game.canvas.clear();
-                game.canvas.print();
-                winText.print();
-                game.pause();
-            }
-
-            function ballPaddleCollision(collided){
-                if(!collided || !gameStarted) return;
-                if(game.control.x < 0 && ball.xSpeed > 0) ball.setXSpeed(-ballSpeed);
-                if(game.control.x > 0 && ball.xSpeed < 0) ball.setXSpeed(ballSpeed);
-                ball.setYSpeed(-ballSpeed);
-            }
 
             function moveBall(){
                 if(gameStarted) return;
@@ -113,6 +162,7 @@
                 if(game.control.x > 0) ball.setXSpeed(ballSpeed);
                 ball.setYSpeed(-ballSpeed);
                 gameStarted = true;
+                ball.playSound('background');
             }
 
             function generateBlocks(rows, columns, separation, brickWidth, brickHeight){
@@ -123,9 +173,11 @@
 
                 var bricksX = bricksStart;
                 for(var i=0;i<rows; i++){
-                    
                     for(var j=0;j<columns; j++){
-                        bricks.push(game.addElement(game.ELEMENT.RECT, "white", brickWidth, brickHeight, bricksX, yStart))
+                        var newBrick = game.addElement(game.ELEMENT.RECT, "white", brickWidth, brickHeight, bricksX, yStart);
+                        newBrick.addSound('crash','brick_crash_2.mp3');  
+                        newBrick.setSoundDuration('crash',0.2);
+                        bricks.push(newBrick);
                         bricksX += brickWidth+separation;
                     }
                     bricksX = bricksStart;
@@ -134,8 +186,8 @@
             }            
 
 			/* Custom listeners */
-			function keydown(){
-                moveBall();
+			function keydown(evt){
+                if(evt.keyCode == game.KEY.LEFT || evt.keyCode == game.KEY.RIGHT) moveBall();
             }
 		</script>
     </body>
