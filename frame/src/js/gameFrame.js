@@ -1,13 +1,14 @@
 class Game {
 
-    KEY = {LEFT : 37,UP : 38,RIGHT : 39,DOWN : 40, ACTION:32, W: 87, A: 65, S: 83, D: 68}
+    KEY = {ESC: 27, SPACE_BAR:32, INTRO: 13, LEFT : 37,UP : 38,RIGHT : 39,DOWN : 40,W: 87, A: 65, S: 83, D: 68}
     ELEMENT = {CIRCLE : 'Circle',RECT : 'Rect',TEXT : 'Text',IMAGE:'Image',SOUND:'Sound'}
     STATE = {PAUSE : 'Pause',PLAY : 'Play',MENU : 'Menu'}
 
     constructor(element, width, height){
         this.canvas = new GameCanvas(element, width, height);
-        this.ui = new GameUI(this.canvas.canvas);
+        this.fui = new FrameUI(this.canvas.canvas);
         this.control = new GameControls(this.KEY);
+        this.gui = new GameUI(this);
         this.elements = {};
         this.init();
     }
@@ -21,14 +22,14 @@ class Game {
         this.canvas.width, this.canvas.height, 0, 0)
         this.canvas.setBackgroundImage(image);
 
-        var buttonStop = document.getElementById("ui-stop");
+        var buttonStop = document.getElementById("fui-stop");
 		buttonStop.addEventListener('click', () => {
-			this.toglePlayState();
+			this.togglePlayState();
 		});
     }
     draw(drawing){
-        if(this.state == this.STATE.PAUSE) return;
         if(this.beforeDraw) this.beforeDraw();
+        if(this.state == this.STATE.PAUSE) return;
         if(this.canvas.shouldClear) this.canvas.clear();
         this.canvas.print();
         if(drawing) drawing();
@@ -40,7 +41,7 @@ class Game {
     play(){
         this.state = this.STATE.PLAY;
     }
-    toglePlayState(){
+    togglePlayState(){
         if(this.state == this.STATE.PLAY) this.pause(); 
         else this.play();
     }
@@ -60,19 +61,19 @@ class Game {
         var element;
         switch(type){
             case this.ELEMENT.CIRCLE:
-                element = new CircleElement(this.canvas, this.ui, this.ELEMENT.CIRCLE, color, var1, var2, var3);
+                element = new CircleElement(this.canvas, this.fui, this.ELEMENT.CIRCLE, color, var1, var2, var3);
                 break;
             case this.ELEMENT.RECT:
-                element = new RectElement(this.canvas, this.ui, this.ELEMENT.RECT, color, var1, var2, var3, var4);
+                element = new RectElement(this.canvas, this.fui, this.ELEMENT.RECT, color, var1, var2, var3, var4);
                 break;
             case this.ELEMENT.TEXT:
-                element = new TextElement(this.canvas, this.ui, this.ELEMENT.TEXT, color, var1, var2, var3, var4);
+                element = new TextElement(this.canvas, this.fui, this.ELEMENT.TEXT, color, var1, var2, var3, var4);
                 break;
             case this.ELEMENT.IMAGE:
-                element = new ImageElement(this.canvas, this.ui, this.ELEMENT.IMAGE, color, var1, var2, var3, var4);
+                element = new ImageElement(this.canvas, this.fui, this.ELEMENT.IMAGE, color, var1, var2, var3, var4);
                 break;
         }
-        this.ui.addElement(element);
+        this.fui.addElement(element);
         this.elements[element.id+''] = element;
         return element;
     }
@@ -80,12 +81,62 @@ class Game {
         if(this.elements[element.id+'']){
             this.elements[element.id+''] = undefined;
             delete this.elements[element.id+''];
-            this.ui.removeElement(element);
+            this.fui.removeElement(element);
         }
     }
 }
 
-class GameUI {
+class GameUI{
+
+    constructor(game){
+        this.game = game;
+        this.menus = {};
+    }
+
+    addMenu(menu, color, width, height, x, y){
+        if(!this.menus[menu+'']){ 
+            this.menus[menu+''] = new RectElement(this.game.canvas, this.game.fui, this.game.ELEMENT.RECT, color, width, height, x, y);
+
+            if(menu == "main_menu"){
+                this.menus[menu+''].addListener("keydown", (evt) => this.menuKeyDown(evt));
+            }
+        }
+    }
+    menuKeyDown(evt){
+        if(evt.keyCode == this.game.KEY.ESC){
+            this.game.togglePlayState();
+            this.showMenu("main_menu");
+        }
+    }
+    addItemMenu(menu, item){
+        if(this.menus[menu+'']){
+            if(!this.menus[menu+''].items) this.menus[menu+''].items = [];
+            this.menus[menu+''].items.push(item);
+        }
+    }
+    removeMenu(menu){
+        if(this.menus[menu+'']){
+            this.menus[menu+''] = undefined;
+            delete this.menus[menu+'']; 
+        }
+    }
+    showMenu(menu){
+        if(this.menus[menu+'']){
+            this.game.setBeforeDraw(() => {
+                this.menus[menu+''].print();
+                console.log
+                for(var i in this.menus[menu+''].items){
+                    this.menus[menu+''].items[i].print();
+                }
+            })
+        }
+    }
+    
+    /* Setters */
+
+}
+
+class FrameUI {
     constructor(canvas){
         this.canvas = canvas;
         this.properties = [
@@ -123,7 +174,7 @@ class GameUI {
         h2Title.innerHTML = 'Development Panel'; 
 
         var button = document.createElement('button');
-        button.id = 'ui-stop';
+        button.id = 'fui-stop';
         button.innerText = 'Play/Pause';
 
         this.rightPanel.appendChild(h2Title);
@@ -181,6 +232,7 @@ class GameUI {
     updateElement(element){
         let ulElementL = document.getElementById('elementUl-'+element.id+"-L");
         let ulElementR = document.getElementById('elementUl-'+element.id+"-R");
+        if(!ulElementL || !ulElementR) return;
         ulElementL.innerHTML = '';
         ulElementR.innerHTML = '';
         for(var i in this.properties){
@@ -300,14 +352,14 @@ class GameCanvas{
 
 class CanvasElement{
 
-    constructor(canvas, ui, type, color, x, y){
+    constructor(canvas, fui, type, color, x, y){
         this.canvas = canvas;
         this.context = canvas.context;
 
         this.isSolid = false;
 
         this.type = type;
-        this.ui = ui;
+        this.fui = fui;
         
         this.id = '_' + Math.random().toString(36).substr(2, 9);
         this.color = color;
@@ -493,8 +545,8 @@ class CanvasElement{
 
 class CircleElement extends CanvasElement{
 
-    constructor(canvas, ui, type, color, radius, x, y){
-        super(canvas, ui, type, color, x, y);
+    constructor(canvas, fui, type, color, radius, x, y){
+        super(canvas, fui, type, color, x, y);
         this.radius = radius;
         this.width = radius*2;
         this.height = radius*2;
@@ -506,7 +558,7 @@ class CircleElement extends CanvasElement{
         this.context.beginPath();
         this.context.arc(this.x, this.y, this.radius, 0, Math.PI*2, true);
         this.context.fill();
-        this.ui.updateElement(this);
+        this.fui.updateElement(this);
     }
 
     /* Setters */
@@ -517,8 +569,8 @@ class CircleElement extends CanvasElement{
 
 class RectElement extends CanvasElement{
 
-    constructor(canvas, ui, type, color, width, height, x, y){
-        super(canvas, ui, type, color, x, y);
+    constructor(canvas, fui, type, color, width, height, x, y){
+        super(canvas, fui, type, color, x, y);
         this.width = width;
         this.height = height;
     }
@@ -536,7 +588,7 @@ class RectElement extends CanvasElement{
             this.context.fillStyle = this.color;
             this.context.fillRect(this.x, this.y, this.width, this.height); 
         }
-        this.ui.updateElement(this);
+        this.fui.updateElement(this);
     }
 
     /* Setters */
@@ -550,8 +602,8 @@ class RectElement extends CanvasElement{
 
 class TextElement extends CanvasElement{
 
-    constructor(canvas, ui, type, color, size, text, x, y){
-        super(canvas, ui, type, color, x, y);
+    constructor(canvas, fui, type, color, size, text, x, y){
+        super(canvas, fui, type, color, x, y);
         this.size = size;
         this.text = text;
         this.align = "center";
@@ -564,7 +616,7 @@ class TextElement extends CanvasElement{
         this.context.textAlign = this.align; 
         this.context.fillStyle = this.color;
         this.context.fillText(this.text, this.x, this.y);
-        this.ui.updateElement(this);
+        this.fui.updateElement(this);
     }
 
     /* Setters */
@@ -584,8 +636,8 @@ class TextElement extends CanvasElement{
 
 class ImageElement extends CanvasElement{
 
-    constructor(canvas, ui, type, src, width, height, x, y){
-        super(canvas, ui, type, null, x, y);
+    constructor(canvas, fui, type, src, width, height, x, y){
+        super(canvas, fui, type, null, x, y);
         this.src = src;
         this.image = new Image();
         this.image.src = this.src;
@@ -596,7 +648,7 @@ class ImageElement extends CanvasElement{
     /* Methods */
     print(){
         this.context.drawImage(this.image,this.x,this.y,this.width,this.height);
-        this.ui.updateElement(this);
+        this.fui.updateElement(this);
     }
 
     /* Setters */

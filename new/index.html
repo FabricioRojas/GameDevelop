@@ -11,7 +11,15 @@
             game.control.setStep(10);
             game.canvas.setSolidBordersX(true);
             game.canvas.setSolidBordersY(true);
-			setInterval(() => game.draw(drawing), 1000/60);
+            game.gui.addMenu("main_menu","white", game.canvas.width/2, 
+            game.canvas.height-200, game.canvas.width/2-(game.canvas.width/4), (game.canvas.height/2-(game.canvas.height/3)));
+
+            game.gui.addItemMenu("main_menu",
+                game.addElement(game.ELEMENT.TEXT, "black", 20, "Restart", 300, 300)
+            );
+            setInterval(() => game.draw(drawing), 1000/60);
+            
+            
 
             var gameStarted = false;
             var brickWidth = 80;
@@ -37,17 +45,20 @@
 
             paddle.addListener("keydown", keydown);
             paddle.setIsSolid(true);
+            // paddle.addSound('slide','slide.mp3');
+            // paddle.setSoundDuration('slide',0.1);
            
             ball.setXSpeed(0);
             ball.setYSpeed(0);
             ball.setIsSolid(true);
             ball.addSound('hit_wall','ball_hit_2.mp3');
             ball.setSoundDuration('hit_wall',0.1);
-            ball.addSound('hit_paddle','ball_hit.mp3');
-            // ball.setSoundDuration('hit_paddle',0.2);
+            ball.addSound('hit_paddle','ball_hit_3.mp3');
+            ball.setSoundDuration('hit_paddle',0.5);
             ball.addSound('ball_fall','ball_fall.mp3');
             ball.setSoundDuration('ball_fall',0.5);
             ball.addSound('background','background.mp3');
+            ball.setSoundLoop('background',true);
             ball.setSoundVolume('background',0.1);
 
 			var drawing = function(){
@@ -64,9 +75,10 @@
                 if(game.canvas.solidBordersY && (ball.y<0 || ball.y>game.canvas.height-1)){
                     ball.playSound('hit_wall');
                 }
-                paddle.x += game.control.x;
 
-                
+                // if(game.control.x != 0) paddle.playSound('slide');
+                // else paddle.pauseSound('slide');
+                paddle.x += game.control.x;
 
                 hitBottom();
                 
@@ -162,6 +174,7 @@
                 if(game.control.x > 0) ball.setXSpeed(ballSpeed);
                 ball.setYSpeed(-ballSpeed);
                 gameStarted = true;
+                ball.playSound('hit_paddle');
                 ball.playSound('background');
             }
 
