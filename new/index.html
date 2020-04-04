@@ -49,9 +49,9 @@
 
             function ballPaddleCollision(collided){
                 if(!collided || !gameStarted) return;
-
+                if(game.control.x < 0 && ball.xSpeed > 0) ball.setXSpeed(-2);
+                if(game.control.x > 0 && ball.xSpeed < 0) ball.setXSpeed(2);
                 ball.setYSpeed(-2);
-
             }
 
             function moveBall(){
