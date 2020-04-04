@@ -35,17 +35,24 @@
                 
                 ball.move('x');
                 ball.move('y');
-
-                ballPaddleCollision(ball.collide(paddle));
-
                 paddle.x += game.control.x;
-
-                game.canvas.context.fillStyle="white";
+                
+                ballPaddleCollision(ball.collide(paddle));
                 for(var i in bricks){
-                    var brick=bricks[i];
-                    game.canvas.context.fillRect(brick.x,brick.y,brickWidth,brickHeight);
+                    bricks[i].print();
+                    ballBrickCollision(ball.collide(bricks[i]),bricks[i], i);
                 }
             };
+
+            function ballBrickCollision(collided, brick, index){
+                if(!collided || !gameStarted) return;
+
+                bricks.splice(index, 1);
+                game.removeElement(brick);
+
+                // TODO: Improve brick collision
+                ball.setYSpeed(-2);
+            }
 
             function ballPaddleCollision(collided){
                 if(!collided || !gameStarted) return;
@@ -71,14 +78,13 @@
                 for(var i=0;i<rows; i++){
                     
                     for(var j=0;j<columns; j++){
-                        bricks.push({x:bricksX, y:yStart})
+                        bricks.push(game.addElement(game.ELEMENT.RECT, "white", brickWidth, brickHeight, bricksX, yStart))
                         bricksX += brickWidth+separation;
                     }
                     bricksX = bricksStart;
                     yStart += brickHeight+separation;
                 }
-            }
-            
+            }            
 
 			/* Custom listeners */
 			function keydown(){
