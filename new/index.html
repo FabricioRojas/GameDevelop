@@ -13,8 +13,18 @@
             game.canvas.setSolidBordersY(true);
 			setInterval(() => game.draw(drawing), 1000/60);
 
+            var gameStarted = false;
+            var brickWidth = 80;
+            var brickHeight = 30;
+            var bricks = [];
+            var ballSpeed = 10;
+            
+            generateBlocks(4, 7, 20, brickWidth, brickHeight);
+
             var paddle = game.addElement(game.ELEMENT.RECT, "white", 100, 10, 350, 550);
             var ball = game.addElement(game.ELEMENT.RECT, "white", 10, 10, 395, 540);
+            var brickCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, bricks.length, 760, 50);
+            var winText = game.addElement(game.ELEMENT.TEXT, "white", 50,"Stage cleared!", 300, 300);
            
             paddle.addListener("keydown", keydown);
             paddle.setIsSolid(true);
@@ -23,15 +33,13 @@
             ball.setYSpeed(0);
             ball.setIsSolid(true);
             
-            var gameStarted = false;
-            var brickWidth = 80;
-            var brickHeight = 30;
-            var bricks = [];
             
-            generateBlocks(4, 7, 20, brickWidth, brickHeight);
+            
 			var drawing = function(){
                 ball.print();
                 paddle.print();
+                brickCounter.print();
+                
                 
                 ball.move('x');
                 ball.move('y');
@@ -49,22 +57,35 @@
 
                 bricks.splice(index, 1);
                 game.removeElement(brick);
+                brickCounter.setText(bricks.length);
+                brickCounter.print();
+                if(bricks.length == 0){
+                    win();
+                }
 
                 // TODO: Improve brick collision
-                ball.setYSpeed(-2);
+                ball.setYSpeed(ball.ySpeed*-1);
+            }
+
+            function win(){
+                game.canvas.clear();
+                game.canvas.print();
+                winText.print();
+                game.pause();
             }
 
             function ballPaddleCollision(collided){
                 if(!collided || !gameStarted) return;
-                if(game.control.x < 0 && ball.xSpeed > 0) ball.setXSpeed(-2);
-                if(game.control.x > 0 && ball.xSpeed < 0) ball.setXSpeed(2);
-                ball.setYSpeed(-2);
+                if(game.control.x < 0 && ball.xSpeed > 0) ball.setXSpeed(-ballSpeed);
+                if(game.control.x > 0 && ball.xSpeed < 0) ball.setXSpeed(ballSpeed);
+                ball.setYSpeed(-ballSpeed);
             }
 
             function moveBall(){
                 if(gameStarted) return;
-                ball.setXSpeed(2);
-                ball.setYSpeed(-2);
+                if(game.control.x < 0) ball.setXSpeed(-ballSpeed);
+                if(game.control.x > 0) ball.setXSpeed(ballSpeed);
+                ball.setYSpeed(-ballSpeed);
                 gameStarted = true;
             }
 
