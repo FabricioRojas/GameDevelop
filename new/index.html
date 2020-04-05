@@ -12,14 +12,13 @@
             game.canvas.setSolidBordersX(true);
             game.canvas.setSolidBordersY(true);
             game.gui.addMenu("main_menu","white", game.canvas.width/2, 
-            game.canvas.height-200, game.canvas.width/2-(game.canvas.width/4), (game.canvas.height/2-(game.canvas.height/3)));
+            game.canvas.height-200, game.canvas.width/2-(game.canvas.width/4), (game.canvas.height/2-(game.canvas.height/3)), "white", 2);
 
-            game.gui.addItemMenu("main_menu",
-                game.addElement(game.ELEMENT.TEXT, "black", 20, "Restart", 300, 300)
-            );
+            game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT,true , "black", 30,"Resume");
+            game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT,true , "black", 30,"Restart");
+            game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT,true , "black", 30,"Exit");
+
             setInterval(() => game.draw(drawing), 1000/60);
-            
-            
 
             var gameStarted = false;
             var brickWidth = 80;
@@ -33,6 +32,7 @@
             generateBlocks(4, 7, 20, brickWidth, brickHeight);
 
             var paddle = game.addElement(game.ELEMENT.RECT, "white", 100, 10, 350, 550);
+            var paddle = game.addElement(game.ELEMENT.RECT, "white", 100, 10, 350, 550);
             var ball = game.addElement(game.ELEMENT.CIRCLE, "white", 5, 395, 540);
             // var ball = game.addElement(game.ELEMENT.RECT, "white", 10, 10, 395, 540);
             var brickCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, bricks.length, 760, 50);
@@ -42,6 +42,7 @@
            
             winText.addSound('win','wining.mp3');
             loseText.addSound('lose','losing.mp3');
+            loseText.setSoundVolume('lose',0.2);
 
             paddle.addListener("keydown", keydown);
             paddle.setIsSolid(true);
@@ -89,9 +90,7 @@
                 }
             };
 
-            
             function hitBottom(){
-                
                 if(ball.y < game.canvas.height - ball.height) return;
                 ball.pauseSound('background');
                 ball.playSound('ball_fall');

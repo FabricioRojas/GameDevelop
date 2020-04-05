@@ -2,7 +2,7 @@ class Game {
 
     KEY = {ESC: 27, SPACE_BAR:32, INTRO: 13, LEFT : 37,UP : 38,RIGHT : 39,DOWN : 40,W: 87, A: 65, S: 83, D: 68}
     ELEMENT = {CIRCLE : 'Circle',RECT : 'Rect',TEXT : 'Text',IMAGE:'Image',SOUND:'Sound'}
-    STATE = {PAUSE : 'Pause',PLAY : 'Play',MENU : 'Menu'}
+    STATE = {PAUSE : 'Pause',PLAY : 'Play',MENU : 'Menu',WIN : 'Win', LOSE: 'Lose'}
 
     constructor(element, width, height){
         this.canvas = new GameCanvas(element, width, height);
@@ -22,12 +22,33 @@ class Game {
         this.canvas.width, this.canvas.height, 0, 0)
         this.canvas.setBackgroundImage(image);
 
-        var buttonStop = document.getElementById("fui-stop");
-		buttonStop.addEventListener('click', () => {
+		document.getElementById("fui-stop").addEventListener('click', () => {
 			this.togglePlayState();
-		});
+        });
+        this.canvas.canvas.addEventListener("mousedown", (e) => {
+
+            if(this.menuDraw && this.state == this.STATE.MENU){
+                for(var i in this.gui.listeners){
+                    var click = this.canvas.getMousePosition(e);
+                    var element = this.gui.listeners[i];
+                    var finalX = element.x;
+                    var finalY = element.y;
+                    if(element.type == this.ELEMENT.TEXT){
+                        finalX -= element.width/2;
+                        finalY -= element.height;
+                    }
+                    if((click.x > finalX &&click.x < (finalX + element.width)) &&(click.y > finalY &&click.y < (finalY + element.height))){
+                        console.log(element.text+" clicked");
+                    }
+                }
+            }
+        });
     }
     draw(drawing){
+        if(this.menuDraw && this.state == this.STATE.MENU){
+            this.menuDraw();
+            return;
+        } 
         if(this.beforeDraw) this.beforeDraw();
         if(this.state == this.STATE.PAUSE) return;
         if(this.canvas.shouldClear) this.canvas.clear();
@@ -41,8 +62,15 @@ class Game {
     play(){
         this.state = this.STATE.PLAY;
     }
+    menu(){
+        this.state = this.STATE.MENU;
+    }
     togglePlayState(){
         if(this.state == this.STATE.PLAY) this.pause(); 
+        else this.play();
+    }
+    toggleMenuState(){
+        if(this.state != this.STATE.MENU) this.menu(); 
         else this.play();
     }
 
@@ -50,6 +78,9 @@ class Game {
     /* Setters */
     setState(state) {
         this.state = state;
+    }
+    setMenuDraw(menuDraw) {
+        this.menuDraw = menuDraw;
     }
     setBeforeDraw(beforeDraw) {
         this.beforeDraw = beforeDraw;
@@ -90,28 +121,45 @@ class GameUI{
 
     constructor(game){
         this.game = game;
+        this.listeners = [];
         this.menus = {};
     }
 
-    addMenu(menu, color, width, height, x, y){
+    addMenu(menu, color, width, height, x, y, borderColor, borderWidth){
         if(!this.menus[menu+'']){ 
-            this.menus[menu+''] = new RectElement(this.game.canvas, this.game.fui, this.game.ELEMENT.RECT, color, width, height, x, y);
-
-            if(menu == "main_menu"){
-                this.menus[menu+''].addListener("keydown", (evt) => this.menuKeyDown(evt));
-            }
+            this.menus[menu+''] = this.game.addElement(this.game.ELEMENT.RECT, color, width, height, x, y);
+            this.menus[menu+''] = this.game.addElement(this.game.ELEMENT.RECT, color, width, height, x, y);
+            if(menu == "main_menu") this.menus[menu+''].addListener("keydown", (evt) => this.menuKeyDown(evt));
         }
     }
     menuKeyDown(evt){
         if(evt.keyCode == this.game.KEY.ESC){
-            this.game.togglePlayState();
+            this.game.toggleMenuState();
             this.showMenu("main_menu");
         }
     }
-    addItemMenu(menu, item){
+    addItemMenu(menu, type, listener, color, var1, var2, var3, var4){
         if(this.menus[menu+'']){
             if(!this.menus[menu+''].items) this.menus[menu+''].items = [];
-            this.menus[menu+''].items.push(item);
+            if(!var3 && !var4){
+                this.game.canvas.context.font = var1 + "px Verdana";
+                var3 = (this.game.canvas.width/2);
+                var4 = this.menus[menu+''].x+(this.menus[menu+''].items.length*50);
+            }
+            var newItemMenu = game.addElement(type, color, var1, var2, var3, var4);
+            if(listener) this.addListener(newItemMenu);
+            this.menus[menu+''].items.push(newItemMenu);
+        }
+    }
+    addListener(element){
+        if(!this.listeners[element.id+'']){
+            this.listeners[element.id+''] = element;
+        }
+    }
+    removeListener(elementId){
+        if(this.listeners[elementId+'']){
+            this.listeners[elementId+''] = undefined;
+            delete this.listeners[elementId+'']; 
         }
     }
     removeMenu(menu){
@@ -122,9 +170,8 @@ class GameUI{
     }
     showMenu(menu){
         if(this.menus[menu+'']){
-            this.game.setBeforeDraw(() => {
+            this.game.setMenuDraw(() => {
                 this.menus[menu+''].print();
-                console.log
                 for(var i in this.menus[menu+''].items){
                     this.menus[menu+''].items[i].print();
                 }
@@ -321,6 +368,12 @@ class GameCanvas{
     }
     clear(){
         this.context.clearRect(0, 0, this.width, this.height);
+    }
+    getMousePosition(event) { 
+        let rect = this.canvas.getBoundingClientRect();
+        let x = event.clientX - rect.left;
+        let y = event.clientY - rect.top;
+        return {x:x, y:y};
     }
 
     /* Setters */
@@ -608,6 +661,9 @@ class TextElement extends CanvasElement{
         this.text = text;
         this.align = "center";
         this.font = "Verdana";
+        this.canvas.context.font = this.size + "px "+ this.font;
+        this.width = this.canvas.context.measureText(this.text).width;
+        this.height = this.size;
     }
 
     /* Methods */
