@@ -25,7 +25,7 @@
             var brickHeight = 30;
             var bricks = [];
             var lives = 3;
-            const BALLSPEDD = 3;
+            const BALLSPEDD = 4;
             const BALLSPEDDLIMIT = BALLSPEDD+4;
             var ballSpeed = BALLSPEDD;
             
@@ -33,14 +33,15 @@
 
             var paddle = game.addElement(game.ELEMENT.RECT, "white", 100, 10, 350, 550);
             var paddle = game.addElement(game.ELEMENT.RECT, "white", 100, 10, 350, 550);
-            var ball = game.addElement(game.ELEMENT.CIRCLE, "white", 5, 395, 540);
-            // var ball = game.addElement(game.ELEMENT.RECT, "white", 10, 10, 395, 540);
+            // var ball = game.addElement(game.ELEMENT.CIRCLE, "white", 5, 395, 540);
+            var ball = game.addElement(game.ELEMENT.RECT, "white", 10, 10, 395, 540);
             var brickCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, bricks.length, 760, 50);
             var livesCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, lives, 30, 50);
             var winText = game.addElement(game.ELEMENT.TEXT, "white", 50,"Stage cleared!", 300, 300);
             var loseText = game.addElement(game.ELEMENT.TEXT, "white", 50,"You lose!", 300, 300);
            
-            winText.addSound('win','wining.mp3');
+            winText.addSound('win','wining.mp3'); 
+            winText.setSoundVolume('win',0.2);
             loseText.addSound('lose','losing.mp3');
             loseText.setSoundVolume('lose',0.2);
 
@@ -57,7 +58,8 @@
             ball.addSound('hit_paddle','ball_hit_3.mp3');
             ball.setSoundDuration('hit_paddle',0.5);
             ball.addSound('ball_fall','ball_fall.mp3');
-            ball.setSoundDuration('ball_fall',0.5);
+            ball.setSoundDuration('ball_fall',0.3);
+            ball.setSoundVolume('ball_fall',0.4);
             ball.addSound('background','background.mp3');
             ball.setSoundLoop('background',true);
             ball.setSoundVolume('background',0.1);
@@ -85,7 +87,7 @@
                 
                 ballPaddleCollision(ball.collide(paddle));
                 for(var i in bricks){
-                    ballBrickCollision(ball.collide(bricks[i]),bricks[i], i);
+                    ballBrickCollision(ball.collideWithDirecction(bricks[i]),bricks[i], i);
                     if(bricks[i]) bricks[i].print();
                 }
             };
@@ -110,6 +112,7 @@
                 ball.setY(540);
                 paddle.setX(350);
                 paddle.setY(550);
+                ballSpeed = BALLSPEDD;
                 gameStarted = false;
             }
 
@@ -154,7 +157,7 @@
             }
 
             function ballBrickCollision(collided, brick, index){
-                if(!collided || !gameStarted) return;
+                if(collided==-1 || !gameStarted) return;
 
                 brick.playSound('crash');
                 bricks.splice(index, 1);
@@ -162,9 +165,24 @@
                 brickCounter.setText(bricks.length);
                 brickCounter.print();
                 if(bricks.length == 0) win();
-                
+
+                console.log("hit", collided)
+
+                switch(collided){
+                    case 0:
+                        ball.setXSpeed(ball.xSpeed*-1);
+                        break;
+                    case 1:
+                        ball.setYSpeed(ball.ySpeed*-1);
+                        break;
+                    case 2:
+                        ball.setXSpeed(ball.xSpeed*-1);
+                        break;
+                    case 3:
+                        ball.setYSpeed(ball.ySpeed*-1);
+                        break;
+                }
                 // TODO: Improve brick collision
-                ball.setYSpeed(ball.ySpeed*-1);
             }
 
             function moveBall(){

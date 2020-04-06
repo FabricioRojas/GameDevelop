@@ -530,6 +530,33 @@ class CanvasElement{
         }
         return crash;
     }
+    collideWithDirecction = function(otherobj) {
+        if (!this.collide(otherobj)) return -1;
+        // console.log("y",this.y + this.height, otherobj.y, otherobj.y + otherobj.height, this.y);
+        // console.log("x", this.x+this.width, otherobj.x, otherobj.x + otherobj.width, this.x);
+
+        if((
+            (this.y > otherobj.y && this.y < (otherobj.y + otherobj.height)) ||
+            ((this.y + this.height) > otherobj.y && (this.y + this.height) < (otherobj.y + otherobj.height))
+        ) && (this.x + this.width) <= otherobj.x+1)
+            return 0;
+        if((
+            (this.y > otherobj.y && this.y < (otherobj.y + otherobj.height)) ||
+            ((this.y + this.height) > otherobj.y && (this.y + this.height) < (otherobj.y + otherobj.height))
+        ) && (otherobj.x + otherobj.width) <= this.x+1)
+            return 2;
+        if((
+            (this.x > otherobj.x && this.x < (otherobj.x + otherobj.width)) ||
+            ((this.x + this.width) > otherobj.x && (this.x + this.width) < (otherobj.x + otherobj.width))
+        ) && (this.y + this.height-1) >= otherobj.y)
+                return 1;
+        if((
+            (this.x > otherobj.x && this.x < (otherobj.x + otherobj.width)) ||
+            ((this.x + this.width) > otherobj.x && (this.x + this.width) < (otherobj.x + otherobj.width))
+        ) && (otherobj.y + otherobj.height-1) >= this.y)
+            return 3;
+        return -1
+    }
 
     /* Listeners */
     keyDown(evt){
