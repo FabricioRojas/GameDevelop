@@ -28,6 +28,9 @@
             const BALLSPEDD = 4;
             const BALLSPEDDLIMIT = BALLSPEDD+4;
             var ballSpeed = BALLSPEDD;
+            var powerups = ["pad-smaller", "pad-bigger", "pad-faster"];
+            var powerupDrop = false;
+            var powerupsTimeout = 20;
             
             generateBlocks(4, 7, 20, brickWidth, brickHeight);
 
@@ -39,6 +42,11 @@
             var livesCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, lives, 30, 50);
             var winText = game.addElement(game.ELEMENT.TEXT, "white", 50,"Stage cleared!", 300, 300);
             var loseText = game.addElement(game.ELEMENT.TEXT, "white", 50,"You lose!", 300, 300);
+
+            var powerup = game.addElement(game.ELEMENT.CIRCLE, "red", 10, -20, -20);
+            powerup.setXSpeed(0);
+            powerup.setYSpeed(1);
+
            
             winText.addSound('win','wining.mp3'); 
             winText.setSoundVolume('win',0.2);
@@ -90,6 +98,11 @@
                     ballBrickCollision(ball.collideWithDirecction(bricks[i]),bricks[i], i);
                     if(bricks[i]) bricks[i].print();
                 }
+                if(powerupDrop){
+                    powerup.print();
+                    powerup.move('y');
+                    powerupPaddleCollision(powerup.collide(paddle))
+                }
             };
 
             function hitBottom(){
@@ -99,8 +112,8 @@
                 lives--;
                 livesCounter.setText(lives);
                 livesCounter.print();
+                powerupDrop = false;
                 reset()
-
                 if(lives == 0) lose();
                 // ball.playSound('background');
             }
@@ -122,10 +135,10 @@
                 loseText.playSound('lose');
                 game.canvas.clear();
                 game.canvas.print();
+                bricks = [];
                 loseText.print();
                 reset();
                 lives = 3;
-                generateBlocks(4, 7, 20, brickWidth, brickHeight);
             }
 
             function win(){
@@ -156,12 +169,57 @@
                 ball.setYSpeed(-ballSpeed);
             }
 
+            function applyProwerUpEffect(effect){
+                switch(effect){
+                    case "pad-bigger":
+                        paddle.setX(paddle.x - paddle.width);
+                        paddle.setWidth(paddle.width*2);
+                        setTimeout(() => {
+                            paddle.setWidth(paddle.width/2);
+                            paddle.setX(paddle.x + paddle.width);
+                        }, 1000*powerupsTimeout);
+                        break;
+                    case "pad-smaller":
+                        paddle.setX(paddle.x + paddle.width);
+                        paddle.setWidth(paddle.width/2);
+                        setTimeout(() => {
+                            paddle.setWidth(paddle.width*2);
+                            paddle.setX(paddle.x - paddle.width);
+                        }, 1000*powerupsTimeout);
+                        break;
+                    case "pad-faster":
+                        ballSpeed = BALLSPEDDLIMIT;
+                        setTimeout(() => {
+                            ballSpeed = BALLSPEDD;
+                        }, 1000*powerupsTimeout);
+                        break;
+                }
+            }
+
+            function powerupPaddleCollision(collided){
+                if(!collided) return;
+                powerupDrop = false;
+                powerup.setX(-20);
+                powerup.setY(-20);
+                applyProwerUpEffect(powerup.effect)
+            }
+
             function ballBrickCollision(collided, brick, index){
                 if(collided==-1 || !gameStarted) return;
 
                 brick.playSound('crash');
                 bricks.splice(index, 1);
+
+                if(brick.powerup){
+                    powerupDrop = true; 
+                    powerup.effect = brick.powerup;
+                    powerup.setX(brick.x+(brick.width/2));
+                    powerup.setY(brick.y+powerup.height);
+                }
+
                 game.removeElement(brick);
+
+
                 brickCounter.setText(bricks.length);
                 brickCounter.print();
                 if(bricks.length == 0) win();
@@ -195,18 +253,20 @@
                 ball.playSound('background');
             }
 
-            function generateBlocks(rows, columns, separation, brickWidth, brickHeight){
+            function generateBlocks(rows, columns, separation, brickWidth, brickHeight, powerupsBlocks){
                 bricks = [];
                 var bricksSize = ((brickWidth+separation)*columns)-separation;
                 var bricksStart = (game.canvas.width-bricksSize)/2;
                 var yStart = 70;
-
+                var color = "white";
                 var bricksX = bricksStart;
                 for(var i=0;i<rows; i++){
                     for(var j=0;j<columns; j++){
-                        var newBrick = game.addElement(game.ELEMENT.RECT, "white", brickWidth, brickHeight, bricksX, yStart);
+                        if(i == 3 && j == 6) color = "yellow";
+                        var newBrick = game.addElement(game.ELEMENT.RECT, color, brickWidth, brickHeight, bricksX, yStart);
                         newBrick.addSound('crash','brick_crash_2.mp3');  
                         newBrick.setSoundDuration('crash',0.2);
+                        if(i == 3 && j == 6) newBrick.powerup = powerups[2];
                         bricks.push(newBrick);
                         bricksX += brickWidth+separation;
                     }

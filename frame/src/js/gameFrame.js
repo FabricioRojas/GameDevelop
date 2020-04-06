@@ -445,7 +445,7 @@ class CanvasElement{
             if(this.infiniteMoveX){
                 if(this.x<0) this.x=this.canvas.width-1;
                 if(this.x>this.canvas.width-1) this.x=0;
-            }else if(this.canvas.solidBordersX && (this.x<0 || this.x>this.canvas.width-1)){
+            }else if(this.isSolid && (this.canvas.solidBordersX && (this.x<0 || this.x>this.canvas.width-1))){
                 this.xSpeed *= -1;
             }
             this.x += this.xSpeed;
@@ -454,7 +454,7 @@ class CanvasElement{
             if(this.infiniteMoveY){
                 if(this.y<0) this.y=this.canvas.height-1;
                 if(this.y>this.canvas.height-1) this.y=0;
-            }else if(this.canvas.solidBordersY && (this.y<0 || this.y>this.canvas.height-1)){
+            }else if(this.isSolid && (this.canvas.solidBordersY && (this.y<0 || this.y>this.canvas.height-1))){
                 this.ySpeed *= -1;
             }
             this.y += this.ySpeed + this.gravitySpeed;
