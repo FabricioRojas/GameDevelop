@@ -154,12 +154,12 @@
                 if(!collided || !gameStarted) return;
 
                 if(game.control.x < 0 && ball.xSpeed > 0){
-                    ball.setXSpeed(-ballSpeed);
                     ballSpeed = BALLSPEDD;
+                    ball.setXSpeed(-ballSpeed);
                 }
                 if(game.control.x > 0 && ball.xSpeed < 0){
-                    ball.setXSpeed(ballSpeed);
                     ballSpeed = BALLSPEDD;
+                    ball.setXSpeed(ballSpeed);
                 }
                 if(game.control.x < 0 && ball.xSpeed < 0 || game.control.x < 0 && ball.xSpeed < 0){
                     if(ballSpeed < BALLSPEDDLIMIT) ballSpeed += 2;
