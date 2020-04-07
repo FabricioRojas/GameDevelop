@@ -410,6 +410,7 @@ class CanvasElement{
         this.context = canvas.context;
 
         this.isSolid = false;
+        this.moveByChunk = false;
 
         this.type = type;
         this.fui = fui;
@@ -443,21 +444,21 @@ class CanvasElement{
         this.gravitySpeed += this.gravity;
         if(vector == 'x'){
             if(this.infiniteMoveX){
-                if(this.x<0) this.x=this.canvas.width-1;
+                if(this.x<0) this.x= this.moveByChunk ? this.canvas.width-this.width: this.canvas.width-1;
                 if(this.x>this.canvas.width-1) this.x=0;
             }else if(this.isSolid && (this.canvas.solidBordersX && (this.x<0 || this.x>this.canvas.width-1))){
                 this.xSpeed *= -1;
             }
-            this.x += this.xSpeed;
+            this.x += this.moveByChunk ? parseInt(this.xSpeed) : this.xSpeed;
         }
         if(vector == 'y'){
             if(this.infiniteMoveY){
-                if(this.y<0) this.y=this.canvas.height-1;
+                if(this.y<0) this.y=this.moveByChunk ? this.canvas.height-this.height: this.canvas.height-1;
                 if(this.y>this.canvas.height-1) this.y=0;
             }else if(this.isSolid && (this.canvas.solidBordersY && (this.y<0 || this.y>this.canvas.height-1))){
                 this.ySpeed *= -1;
             }
-            this.y += this.ySpeed + this.gravitySpeed;
+            this.y +=  this.moveByChunk ? parseInt(this.ySpeed + this.gravitySpeed) : this.ySpeed + this.gravitySpeed;
         }
     }
     addSound(event, track){
@@ -521,6 +522,7 @@ class CanvasElement{
         }
     }
     collide = function(otherobj) {
+        if(this.moveByChunk) return this.collideExact(otherobj);
         var crash = true;
         if (((this.y + (this.height)) < otherobj.y) ||
         (this.y > (otherobj.y + (otherobj.height))) ||
@@ -529,6 +531,9 @@ class CanvasElement{
           crash = false;
         }
         return crash;
+    }
+    collideExact = function(otherobj) {
+        return this.y == otherobj.y && this.x == otherobj.x;
     }
     collideWithDirecction = function(otherobj) {
         if (!this.collide(otherobj)) return -1;
@@ -620,6 +625,9 @@ class CanvasElement{
     }
     setIsSolid(isSolid) {
         this.isSolid = isSolid;
+    }
+    setMoveByChunk(moveByChunk) {
+        this.moveByChunk = moveByChunk;
     }
 }
 

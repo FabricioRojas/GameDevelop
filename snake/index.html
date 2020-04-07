@@ -10,32 +10,86 @@
 			var game = new Game("gc", 800, 600);
 			setInterval(() => game.draw(drawing), 1000/30); 
 			var square = 10;
+			var points = 0;
+			var lastPress = null;
+			var LOSETXT = "SCORE: ";
+			var losetxt = LOSETXT;
+			var canibalism = false;
 			var apple = game.addElement(game.ELEMENT.RECT, "red", square, square, 600, 270);
 			var snakeHead = game.addElement(game.ELEMENT.RECT, "green", square, square, 50, 60);
-			var snakeTail = 5;
+			var pointsCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, points, 30, 50);
+            var loseText = game.addElement(game.ELEMENT.TEXT, "white", 50, losetxt, 350, 300);
+
+			snakeHead.addSound('background','background.mp3');
+			snakeHead.setSoundVolume('background',0.2);
+			snakeHead.addSound('eat','eat.mp3');
+			snakeHead.setSoundDuration('eat',0.3);
+			snakeHead.addSound('die','die_2.mp3');
+			snakeHead.setSoundDuration('die',0.5);
+            snakeHead.setSoundVolume('die',0.4);
+            snakeHead.setMoveByChunk(true);
+			var SNAKETAIL = 5;
+			var snakeTail = SNAKETAIL;
 			var snakeTrail = [];	
 			snakeHead.addListener("keydown", keyPress);
 			snakeHead.setInfiniteMoveX(true);
 			snakeHead.setInfiniteMoveY(true);	
 			snakeHead.setXSpeed(0);
 			snakeHead.setYSpeed(0);	
+
+			snakeHead.playSound('background');
 			var drawing = function(){
 				snakeHead.move('x');
 				snakeHead.move('y');
 				snakeHead.print();
 				game.canvas.context.fillStyle = "green";
 				for(var i in snakeTrail){
-					game.canvas.context.fillRect(snakeTrail[i].x, snakeTrail[i].y, square,square)
+					if((snakeHead.xSpeed || snakeHead.ySpeed) && snakeHead.collide(snakeTrail[i])) canibalism = true;
+					game.canvas.context.fillRect(snakeTrail[i].x, snakeTrail[i].y, square,square);
 				}
-				snakeTrail.push({x:snakeHead.x,y:snakeHead.y});
+
+				if(canibalism) reset();
+
+				snakeTrail.push({x:snakeHead.x,y:snakeHead.y, width: square, height:square});
 				if(snakeTrail.length > snakeTail) snakeTrail.shift();
-				if((snakeHead.x==apple.x) && (snakeHead.y>=apple.y && snakeHead.y <(apple.y+square))){
+				if(snakeHead.collide(apple)){
+					snakeHead.playSound('eat');
 					apple.setX(rand(game.canvas.width-square, square));
 					apple.setY(rand(game.canvas.height-square, square));
 					snakeTail++;
+					points +=10;
+					pointsCounter.setText(points);
 				}
+				
+				pointsCounter.print();
 				apple.print();
 			};
+			function reset(){
+				game.pause();
+				snakeHead.playSound('die');
+				checkScore();
+				loseText.setText(losetxt+points);
+				loseText.print();
+				snakeTail = SNAKETAIL;
+				snakeTrail = [];
+				snakeHead.setXSpeed(0);
+				snakeHead.setYSpeed(0);
+				snakeHead.setX(50);
+				snakeHead.setY(60);
+				apple.setX(600);
+				apple.setY(270);
+				points = 0;
+				canibalism = false;
+			}
+			function checkScore(){
+				if(!localStorage.getItem("snake-highscore")) localStorage.setItem("snake-highscore", 0);
+				if(points > 0 && points > parseInt(localStorage.getItem("snake-highscore"))){
+					localStorage.setItem("snake-highscore", points);
+					losetxt = "NEW HIGH-SCORE: ";
+				}else{
+					losetxt = LOSETXT;
+				}
+			}
 			function rand(maxNum, factorial) { 
 				return Math.floor(Math.floor(Math.random() * (maxNum + factorial)) / factorial) * factorial; 
 			};
@@ -43,20 +97,28 @@
 			function keyPress(evt){
 				switch(evt.keyCode) {
 					case game.KEY.LEFT:
+						if(lastPress == game.KEY.RIGHT) return;
 						snakeHead.setXSpeed(-square);
 						snakeHead.setYSpeed(0);
+						lastPress = game.KEY.LEFT;
 						break;
 					case game.KEY.UP:
+						if(lastPress == game.KEY.DOWN) return;
 						snakeHead.setXSpeed(0);
 						snakeHead.setYSpeed(-square);
+						lastPress = game.KEY.UP;
 						break;
 					case game.KEY.RIGHT:
+						if(lastPress == game.KEY.LEFT) return;
 						snakeHead.setXSpeed(square);
 						snakeHead.setYSpeed(0);
+						lastPress = game.KEY.RIGHT;
 						break;
 					case game.KEY.DOWN:
+						if(lastPress == game.KEY.UP) return;
 						snakeHead.setXSpeed(0);
 						snakeHead.setYSpeed(square);
+						lastPress = game.KEY.DOWN;
 						break;
 				}
 			}
