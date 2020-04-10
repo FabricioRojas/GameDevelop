@@ -10,6 +10,7 @@ class Game {
         this.control = new GameControls(this.KEY);
         this.gui = new GameUI(this);
         this.elements = {};
+        this.currentMenu;
         this.init();
     }
 
@@ -26,19 +27,20 @@ class Game {
 			this.togglePlayState();
         });
         this.canvas.canvas.addEventListener("mousedown", (e) => {
-
             if(this.menuDraw && this.state == this.STATE.MENU){
                 for(var i in this.gui.listeners){
                     var click = this.canvas.getMousePosition(e);
                     var element = this.gui.listeners[i];
-                    var finalX = element.x;
-                    var finalY = element.y;
-                    if(element.type == this.ELEMENT.TEXT){
-                        finalX -= element.width/2;
-                        finalY -= element.height;
-                    }
-                    if((click.x > finalX &&click.x < (finalX + element.width)) &&(click.y > finalY &&click.y < (finalY + element.height))){
-                        console.log(element.text+" clicked");
+                    if(this.currentMenu == element.menu){
+                        var finalX = element.x;
+                        var finalY = element.y;
+                        if(element.type == this.ELEMENT.TEXT){
+                            finalX -= element.width/2;
+                            finalY -= element.height;
+                        }
+                        if((click.x > finalX &&click.x < (finalX + element.width)) &&(click.y > finalY &&click.y < (finalY + element.height))){
+                            element.action();
+                        }
                     }
                 }
             }
@@ -115,6 +117,10 @@ class Game {
             this.fui.removeElement(element);
         }
     }
+    setCurrentMenu(currentMenu) {
+        console.log("currentMenu", currentMenu)
+        this.currentMenu = currentMenu;
+    }
 }
 
 class GameUI{
@@ -138,7 +144,7 @@ class GameUI{
             this.showMenu("main_menu");
         }
     }
-    addItemMenu(menu, type, listener, color, var1, var2, var3, var4){
+    addItemMenu(menu, type, listener, color, var1, var2, var3, var4, action){
         if(this.menus[menu+'']){
             if(!this.menus[menu+''].items) this.menus[menu+''].items = [];
             if(!var3 && !var4){
@@ -147,6 +153,8 @@ class GameUI{
                 var4 = this.menus[menu+''].x+(this.menus[menu+''].items.length*50);
             }
             var newItemMenu = game.addElement(type, color, var1, var2, var3, var4);
+            newItemMenu.action = action;
+            newItemMenu.menu = menu;
             if(listener) this.addListener(newItemMenu);
             this.menus[menu+''].items.push(newItemMenu);
         }
@@ -169,6 +177,7 @@ class GameUI{
         }
     }
     showMenu(menu){
+		this.game.setCurrentMenu(menu);
         if(this.menus[menu+'']){
             this.game.setMenuDraw(() => {
                 this.menus[menu+''].print();
@@ -483,6 +492,9 @@ class CanvasElement{
             }, this.sounds[event+''].timeOut*1000);
         } 
     }
+    resetSound(event){
+        if(this.sounds[event+'']) this.sounds[event+''].load();
+    }
     pauseSound(event){
         if(this.sounds[event+'']) this.sounds[event+''].pause();
     }
@@ -521,7 +533,7 @@ class CanvasElement{
             if(Math.abs(number1 - number2) < 0.02) this.setXSpeed(0);
         }
     }
-    collide = function(otherobj) {
+    collide(otherobj) {
         if(this.moveByChunk) return this.collideExact(otherobj);
         var crash = true;
         if (((this.y + (this.height)) < otherobj.y) ||
@@ -532,10 +544,10 @@ class CanvasElement{
         }
         return crash;
     }
-    collideExact = function(otherobj) {
+    collideExact(otherobj) {
         return this.y == otherobj.y && this.x == otherobj.x;
     }
-    collideWithDirecction = function(otherobj) {
+    collideWithDirecction(otherobj) {
         if (!this.collide(otherobj)) return -1;
         // console.log("y",this.y + this.height, otherobj.y, otherobj.y + otherobj.height, this.y);
         // console.log("x", this.x+this.width, otherobj.x, otherobj.x + otherobj.width, this.x);

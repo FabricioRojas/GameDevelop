@@ -8,17 +8,72 @@
         <link rel=stylesheet href=../frame/src/css/main.css charset="utf-8">
 		<script>
 			var game = new Game("gc", 800, 600);
-			setInterval(() => game.draw(drawing), 1000/20); 
+			game.canvas.setBackgroundImage(game.addElement(game.ELEMENT.IMAGE, "background_1.jpg", game.canvas.width, game.canvas.height, 0, 0));
+			
+			game.gui.addMenu("main_menu","white", game.canvas.width/2, 
+            game.canvas.height-200, game.canvas.width/2-(game.canvas.width/4), (game.canvas.height/2-(game.canvas.height/3)), "white", 2);
+
+			game.gui.addMenu("difficulty_menu","white", game.canvas.width/2, 
+            game.canvas.height-200, game.canvas.width/2-(game.canvas.width/4), (game.canvas.height/2-(game.canvas.height/3)), "white", 2);
+
+			game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT,true , "black", 30,"Resume", null, null, () => {
+				game.play();
+			});
+            game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT,true , "black", 30,"Restart", null, null, () => {
+				reset();
+			});
+            game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT,true , "black", 30,"Dificulty", null, null, () => {
+				game.gui.showMenu("difficulty_menu");
+			});
+            game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT,true , "black", 30,"Exit", null, null, () => {
+				confirm("Sure you want to go?");			
+			});
+
+
+            game.gui.addItemMenu("difficulty_menu", game.ELEMENT.TEXT,true , "black", 30,"EASY", null, null, () => {
+				snakeHead.setInfiniteMoveX(true);
+				snakeHead.setInfiniteMoveY(true);
+				snakeHeadShadow.setInfiniteMoveX(true);
+				snakeHeadShadow.setInfiniteMoveY(true);
+				if(gameInterval) clearInterval(gameInterval);
+				gameInterval = 	setInterval(() => game.draw(drawing), 1000/20);
+			});
+			game.gui.addItemMenu("difficulty_menu", game.ELEMENT.TEXT,true , "black", 30,"MEDIUM", null, null, () => {
+				snakeHead.setInfiniteMoveX(false);
+				snakeHead.setInfiniteMoveY(false);
+				snakeHeadShadow.setInfiniteMoveX(false);
+				snakeHeadShadow.setInfiniteMoveY(false);
+				if(gameInterval) clearInterval(gameInterval);
+				gameInterval = 	setInterval(() => game.draw(drawing), 1000/35);
+			});
+			game.gui.addItemMenu("difficulty_menu", game.ELEMENT.TEXT,true , "black", 30,"DIFICULT", null, null, () => {
+				snakeHead.setInfiniteMoveX(false);
+				snakeHead.setInfiniteMoveY(false);
+				snakeHeadShadow.setInfiniteMoveX(false);
+				snakeHeadShadow.setInfiniteMoveY(false);
+				if(gameInterval) clearInterval(gameInterval);
+				gameInterval = 	setInterval(() => game.draw(drawing), 1000/50);
+			});
+			game.gui.addItemMenu("difficulty_menu", game.ELEMENT.TEXT,true , "black", 30,"BACK", null, null, () => {
+				game.gui.showMenu("main_menu");
+			});
+
+
+			game.canvas.canvas.addEventListener('click', handlemouseClick);
+			
+			var gameInterval = setInterval(() => game.draw(drawing), 1000/20); 
+			
 			var square = 10;
 			var points = 0;
 			var lastPress = null;
 			var LOSETXT = "SCORE: ";
 			var losetxt = LOSETXT;
 			var canibalism = false;
+			var loseState = false;
 			var SNAKETAIL = 5;
 			var snakeTail = SNAKETAIL;
 			var snakeTrail = [];	
-			var snakeTrailShadow = [];	
+			var snakeTrailShadow = [];
 
 			var apple = game.addElement(game.ELEMENT.RECT, "red", square, square, 600, 270);
 			var snakeHead = game.addElement(game.ELEMENT.RECT, "darkgreen", square, square, 50, 60);
@@ -26,11 +81,8 @@
 			var pointsCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, points, 50, 50);
 			var loseText = game.addElement(game.ELEMENT.TEXT, "white", 50, losetxt, 350, 300);
 			
-			
-			game.canvas.setBackgroundImage(game.addElement(game.ELEMENT.IMAGE, "background_1.jpg", game.canvas.width, game.canvas.height, 0, 0));
-
 			snakeHead.addSound('background','background.mp3');
-			snakeHead.setSoundVolume('background',0.2);
+			snakeHead.setSoundVolume('background',0.1);
 			snakeHead.setSoundLoop('background',true);
             
 			snakeHead.addSound('eat','eat.mp3');
@@ -38,7 +90,6 @@
 			snakeHead.addSound('die','die_2.mp3');
 			snakeHead.setSoundDuration('die',0.5);
 			snakeHead.setSoundVolume('die',0.4);
-			
 			
 			snakeHead.addListener("keydown", keyPress);
 
@@ -54,7 +105,10 @@
 			snakeHeadShadow.setXSpeed(0);
 			snakeHeadShadow.setYSpeed(0);	
 
-			snakeHead.playSound('background');
+			game.setBeforeDraw(function(){
+				
+			});
+			reset();
 			var drawing = function(){
 				snakeHead.move('x');
 				snakeHead.move('y');
@@ -72,7 +126,8 @@
 					game.canvas.context.fillRect(snakeTrail[i].x, snakeTrail[i].y, snakeTrail[i].width,snakeTrail[i].height);
 				}
 
-				if(canibalism) reset();
+				snakeWallCollision(snakeHead);
+				if(canibalism) reset(true);
 
 				snakeTrail.push({x:snakeHead.x,y:snakeHead.y, width: square, height:square});
 				snakeTrailShadow.push({x:snakeHeadShadow.x,y:snakeHeadShadow.y, width: square+2, height:square+2});
@@ -92,9 +147,26 @@
 				pointsCounter.print();
 				apple.print();
 			};
-			function reset(){
+			function handlemouseClick(){
+				if(loseState){
+					loseState = false;
+					pointsCounter.setText(points);
+					pointsCounter.print();
+					game.play();
+				}
+			}
+			function snakeWallCollision(elm){
+				if(snakeHead.infiniteMoveX) return;
+				if(elm.x<0 ||elm.x>game.canvas.width-1 || elm.y<0 || elm.y>game.canvas.height-1) reset(true);
+			}
+			function reset(playSound){
+				snakeHead.resetSound('background');
+				snakeHead.playSound('background');
 				game.pause();
-				snakeHead.playSound('die');
+				if(playSound){
+					loseState = true;
+					snakeHead.playSound('die');
+				}
 				checkScore();
 				loseText.setText(losetxt+points);
 				loseText.print();
@@ -113,6 +185,7 @@
 				apple.setY(270);
 				points = 0;
 				canibalism = false;
+				if(!playSound) game.play();				
 			}
 			function checkScore(){
 				if(!localStorage.getItem("snake-highscore")) localStorage.setItem("snake-highscore", 0);
