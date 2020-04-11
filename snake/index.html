@@ -149,10 +149,7 @@
 			};
 			function handlemouseClick(){
 				if(loseState){
-					loseState = false;
-					pointsCounter.setText(points);
-					pointsCounter.print();
-					game.play();
+					reset();
 				}
 			}
 			function snakeWallCollision(elm){

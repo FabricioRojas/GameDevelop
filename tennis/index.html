@@ -53,8 +53,7 @@
 			winMessage.addSound('win','wining.mp3'); 
             winMessage.addSound('lose','losing.mp3');
             winMessage.setSoundVolume('win',0.2);
-
-			ball.playSound('background')
+			reset();
 			var drawing = function(){
 				if(showingWinScreen){
 					if(score1Val == winningScore){
@@ -122,7 +121,7 @@
 				ball.setY(game.canvas.height/2-(ball.width/2));
 				ballSpeedY = BALLSPEDDLIMIT;
 				ball.setXSpeed(ballSpeedX);
-				ball.setYSpeed(Math.floor(Math.random() * (BALLSPEEDY)))
+				ball.setYSpeed(Math.floor(Math.random() * (BALLSPEEDY)));
 			}
 			function computerMovement(){
 				var paddle1Center = paddle1.y + paddle1.height/2
@@ -136,15 +135,19 @@
 			game.canvas.canvas.addEventListener('mousemove',function(e){
 				var mousePos = getMousePosition(e);paddle1.y = mousePos.y;
 			});
+			function reset(){
+				showingWinScreen = false;
+				score1Val = 0,score2Val = 0;
+				score1.setText(score1Val);
+				score2.setText(score2Val);
+				ball.setX(game.canvas.width/2-(ball.width/2));
+				ball.setY(game.canvas.height/2-(ball.height/2));
+				ball.resetSound('background');
+				ball.playSound('background');
+                game.play();
+			}
 			function handlemouseClick(){
-				if(showingWinScreen){
-					score1Val = 0,score2Val = 0;
-					score1.setText(score1Val);
-					score2.setText(score2Val);
-					ball.setX(game.canvas.width/2-(ball.width/2));
-					ball.setY(game.canvas.height/2-(ball.height/2));
-					showingWinScreen = false;
-				}
+				if(showingWinScreen) return reset();
 			}
 			function getMousePosition(e){
 				var rect = game.canvas.canvas.getBoundingClientRect();

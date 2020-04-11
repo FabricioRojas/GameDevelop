@@ -11,12 +11,19 @@
             game.control.setStep(10);
             game.canvas.setSolidBordersX(true);
             game.canvas.setSolidBordersY(true);
+            game.canvas.canvas.addEventListener('click', handlemouseClick);
             game.gui.addMenu("main_menu","white", game.canvas.width/2, 
             game.canvas.height-200, game.canvas.width/2-(game.canvas.width/4), (game.canvas.height/2-(game.canvas.height/3)), "white", 2);
 
-            game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT,true , "black", 30,"Resume");
-            game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT,true , "black", 30,"Restart");
-            game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT,true , "black", 30,"Exit");
+            game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT,true , "black", 30,"Resume", null, null, () => {
+				game.play();
+			});
+            game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT,true , "black", 30,"Restart", null, null, () => {
+				reset();
+			});
+            game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT,true , "black", 30,"Exit", null, null, () => {
+				if (confirm("Sure you want to go?")) window.close();			
+			});
 
             setInterval(() => game.draw(drawing), 1000/60);
 
@@ -31,14 +38,12 @@
             var powerups = ["pad-smaller", "pad-bigger", "pad-faster"];
             var powerupDrop = false;
             var powerupsTimeout = 20;
-            
-            generateBlocks(4, 7, 20, brickWidth, brickHeight,3);
+			var loseState = false;
 
-            var paddle = game.addElement(game.ELEMENT.RECT, "white", 100, 10, 350, 550);
-            var paddle = game.addElement(game.ELEMENT.RECT, "white", 100, 10, 350, 550);
-            // var ball = game.addElement(game.ELEMENT.CIRCLE, "white", 5, 395, 540);
-            var ball = game.addElement(game.ELEMENT.RECT, "white", 10, 10, 395, 540);
-            var brickCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, bricks.length, 760, 50);
+            var paddle = game.addElement(game.ELEMENT.RECT, "white", 100, 10, 0, 0);
+            var ball = game.addElement(game.ELEMENT.CIRCLE, "white", 5, 0, 0);
+            // var ball = game.addElement(game.ELEMENT.RECT, "white", 10, 10, 395, 540);
+            var brickCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, bricks.length, game.canvas.width-30, 50);
             var livesCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, lives, 30, 50);
             var winText = game.addElement(game.ELEMENT.TEXT, "white", 50,"Stage cleared!", 300, 300);
             var loseText = game.addElement(game.ELEMENT.TEXT, "white", 50,"You lose!", 300, 300);
@@ -71,7 +76,8 @@
             ball.addSound('background','background.mp3');
             ball.setSoundLoop('background',true);
             ball.setSoundVolume('background',0.1);
-
+            
+            reset();
 			var drawing = function(){
                 ball.print();
                 paddle.print();
@@ -104,32 +110,32 @@
                     powerupPaddleCollision(powerup.collide(paddle))
                 }
             };
-
             function hitBottom(){
                 if(ball.y < game.canvas.height - ball.height) return;
-                ball.pauseSound('background');
                 ball.playSound('ball_fall');
                 lives--;
                 livesCounter.setText(lives);
                 livesCounter.print();
                 powerupDrop = false;
-                reset()
+                resetBall();
                 if(lives == 0) lose();
-                // ball.playSound('background');
             }
+            function resetBall(){
+            //     var paddle = game.addElement(game.ELEMENT.RECT, "white", 100, 10, game.canvas.width/2-100, game.canvas.height+10+50);
+            // var ball = game.addElement(game.ELEMENT.CIRCLE, "white", 5, 395, 540);
 
-            function reset(){
+
                 ball.setXSpeed(0);
                 ball.setYSpeed(0);
-                ball.setX(395);
-                ball.setY(540);
-                paddle.setX(350);
-                paddle.setY(550);
+                ball.setX(game.canvas.width/2);
+                ball.setY(game.canvas.height-50-(ball.height/2));
+                paddle.setX((game.canvas.width/2)-(paddle.width/2));
+                paddle.setY(game.canvas.height-50);
                 ballSpeed = BALLSPEDD;
                 gameStarted = false;
             }
-
             function lose(){
+                loseState = true;
                 game.pause();
                 ball.pauseSound('background');
                 loseText.playSound('lose');
@@ -137,10 +143,20 @@
                 game.canvas.print();
                 bricks = [];
                 loseText.print();
-                reset();
-                lives = 3;
             }
-
+            function reset(){
+                loseState = false;
+                game.canvas.clear();
+                game.canvas.print();
+                resetBall();
+                lives = 3;
+                livesCounter.setText(lives);
+                generateBlocks(4, 7, 20, brickWidth, brickHeight,3);
+                brickCounter.setText(bricks.length);
+                ball.resetSound('background');
+                ball.playSound('background');
+                game.play();
+            }
             function win(){
                 game.pause();
                 ball.pauseSound('background');
@@ -149,7 +165,6 @@
                 game.canvas.print();
                 winText.print();
             }
-
             function ballPaddleCollision(collided){
                 if(!collided || !gameStarted) return;
 
@@ -168,7 +183,6 @@
                 ball.playSound('hit_paddle');
                 ball.setYSpeed(-ballSpeed);
             }
-
             function applyProwerUpEffect(effect){
                 console.log("effect", effect);
                 switch(effect){
@@ -196,7 +210,6 @@
                         break;
                 }
             }
-
             function powerupPaddleCollision(collided){
                 if(!collided) return;
                 powerupDrop = false;
@@ -204,7 +217,6 @@
                 powerup.setY(-20);
                 applyProwerUpEffect(powerup.effect)
             }
-
             function ballBrickCollision(collided, brick, index){
                 if(collided==-1 || !gameStarted) return;
 
@@ -238,9 +250,7 @@
                         ball.setYSpeed(ball.ySpeed*-1);
                         break;
                 }
-                // TODO: Improve brick collision
             }
-
             function moveBall(){
                 if(gameStarted) return;
                 if(game.control.x < 0) ball.setXSpeed(-ballSpeed);
@@ -248,9 +258,7 @@
                 ball.setYSpeed(-ballSpeed);
                 gameStarted = true;
                 ball.playSound('hit_paddle');
-                ball.playSound('background');
             }
-
             function generateBlocks(rows, columns, separation, brickWidth, brickHeight, powerupsBlocks){
                 bricks = [];
                 var bricksSize = ((brickWidth+separation)*columns)-separation;
@@ -282,15 +290,18 @@
                     yStart += brickHeight+separation;
                 }
             }
-            
             function rand(maxNum, factorial) { 
 				return Math.floor(Math.floor(Math.random() * (maxNum + factorial)) / factorial) * factorial; 
 			};
-
 			/* Custom listeners */
 			function keydown(evt){
                 if(evt.keyCode == game.KEY.LEFT || evt.keyCode == game.KEY.RIGHT) moveBall();
             }
+			function handlemouseClick(){
+				if(loseState){
+					reset();
+				}
+			}
 		</script>
     </body>
 </html>

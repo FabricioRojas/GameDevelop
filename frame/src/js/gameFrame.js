@@ -4,9 +4,10 @@ class Game {
     ELEMENT = {CIRCLE : 'Circle',RECT : 'Rect',TEXT : 'Text',IMAGE:'Image',SOUND:'Sound'}
     STATE = {PAUSE : 'Pause',PLAY : 'Play',MENU : 'Menu',WIN : 'Win', LOSE: 'Lose'}
 
-    constructor(element, width, height){
+    constructor(element, width, height, develop){
         this.canvas = new GameCanvas(element, width, height);
-        this.fui = new FrameUI(this.canvas.canvas);
+        this.develop = develop;
+        if(this.develop) this.fui = new FrameUI(this.canvas.canvas);
         this.control = new GameControls(this.KEY);
         this.gui = new GameUI(this);
         this.elements = {};
@@ -19,11 +20,14 @@ class Game {
         this.state = this.STATE.PAUSE;
         this.canvas.clear();
         this.canvas.print();
-        var image = this.addElement(this.ELEMENT.IMAGE, "../frame/src/img/background-grid.svg", 
-        this.canvas.width, this.canvas.height, 0, 0)
-        this.canvas.setBackgroundImage(image);
-
-		document.getElementById("fui-stop").addEventListener('click', () => {
+        if(this.develop){
+            var image = this.addElement(this.ELEMENT.IMAGE, "../frame/src/img/background-grid.svg", 
+            this.canvas.width, this.canvas.height, 0, 0)
+            this.canvas.setBackgroundImage(image);
+        }
+    
+        var stopButton = document.getElementById("fui-stop");
+        if(stopButton) stopButton.addEventListener('click', () => {
 			this.togglePlayState();
         });
         this.canvas.canvas.addEventListener("mousedown", (e) => {
@@ -106,7 +110,7 @@ class Game {
                 element = new ImageElement(this.canvas, this.fui, this.ELEMENT.IMAGE, color, var1, var2, var3, var4);
                 break;
         }
-        this.fui.addElement(element);
+        if(this.fui) this.fui.addElement(element);
         this.elements[element.id+''] = element;
         return element;
     }
@@ -114,7 +118,7 @@ class Game {
         if(this.elements[element.id+'']){
             this.elements[element.id+''] = undefined;
             delete this.elements[element.id+''];
-            this.fui.removeElement(element);
+            if(this.fui) this.fui.removeElement(element);
         }
     }
     setCurrentMenu(currentMenu) {
@@ -658,7 +662,7 @@ class CircleElement extends CanvasElement{
         this.context.beginPath();
         this.context.arc(this.x, this.y, this.radius, 0, Math.PI*2, true);
         this.context.fill();
-        this.fui.updateElement(this);
+        if(this.fui) this.fui.updateElement(this);
     }
 
     /* Setters */
@@ -688,7 +692,7 @@ class RectElement extends CanvasElement{
             this.context.fillStyle = this.color;
             this.context.fillRect(this.x, this.y, this.width, this.height); 
         }
-        this.fui.updateElement(this);
+        if(this.fui) this.fui.updateElement(this);
     }
 
     /* Setters */
@@ -719,7 +723,7 @@ class TextElement extends CanvasElement{
         this.context.textAlign = this.align; 
         this.context.fillStyle = this.color;
         this.context.fillText(this.text, this.x, this.y);
-        this.fui.updateElement(this);
+        if(this.fui) this.fui.updateElement(this);
     }
 
     /* Setters */
@@ -751,7 +755,7 @@ class ImageElement extends CanvasElement{
     /* Methods */
     print(){
         this.context.drawImage(this.image,this.x,this.y,this.width,this.height);
-        this.fui.updateElement(this);
+        if(this.fui) this.fui.updateElement(this);
     }
 
     /* Setters */
