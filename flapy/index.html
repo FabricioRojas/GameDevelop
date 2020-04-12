@@ -1,0 +1,83 @@
+<html>
+	<head>
+        <link rel="shortcut icon" type="image/png" href="../frame/src/img/game-development.png"/>
+        <title>Flapy - GameDevelop</title>
+	</head>
+	<body>
+		<canvas id=gc></canvas>
+        <script src=../frame/src/js/gameFrame.js></script>
+        <link rel=stylesheet href=../frame/src/css/main.css charset="utf-8">
+        <script>
+            var game = new Game("gc", 800, 600, true);
+            game.control.setStep(7);
+            game.canvas.setBackgroundImage(game.addElement(game.ELEMENT.IMAGE, "background.png", game.canvas.width*2, game.canvas.height, 0, 0));
+            setInterval(() => game.draw(drawing), 1000/60);
+
+            var square = 30;
+            var bird = game.addElement(game.ELEMENT.RECT, "red", square, square, 150, 250);
+            var background2 = game.addElement(game.ELEMENT.IMAGE, "background.png", game.canvas.width*2, game.canvas.height, game.canvas.width, 0);
+            
+            var wallUp = game.addElement(game.ELEMENT.RECT, "yellow", 20, 250, game.canvas.width-20, 0);
+            var wallDown = game.addElement(game.ELEMENT.RECT, "yellow", 20, 250, game.canvas.width-20, 400);
+
+            wallUp.setXSpeed(-1);
+            wallDown.setXSpeed(-1);
+            
+            bird.setGravity(0.3);
+
+            game.canvas.backgroundImage.setXSpeed(-0.3);
+            background2.setXSpeed(-0.3);
+
+            var drawing = function(){
+                game.canvas.backgroundImage.move('x');
+                background2.move('x');
+
+                loopBackground();
+                if(wallUp.x == -1 * wallUp.width){
+                    // background2.x = game.canvas.width;
+                    console.log("wall gone");
+                }
+                
+                bird.move('y');
+                wallUp.move('x');
+                wallDown.move('x');
+                
+                if(game.control.y != 0){
+                    bird.y += game.control.y;
+                    bird.setGravitySpeed(bird.gravity);
+                }
+                if(bird.collide(wallUp) || bird.collide(wallDown)){
+                    reset()
+                }
+
+                background2.print();
+                bird.print();
+                wallUp.print();
+                wallDown.print();
+            };
+
+            function loopBackground(){
+                if(game.canvas.backgroundImage.x == -1 * game.canvas.width){
+                    game.canvas.backgroundImage.x = game.canvas.width;
+                }
+                if(background2.x == -1 * game.canvas.width*2){
+                    background2.x = game.canvas.width;
+                }
+            }
+            function reset(){
+                bird.setX(150);
+                bird.setY(250);
+                game.canvas.backgroundImage.setX(0);
+                game.canvas.backgroundImage.setY(0);
+                background2.setX( game.canvas.width);
+                background2.setY(0);
+                
+                wallUp.setX(game.canvas.width-20);
+                wallUp.setY(0);
+                wallDown.setX(game.canvas.width-20);
+                wallDown.setY(400);
+
+            }
+        </script>
+    </body>
+</html>

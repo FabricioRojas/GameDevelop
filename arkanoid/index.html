@@ -1,6 +1,7 @@
 <html>
 	<head>
         <link rel="shortcut icon" type="image/png" href="../frame/src/img/game-development.png"/>
+        <title>Arkanoid - GameDevelop</title>
 	</head>
 	<body>
 		<canvas id=gc></canvas>
@@ -60,6 +61,7 @@
 
             paddle.addListener("keydown", keydown);
             paddle.setIsSolid(true);
+            paddle.addSound('powerup','powerup.mp3');
             // paddle.addSound('slide','slide.mp3');
             // paddle.setSoundDuration('slide',0.1);
            
@@ -184,7 +186,7 @@
                 ball.setYSpeed(-ballSpeed);
             }
             function applyProwerUpEffect(effect){
-                console.log("effect", effect);
+                paddle.playSound('powerup');
                 switch(effect){
                     case "pad-bigger":
                         paddle.setX(paddle.x - paddle.width);
@@ -270,11 +272,9 @@
                 for(var p=0; p<powerupsBlocks;p++){
                     var iv = Math.floor(Math.random() * (rows));
                     var jv = Math.floor(Math.random() * (columns));
-                    console.log("iv",iv, jv);
                     powerupsBlock[iv] = {};
                     powerupsBlock[iv][jv] = true;
                 }
-                console.log("powerupsBlock",powerupsBlock);
                 for(var i=0;i<rows; i++){
                     for(var j=0;j<columns; j++){
                         if(powerupsBlock[i] ? powerupsBlock[i][j] : false) color = "yellow";
@@ -298,9 +298,7 @@
                 if(evt.keyCode == game.KEY.LEFT || evt.keyCode == game.KEY.RIGHT) moveBall();
             }
 			function handlemouseClick(){
-				if(loseState){
-					reset();
-				}
+				if(loseState) return reset();
 			}
 		</script>
     </body>
