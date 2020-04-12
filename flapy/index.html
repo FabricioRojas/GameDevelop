@@ -1,83 +1,109 @@
 <html>
-	<head>
-        <link rel="shortcut icon" type="image/png" href="../frame/src/img/game-development.png"/>
-        <title>Flapy - GameDevelop</title>
-	</head>
-	<body>
-		<canvas id=gc></canvas>
-        <script src=../frame/src/js/gameFrame.js></script>
-        <link rel=stylesheet href=../frame/src/css/main.css charset="utf-8">
-        <script>
-            var game = new Game("gc", 800, 600, true);
-            game.control.setStep(7);
-            game.canvas.setBackgroundImage(game.addElement(game.ELEMENT.IMAGE, "background.png", game.canvas.width*2, game.canvas.height, 0, 0));
-            setInterval(() => game.draw(drawing), 1000/60);
 
-            var square = 30;
-            var bird = game.addElement(game.ELEMENT.RECT, "red", square, square, 150, 250);
-            var background2 = game.addElement(game.ELEMENT.IMAGE, "background.png", game.canvas.width*2, game.canvas.height, game.canvas.width, 0);
-            
-            var wallUp = game.addElement(game.ELEMENT.RECT, "yellow", 20, 250, game.canvas.width-20, 0);
-            var wallDown = game.addElement(game.ELEMENT.RECT, "yellow", 20, 250, game.canvas.width-20, 400);
+<head>
+    <link rel="shortcut icon" type="image/png" href="../frame/src/img/game-development.png" />
+    <title>Flapy - GameDevelop</title>
+</head>
+
+<body>
+    <canvas id=gc></canvas>
+    <script src=../frame/src/js/gameFrame.js></script>
+    <link rel=stylesheet href=../frame/src/css/main.css charset="utf-8">
+    <script>
+        var game = new Game("gc", 800, 600, true);
+        game.control.setStep(13);
+        game.canvas.setBackgroundImage(game.addElement(game.ELEMENT.IMAGE, "background.png", game.canvas.width * 2, game.canvas.height, 0, 0));
+        game.canvas.backgroundImage.setXSpeed(-0.3);
+
+        setInterval(() => game.draw(drawing), 1000 / 60);
+
+        var walls = [];
+        var wallsInterval;
+        var square = 30;
+        var bird = game.addElement(game.ELEMENT.RECT, "red", square, square, 150, 250);
+        var background2 = game.addElement(game.ELEMENT.IMAGE, "background.png", game.canvas.width * 2, game.canvas.height, game.canvas.width, 0);
+
+
+        // bird.setGravity(0.2);
+        background2.setXSpeed(-0.3);
+
+        reset();
+        var drawing = function () {
+            loopBackground();
+
+            printWalls();
+
+            // bird.move('y');
+
+            if (game.control.y != 0) {
+                bird.y += game.control.y;
+                bird.setGravitySpeed(bird.gravity);
+            }
+
+            background2.print();
+            bird.print();
+        };
+
+        function printWalls(){
+            for (var i in walls) {
+                // if (!walls[i]) continue;
+                walls[i].move('x');
+                walls[i].print();
+                // console.log(walls[i].x,walls.length);
+                // if (bird.collide(walls[i])) reset();
+                if (walls[i].x == -1 * walls[i].width) game.removeElement(walls[i]);
+                // if(walls[i].x == game.canvas.width/2) randomWall();
+            }
+        }
+
+        function randomWall() {
+            var wallUpHeight = randomValue(100, game.canvas.height - (square*2) - 100);
+            var wallDownY = randomValue(wallUpHeight+(square*2)+100, game.canvas.height-100);
+            var wallUp = game.addElement(game.ELEMENT.RECT, "yellow", 20, wallUpHeight, game.canvas.width - 20, 0);
+            var wallDown = game.addElement(game.ELEMENT.RECT, "yellow", 20, game.canvas.height - wallDownY, game.canvas.width - 20, wallDownY);
+            console.log("wallUp", wallUp.x);
+            console.log("wallDown", wallDown.x);
 
             wallUp.setXSpeed(-1);
             wallDown.setXSpeed(-1);
-            
-            bird.setGravity(0.3);
+            // game.pause();
+            walls.push(wallUp);
+            walls.push(wallDown);        
+            console.log("walls", walls);
+        }
 
-            game.canvas.backgroundImage.setXSpeed(-0.3);
-            background2.setXSpeed(-0.3);
+        function randomValue(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
 
-            var drawing = function(){
-                game.canvas.backgroundImage.move('x');
-                background2.move('x');
-
-                loopBackground();
-                if(wallUp.x == -1 * wallUp.width){
-                    // background2.x = game.canvas.width;
-                    console.log("wall gone");
-                }
-                
-                bird.move('y');
-                wallUp.move('x');
-                wallDown.move('x');
-                
-                if(game.control.y != 0){
-                    bird.y += game.control.y;
-                    bird.setGravitySpeed(bird.gravity);
-                }
-                if(bird.collide(wallUp) || bird.collide(wallDown)){
-                    reset()
-                }
-
-                background2.print();
-                bird.print();
-                wallUp.print();
-                wallDown.print();
-            };
-
-            function loopBackground(){
-                if(game.canvas.backgroundImage.x == -1 * game.canvas.width){
-                    game.canvas.backgroundImage.x = game.canvas.width;
-                }
-                if(background2.x == -1 * game.canvas.width*2){
-                    background2.x = game.canvas.width;
-                }
+        function loopBackground() {
+            game.canvas.backgroundImage.move('x');
+            background2.move('x');
+            if (game.canvas.backgroundImage.x == -1 * game.canvas.width) {
+                game.canvas.backgroundImage.x = game.canvas.width;
             }
-            function reset(){
-                bird.setX(150);
-                bird.setY(250);
-                game.canvas.backgroundImage.setX(0);
-                game.canvas.backgroundImage.setY(0);
-                background2.setX( game.canvas.width);
-                background2.setY(0);
-                
-                wallUp.setX(game.canvas.width-20);
-                wallUp.setY(0);
-                wallDown.setX(game.canvas.width-20);
-                wallDown.setY(400);
-
+            if (background2.x == -1 * game.canvas.width * 2) {
+                background2.x = game.canvas.width;
             }
-        </script>
-    </body>
+        }
+        function reset() {
+            game.canvas.clear();
+            game.canvas.print();
+            bird.setX(150);
+            bird.setY(250);
+            game.canvas.backgroundImage.setX(0);
+            game.canvas.backgroundImage.setY(0);
+            background2.setX(game.canvas.width);
+            background2.setY(0);
+            for (var i in walls) if (walls[i]) game.removeElement(walls[i]);
+            walls = [];
+            randomWall();
+            if(wallsInterval) clearInterval(wallsInterval);
+            wallsInterval = setInterval(() => {
+                if (game.state == game.STATE.PLAY) randomWall();
+            }, 1000 * 6);
+        }
+    </script>
+</body>
+
 </html>
