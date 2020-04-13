@@ -754,7 +754,16 @@ class ImageElement extends CanvasElement{
 
     /* Methods */
     print(){
-        this.context.drawImage(this.image,this.x,this.y,this.width,this.height);
+        if(this.rotate){
+            this.context.save();
+            this.context.translate(this.x+(this.width/2), this.y+(this.height/2));
+            this.context.rotate(this.angle);
+            this.context.translate(-this.x-(this.width/2), -this.y-(this.height/2));
+            this.context.drawImage(this.image,this.x,this.y,this.width,this.height);
+            this.context.restore();
+        }else{
+            this.context.drawImage(this.image,this.x,this.y,this.width,this.height);
+        }
         if(this.fui) this.fui.updateElement(this);
     }
 

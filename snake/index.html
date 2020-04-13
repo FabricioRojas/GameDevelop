@@ -106,9 +106,6 @@
 			snakeHeadShadow.setXSpeed(0);
 			snakeHeadShadow.setYSpeed(0);	
 
-			game.setBeforeDraw(function(){
-				
-			});
 			reset();
 			var drawing = function(){
 				snakeHead.move('x');
@@ -149,9 +146,7 @@
 				apple.print();
 			};
 			function handlemouseClick(){
-				if(loseState){
-					reset();
-				}
+				if(loseState) reset();
 			}
 			function snakeWallCollision(elm){
 				if(snakeHead.infiniteMoveX) return;
