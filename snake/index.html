@@ -80,6 +80,7 @@
 			var snakeHead = game.addElement(game.ELEMENT.RECT, "darkgreen", square, square, 50, 60);
 			var snakeHeadShadow = game.addElement(game.ELEMENT.RECT, "black", square+2, square+2, snakeHead.x-1, snakeHead.y-1);
 			var pointsCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, points, 50, 50);
+			var highScore = game.addElement(game.ELEMENT.TEXT, "white", 35, localStorage.getItem("snake-highscore") ? localStorage.getItem("snake-highscore") : 0, game.canvas.width-50, 50);
 			var loseText = game.addElement(game.ELEMENT.TEXT, "white", 50, losetxt, 350, 300);
 			
 			snakeHead.addSound('background','background.mp3');
@@ -142,6 +143,7 @@
 					pointsCounter.setText(points);
 				}
 				
+				highScore.print();
 				pointsCounter.print();
 				apple.print();
 			};
@@ -178,6 +180,7 @@
 				apple.setY(270);
 				points = 0;
 				canibalism = false;
+				highScore.setText(localStorage.getItem("snake-highscore"));
 				if(!playSound) game.play();				
 			}
 			function checkScore(){
