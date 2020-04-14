@@ -1,0 +1,88 @@
+<html>
+
+<head>
+    <link rel="shortcut icon" type="image/png" href="../frame/src/img/game-development.png" />
+    <title>Space Invaders - GameDevelop</title>
+</head>
+
+<body>
+    <canvas id=gc></canvas>
+    <script src=../frame/src/js/gameFrame.js></script>
+    <link rel=stylesheet href=../frame/src/css/main.css charset="utf-8">
+    <script>
+        var game = new Game("gc", 800, 600, true);
+        game.control.setStep(5);
+        setInterval(() => game.draw(drawing), 1000 / 60);
+
+        var ship = game.addElement(game.ELEMENT.RECT, "white", 50, 25, game.canvas.width / 2 - 50 / 2, 500);
+        var shipGun = game.addElement(game.ELEMENT.RECT, "white", 9, 8, game.canvas.width / 2 - 9 / 2, ship.y - 8);
+        var aliens = [];
+        var bricks = [];
+        var shots = [];
+        var shotTimeout = null;
+
+        reset();
+        var drawing = function () {
+            shipGun.print();
+            ship.print();
+
+            for (var i in aliens) if (aliens[i]) aliensMove(aliens[i]);
+            for (var i in bricks) if (bricks[i]) bricks[i].print();
+
+            
+            
+
+            for (var s in shots) {
+                shots[s].move('y');
+                shots[s].print();
+                if (shots[s].y + shots[s].height < 0) game.removeElement(shots[s]);
+            }
+
+            ship.x += game.control.x;
+            shipGun.x += game.control.x;
+            
+            if (game.control.y) shoot();
+        };
+        function aliensMove(alien){
+            alien.print();
+            alien.move('x');
+            if(alien.x+alien.width >= game.canvas.width || alien.x <= 0){
+                for (var i in aliens)
+                    if (aliens[i]) {
+                        aliens[i].setXSpeed(aliens[i].xSpeed*-1);
+                        aliens[i].setY(aliens[i].y+aliens[i].height/2);
+                    }
+            }
+        }
+        function reset() {
+            aliens = generateElementsArray(5, 7, 30, 50, 25, 60, 'lightgreen');
+            bricks = generateElementsArray(1, 9, 25, 50, 25, 400, 'white');
+            game.play();
+        }
+        function shoot() {
+            if (shotTimeout) return;
+            var shot = game.addElement(game.ELEMENT.RECT, "white", 2, 10, ship.x + (ship.width / 2) - (2 / 2), ship.y - 20);
+            shot.setYSpeed(-2.5);
+            shots.push(shot);
+            shotTimeout = setTimeout(() => { clearTimeout(shotTimeout); shotTimeout = null; }, 1000 * 0.2);
+        }
+        function generateElementsArray(rows, columns, separation, elementWidth, elementHeight,  yStart, color) {
+            elements = [];
+            var elementsSize = ((elementWidth + separation) * columns) - separation;
+            var elementsStart = (game.canvas.width - elementsSize) / 2;
+            var elementsX = elementsStart;
+            for (var i = 0; i < rows; i++) {
+                for (var j = 0; j < columns; j++) {
+                    var newElement = game.addElement(game.ELEMENT.RECT, color, elementWidth, elementHeight, elementsX, yStart);
+                    elements.push(newElement);
+                    elementsX += elementWidth + separation;
+                }
+                elementsX = elementsStart;
+                yStart += elementHeight + separation;
+            }
+            return elements;
+        }
+    </script>
+</body>
+
+</html>

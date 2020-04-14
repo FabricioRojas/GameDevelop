@@ -10,7 +10,7 @@
     <script src=../frame/src/js/gameFrame.js></script>
     <link rel=stylesheet href=../frame/src/css/main.css charset="utf-8">
     <script>
-        var game = new Game("gc", 800, 600, true);
+        var game = new Game("gc", 800, 600);
         game.control.setStep(13);
         game.canvas.setBackgroundImage(game.addElement(game.ELEMENT.IMAGE, "background.png", game.canvas.width * 2, game.canvas.height, 0, 0));
         game.canvas.backgroundImage.setXSpeed(-0.3);
