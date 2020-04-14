@@ -180,7 +180,7 @@
 				apple.setY(270);
 				points = 0;
 				canibalism = false;
-				highScore.setText(localStorage.getItem("snake-highscore"));
+				highScore.setText(localStorage.getItem("snake-highscore") ? localStorage.getItem("snake-highscore") : 0);
 				if(!playSound) game.play();				
 			}
 			function checkScore(){
