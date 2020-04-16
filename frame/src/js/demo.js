@@ -1,5 +1,5 @@
 window.onload=function() {
-    var game = new Game("gc", 800, 600);
+    var game = new Game("gc", 800, 600, true);
     
     var circle1 = game.addElement(game.ELEMENT.CIRCLE, "red", 5, 22, 33);
     var circle2 = game.addElement(game.ELEMENT.CIRCLE, "blue", 5, 22, 43);

@@ -553,9 +553,6 @@ class CanvasElement{
     }
     collideWithDirecction(otherobj) {
         if (!this.collide(otherobj)) return -1;
-        // console.log("y",this.y + this.height, otherobj.y, otherobj.y + otherobj.height, this.y);
-        // console.log("x", this.x+this.width, otherobj.x, otherobj.x + otherobj.width, this.x);
-
         if((
             (this.y > otherobj.y && this.y < (otherobj.y + otherobj.height)) ||
             ((this.y + this.height) > otherobj.y && (this.y + this.height) < (otherobj.y + otherobj.height))

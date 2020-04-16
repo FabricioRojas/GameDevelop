@@ -10,7 +10,7 @@
     <script src=../frame/src/js/gameFrame.js></script>
     <link rel=stylesheet href=../frame/src/css/main.css charset="utf-8">
     <script>
-        var game = new Game("gc", 800, 600, false);
+        var game = new Game("gc", 800, 600, true);
         game.control.setStep(5);
         game.canvas.canvas.addEventListener('click', handlemouseClick);
         setInterval(() => game.draw(drawing), 1000 / 60);
@@ -19,6 +19,21 @@
         var shipGun = game.addElement(game.ELEMENT.RECT, "white", 9, 8, game.canvas.width / 2 - 9 / 2, ship.y - 8);
         var winText = game.addElement(game.ELEMENT.TEXT, "white", 50, "Aliens defeated!", 300, 300);
         var loseText = game.addElement(game.ELEMENT.TEXT, "white", 50, "You've been invaded!", 300, 300);
+
+        ship.addSound('background', 'background.mp3');
+        ship.setSoundVolume('background',0.3);
+
+        ship.addSound('shot', 'shot.mp3');
+        ship.setSoundDuration('shot', '0.5');
+
+        ship.addSound('brick_hit', 'brick_hit.mp3');
+        ship.setSoundDuration('brick_hit', '0.5');
+        ship.setSoundVolume('brick_hit',0.5);
+
+        
+        loseText.addSound('lose', 'lose.mp3');
+        loseText.setSoundDuration('lose', '5');
+        loseText.setSoundVolume('lose', 0.5);
 
         var aliens = [];
         var bricks = [];
@@ -42,6 +57,7 @@
                 shots[s].print();
                 if (shots[s].y + shots[s].height < 0) removeElement(shots, s);
                 for (var b in bricks) if (bricks[b] && shots[s] && shots[s].collide(bricks[b])) {
+                    ship.playSound('brick_hit');
                     removeElement(shots, s);
                     bricks[b].setHeight(bricks[b].height - (25 / brickLives));
                     if (bricks[b].height == 0) removeElement(bricks, b);
@@ -72,7 +88,6 @@
                         aliens[i].setXSpeed((aliens[i].xSpeed > 0 ? aliens[i].xSpeed + 0.1 : aliens[i].xSpeed - 0.1) * -1);
                         aliens[i].setY(aliens[i].y + aliens[i].height / 2);
                     }
-                return;
             }
             if(alien.y + alien.height >= 400) lose();
         }
@@ -85,15 +100,19 @@
         function lose() {
             loseState = true;
             game.pause();
+            ship.pauseSound('background');
+            loseText.playSound('lose');
             loseText.print();
         }
         function reset() {
             aliens = generateElementsArray(3, 7, 50, 50, 25, 60, 'lightgreen', 'alien');
             bricks = generateElementsArray(1, 9, 25, 50, 25, 400, 'white', ' brick');
+            ship.playSound('background');
             game.play();
         }
         function shoot() {
             if (shotTimeout) return;
+            ship.playSound('shot');
             var shot = game.addElement(game.ELEMENT.RECT, "white", 2, 10, ship.x + (ship.width / 2) - (2 / 2), ship.y - 20);
             shot.setYSpeed(-2.5);
             shots.push(shot);
