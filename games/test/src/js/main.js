@@ -45,11 +45,12 @@ var game = new Game("gc", 800, 600, true);
 const canvas = game.canvas;
 const ctx = game.canvas.context
 
-var animationTest = game.addElement(game.ELEMENT.IMAGE, `src/img/animation_test.png`, 900, 136, 0, 200);
+var animationTest = game.addElement(game.ELEMENT.IMAGE, `src/img/animation_test_full.png`, 913, 609, 0, 200);
+// var animationTest = game.addElement(game.ELEMENT.IMAGE, `src/img/animation_test.png`, 900, 136, 0, 200);
 animationTest.setAnimation({
     currentFrame: 0,
     frameCount: 7,
-    rows: 1,
+    rows: 4,
     cols: 7,
 });
 
@@ -83,6 +84,6 @@ function loop() {
    animationTest.print();
 }
 
-// requestAnimationFrame(loop);
+requestAnimationFrame(loop);
 
-setInterval(loop, 1000/60);
+// setInterval(loop, 1000/60);
