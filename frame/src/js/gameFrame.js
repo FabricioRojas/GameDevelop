@@ -21,7 +21,7 @@ class Game {
         this.canvas.clear();
         this.canvas.print();
         if(this.develop){
-            var image = this.addElement(this.ELEMENT.IMAGE, "../frame/src/img/background-grid.svg", 
+            var image = this.addElement(this.ELEMENT.IMAGE, "../../frame/src/img/background-grid.svg", 
             this.canvas.width, this.canvas.height, 0, 0)
             this.canvas.setBackgroundImage(image);
         }
