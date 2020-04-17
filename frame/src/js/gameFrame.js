@@ -747,10 +747,12 @@ class ImageElement extends CanvasElement{
         this.image.src = this.src;
         this.width = width;
         this.height = height;
+        this.animation;
     }
 
     /* Methods */
     print(){
+        if(this.animation) this.updateAnimation();
         if(this.rotate){
             this.context.save();
             this.context.translate(this.x+(this.width/2), this.y+(this.height/2));
@@ -759,9 +761,19 @@ class ImageElement extends CanvasElement{
             this.context.drawImage(this.image,this.x,this.y,this.width,this.height);
             this.context.restore();
         }else{
-            this.context.drawImage(this.image,this.x,this.y,this.width,this.height);
+            if(!this.animation) this.context.drawImage(this.image,this.x,this.y,this.width,this.height);
+            else this.context.drawImage(this.image, this.animation.x, this.animation.y, this.animation.width, this.animation.height, this.x, this.y, this.animation.width, this.animation.height);
         }
         if(this.fui) this.fui.updateElement(this);
+    }
+
+    updateAnimation(){
+        if(this.animation.timeout) return;
+        this.animation.currentFrame = ++this.animation.currentFrame % this.animation.frameCount;
+        this.animation.x= this.animation.currentFrame * this.animation.width;
+        ctx.clearRect(this.x, this.y, this.animation.width, this.animation.height);	
+        this.animation.y = 0 * this.animation.height;
+        this.animation.timeout = setTimeout(() => { clearTimeout(this.animation.timeout); this.animation.timeout = null; }, 1000 * this.animation.update);
     }
 
     /* Setters */
@@ -776,5 +788,13 @@ class ImageElement extends CanvasElement{
     }    
     setFont(font) {
         this.font = font;
+    } 
+    setAnimation(animation) {
+        this.animation = animation;
+        this.animation.width = this.width / animation.cols;
+        this.animation.height = this.height / animation.rows;
+        this.animation.x = 0;
+        this.animation.y = 0;
+        this.animation.update = animation.update ? animation.update : 0.1;
     }
 }
