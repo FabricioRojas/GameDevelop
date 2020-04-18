@@ -747,12 +747,13 @@ class ImageElement extends CanvasElement{
         this.image.src = this.src;
         this.width = width;
         this.height = height;
-        this.animation;
+        this.animations = {};
+        this.currentAnimation = null;
     }
 
     /* Methods */
     print(){
-        if(this.animation) this.updateAnimation();
+        if(this.currentAnimation) this.updateAnimation();
         if(this.rotate){
             this.context.save();
             this.context.translate(this.x+(this.width/2), this.y+(this.height/2));
@@ -761,20 +762,34 @@ class ImageElement extends CanvasElement{
             this.context.drawImage(this.image,this.x,this.y,this.width,this.height);
             this.context.restore();
         }else{
-            if(!this.animation) this.context.drawImage(this.image,this.x,this.y,this.width,this.height);
-            else this.context.drawImage(this.image, this.animation.x, this.animation.y, this.animation.width, this.animation.height, this.x, this.y, this.animation.width, this.animation.height);
+            if(!this.currentAnimation) this.context.drawImage(this.image,this.x,this.y,this.width,this.height);
+            else this.context.drawImage(this.image, this.currentAnimation.x, this.currentAnimation.y, this.currentAnimation.width, this.currentAnimation.height, this.x, this.y, this.currentAnimation.width, this.currentAnimation.height);
         }
         if(this.fui) this.fui.updateElement(this);
     }
 
     updateAnimation(){
-        if(this.animation.timeout) return;
-        this.animation.currentFrame = ++this.animation.currentFrame % this.animation.cols;
-        this.animation.x= this.animation.currentFrame * this.animation.width;
-        // this.context.clearRect(this.x, this.y, this.animation.width, this.animation.height);	
-        if(this.animation.currentFrame == 0) this.animation.currentColumn = ++this.animation.currentColumn % this.animation.rows;
-        this.animation.y = this.animation.currentColumn * this.animation.height;
-        this.animation.timeout = setTimeout(() => { clearTimeout(this.animation.timeout); this.animation.timeout = null; }, 1000 * this.animation.update);
+        if(this.currentAnimation.timeout) return;
+        if(!this.currentAnimation.fixedX) this.currentAnimation.currentFrame = ++this.currentAnimation.currentFrame % this.currentAnimation.framesX;
+        this.currentAnimation.x= this.currentAnimation.currentFrame * this.currentAnimation.width;
+        if(this.currentAnimation.currentFrame == 0 && !this.currentAnimation.fixedY) this.currentAnimation.currentRow = ++this.currentAnimation.currentRow % this.currentAnimation.framesY;
+        this.currentAnimation.y = this.currentAnimation.currentRow * this.currentAnimation.height;
+        this.currentAnimation.timeout = setTimeout(() => { clearTimeout(this.currentAnimation.timeout); this.currentAnimation.timeout = null; }, 1000 * this.currentAnimation.update);
+    }
+    addAnimation(event, params){
+        var animation = params;
+        animation.width = this.width / params.cols;
+        animation.height = this.height / params.rows;
+        animation.framesX =  params.framesX ? params.framesX : params.cols;
+        animation.framesY =  params.framesY ? params.framesY : params.rows;
+        animation.fixedX =  params.fixedX ? params.fixedX : false;
+        animation.fixedY =  params.fixedY ? params.fixedY : false;
+        animation.x =  params.x ? params.x : 0;
+        animation.y =  params.y ? params.y : 0;
+        animation.currentRow = params.currentRow ? params.currentRow : 0;
+        animation.currentFrame = params.currentFrame ? params.currentFrame : 0;
+        animation.update = params.update ? params.update : 0.1;
+        if(!this.animations[event+'']) this.animations[event+''] = animation;
     }
 
     /* Setters */
@@ -790,14 +805,8 @@ class ImageElement extends CanvasElement{
     setFont(font) {
         this.font = font;
     } 
-    setAnimation(animation) {
-        this.animation = animation;
-        this.animation.width = this.width / animation.cols;
-        this.animation.height = this.height / animation.rows;
-        this.animation.x =  animation.x ? animation.x : 0;
-        this.animation.y =  animation.y ? animation.y : 0;
-        this.animation.currentColumn = animation.currentColumn ? animation.currentColumn : 0;
-        this.animation.currentFrame = animation.currentFrame ? animation.currentFrame : 0;
-        this.animation.update = animation.update ? animation.update : 0.1;
+    setCurrentAnimation(event) {
+        if(event == '') this.currentAnimation = null;
+        else if(this.animations[event+''] ) this.currentAnimation = this.animations[event+''];
     }
 }
