@@ -769,7 +769,7 @@ class ImageElement extends CanvasElement{
 
     updateAnimation(){
         if(this.animation.timeout) return;
-        this.animation.currentFrame = ++this.animation.currentFrame % this.animation.frameCount;
+        this.animation.currentFrame = ++this.animation.currentFrame % this.animation.cols;
         this.animation.x= this.animation.currentFrame * this.animation.width;
         // this.context.clearRect(this.x, this.y, this.animation.width, this.animation.height);	
         if(this.animation.currentFrame == 0) this.animation.currentColumn = ++this.animation.currentColumn % this.animation.rows;
@@ -794,9 +794,10 @@ class ImageElement extends CanvasElement{
         this.animation = animation;
         this.animation.width = this.width / animation.cols;
         this.animation.height = this.height / animation.rows;
-        this.animation.x = 0;
-        this.animation.y = 0;
-        this.animation.currentColumn = 0;
+        this.animation.x =  animation.x ? animation.x : 0;
+        this.animation.y =  animation.y ? animation.y : 0;
+        this.animation.currentColumn = animation.currentColumn ? animation.currentColumn : 0;
+        this.animation.currentFrame = animation.currentFrame ? animation.currentFrame : 0;
         this.animation.update = animation.update ? animation.update : 0.1;
     }
 }

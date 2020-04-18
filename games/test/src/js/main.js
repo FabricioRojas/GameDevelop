@@ -15,13 +15,7 @@ var portalB = game.addElement(game.ELEMENT.RECT, 'blue', 10, 155, 0, 345);
 var floor = game.addElement(game.ELEMENT.RECT, 'red', w, 10, 0, 500);
 var animationTest = game.addElement(game.ELEMENT.IMAGE, `src/img/animation_test_full.png`, 913, 609, 0, 360);
 // var animationTest = game.addElement(game.ELEMENT.IMAGE, `src/img/animation_test.png`, 900, 136, 0, 200);
-animationTest.setAnimation({
-    currentFrame: 0,
-    frameCount: 7,
-    rows: 4,
-    cols: 7,
-    update: 0.01
-});
+animationTest.setAnimation({rows: 4,cols: 7,update: 0.01});
 animationTest.setXSpeed(8);
 animationTest.setInfiniteMoveX(true);
 
