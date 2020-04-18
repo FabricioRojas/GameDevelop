@@ -771,7 +771,7 @@ class ImageElement extends CanvasElement{
     updateAnimation(){
         if(this.currentAnimation.timeout) return;
         if(!this.currentAnimation.fixedX) this.currentAnimation.currentFrame = ++this.currentAnimation.currentFrame % this.currentAnimation.framesX;
-        this.currentAnimation.x= this.currentAnimation.currentFrame * this.currentAnimation.width;
+        this.currentAnimation.x = this.currentAnimation.currentFrame * this.currentAnimation.width;
         if(this.currentAnimation.currentFrame == 0 && !this.currentAnimation.fixedY) this.currentAnimation.currentRow = ++this.currentAnimation.currentRow % this.currentAnimation.framesY;
         this.currentAnimation.y = this.currentAnimation.currentRow * this.currentAnimation.height;
         this.currentAnimation.timeout = setTimeout(() => { clearTimeout(this.currentAnimation.timeout); this.currentAnimation.timeout = null; }, 1000 * this.currentAnimation.update);
@@ -807,6 +807,9 @@ class ImageElement extends CanvasElement{
     } 
     setCurrentAnimation(event) {
         if(event == '') this.currentAnimation = null;
-        else if(this.animations[event+''] ) this.currentAnimation = this.animations[event+''];
+        else if(this.animations[event+''] && this.animations[event+''] != this.currentAnimation){
+            this.currentAnimation = this.animations[event+''];
+            this.currentAnimation.timeout = null;
+        }
     }
 }
