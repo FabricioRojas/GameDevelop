@@ -254,7 +254,6 @@ class FrameUI {
         let divColumnL = document.createElement("div");
         let divColumnR = document.createElement("div");
 
-
         divElement.className = 'containerDiv';
         textElement.className = 'elementText';
 
