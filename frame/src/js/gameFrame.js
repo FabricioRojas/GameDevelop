@@ -473,6 +473,12 @@ class CanvasElement{
             this.y +=  this.moveByChunk ? parseInt(this.ySpeed + this.gravitySpeed) : this.ySpeed + this.gravitySpeed;
         }
     }
+    outOfbounds(){
+        return this.y > this.canvas.height 
+        || this.x > this.canvas.width 
+        || (this.y+this.height) < 0
+        || (this.x+this.width) < 0;
+    }
     addSound(event, track){
         if(!this.sounds[event+'']) this.sounds[event+''] = new Audio(track);
     }
