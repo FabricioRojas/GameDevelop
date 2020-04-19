@@ -7,6 +7,20 @@ game.control.setStep(13);
 game.canvas.setBackgroundImage(game.addElement(game.ELEMENT.IMAGE, `${imgDir}background.png`, game.canvas.width * 2, game.canvas.height, 0, 0));
 game.canvas.backgroundImage.setXSpeed(-0.3);
 game.canvas.canvas.addEventListener('click', handlemouseClick);
+
+game.gui.addMenu("main_menu", "white", game.canvas.width / 2,
+    game.canvas.height - 200, game.canvas.width / 2 - (game.canvas.width / 4), (game.canvas.height / 2 - (game.canvas.height / 3)), "white", 2);
+
+game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "black", 30, "Resume", null, null, () => {
+    game.play();
+});
+game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "black", 30, "Restart", null, null, () => {
+    reset();
+});
+game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "black", 30, "Exit", null, null, () => {
+    confirm("Sure you want to go?");
+});
+
 setInterval(() => game.draw(drawing), 1000 / 60);
 
 var walls = [];
