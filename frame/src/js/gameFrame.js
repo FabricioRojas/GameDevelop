@@ -473,7 +473,10 @@ class CanvasElement{
             this.y +=  this.moveByChunk ? parseInt(this.ySpeed + this.gravitySpeed) : this.ySpeed + this.gravitySpeed;
         }
     }
-    outOfbounds(){
+    whitinOfBounds(element, bounds){
+        return this.x >= element.x-bounds && this.x <= element.x+bounds && this.y >= element.y-bounds && this.y <= element.y+bounds;
+    }
+    outOfBounds(){
         return this.y > this.canvas.height 
         || this.x > this.canvas.width 
         || (this.y+this.height) < 0
