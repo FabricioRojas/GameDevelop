@@ -7,60 +7,80 @@ setInterval(() => game.draw(drawing), 1000 / 60);
 
 var shots = [];
 var shotTimeout = null;
-
+var enemiesSpeed = 0.5;
 
 var tower = game.addElement(game.ELEMENT.CIRCLE, "white", 10, 300, 200);
-var enemy = game.addElement(game.ELEMENT.CIRCLE, "blue", 7, 396, 104);
-var enemyS = game.addElement(game.ELEMENT.RECT, "red", 14, 14, 396-(enemy.width/2), 104-(enemy.width/2));
+// var enemy = game.addElement(game.ELEMENT.CIRCLE, "blue", 7, 400, 100);
+var enemy = game.addElement(game.ELEMENT.IMAGE, `src/img/enemy_1.png`, 572, 256, 400, 100-50);
+enemy.addAnimation('up', {rows: 4,cols: 9, currentRow:0, fixedY: true, update: 0.1});
+enemy.addAnimation('left', {rows: 4,cols: 9, currentRow:1, fixedY: true, update: 0.1});
+enemy.addAnimation('down', {rows: 4,cols: 9, currentRow:2, fixedY: true, update: 0.1});
+enemy.addAnimation('right', {rows: 4,cols: 9, currentRow:3, fixedY: true, update: 0.1});
+enemy.addAnimation('stop', {rows: 4,cols: 9, currentRow:2, currentFrame:1, fixedX: true, fixedY: true, update: 0.1});
+
 tower.towerFireSpeed = 7;
 tower.towerFire = 0.5;
 tower.towerRadius = 100;
 
-
 enemy.setInfiniteMoveX(true);
 enemy.setInfiniteMoveY(true);
-enemy.setXSpeed(1);
-
-enemyS.setInfiniteMoveX(true);
-enemyS.setInfiniteMoveY(true);
-enemyS.setXSpeed(1);
+enemy.setXSpeed(0);
+enemy.setYSpeed(enemiesSpeed);
+enemy.setCurrentAnimation('down');
 
 var drawing = function () {
-    enemy.move('y');
-    enemyS.move('y');
-    // enemy.move('x');
-    // enemyS.move('x');
+    enemyRoutine(enemy);
 
-    if (enemy.whitinOfBounds(tower, tower.towerRadius)) shoot(enemyS, tower);
+    if (enemy.whitinOfBounds(tower, tower.towerRadius)) shoot(enemy, tower);
     for (var s in shots) {
-        shots[s].move('y');
-        shots[s].move('x');
+        shots[s].move({x:true, y:true});
         shots[s].print();
-        if(shots[s].collide(enemyS)){
+        if(shots[s].collide(enemy)){
             console.log("hit");
         }
         // game.pause();
-        if(shots[s].outOfBounds() || shots[s].collide(enemyS)){
+        if(shots[s].outOfBounds() || shots[s].collide(enemy)){
             game.removeElement(shots[s]);
             shots.shift();
         }
-
     }
 
     tower.print();
-    // enemyS.print();
     enemy.print();
 };
 
+function enemyRoutine(e){
+    if(e.y == 100 && e.x == 400){
+        enemy.setCurrentAnimation('down');
+        e.setXSpeed(0);
+        e.setYSpeed(enemiesSpeed);
+    }
+    if(e.y == 300 && e.x == 400){
+        enemy.setCurrentAnimation('left');
+        e.setXSpeed(-enemiesSpeed);
+        e.setYSpeed(0);
+    }
+    if(e.x == 200 && e.y == 100){
+        enemy.setCurrentAnimation('right');
+        e.setXSpeed(enemiesSpeed);
+        e.setYSpeed(0);
+    }
+    if(e.x == 200 && e.y == 300){
+        enemy.setCurrentAnimation('up');
+        e.setXSpeed(0);
+        e.setYSpeed(-enemiesSpeed);
+    }    
+    e.move({x:true, y:true});
+}
+
 function shoot(e, t) {
     if (shotTimeout) return;
-    var c1 = e.x - t.x;
-    var c2 = e.y - t.y;
+    var c1 = (e.x+(e.currentAnimation.width/2)) - t.x;
+    var c2 = (e.y+(e.currentAnimation.height/2)) - t.y;
 
     var shot = game.addElement(game.ELEMENT.RECT, "white", 2, 10, t.x, t.y);
     shot.setRotate(true);
-    shot.setAngle(angle(c1, c2));
-    
+    shot.setAngle(angle(c1, c2));    
 
     var adjacentSide = ((t.width/4)+t.x)-t.x;
     // var adjacentSide = ((t.height/4)+t.y)-t.y;
@@ -70,8 +90,6 @@ function shoot(e, t) {
     // shot.setY(shot.y+adjacentSide);
     // shot.setX(shot.x+adjacentSide);
     // shot.setY(c1 < 0 ? shot.y-oppositeSide : shot.y+oppositeSide);
-
-    console.log("enemy cords",e.x,e.y, c1, c2);
 
     var xSpeed = 0;
     var ySpeed = 0;

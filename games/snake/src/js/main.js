@@ -103,8 +103,7 @@ snakeHeadShadow.setYSpeed(0);
 
 reset();
 var drawing = function () {
-    snakeHead.move('x');
-    snakeHead.move('y');
+    snakeHead.move({x:true, y:true});
     snakeHeadShadow.setX(snakeHead.x - 1);
     snakeHeadShadow.setY(snakeHead.y - 1);
 

@@ -33,7 +33,7 @@ game.play();
 var loop = function () {
     // requestAnimationFrame(loop);
 
-    animationTest.move('x');
+    animationTest.move({x:true});
     if(game.control.x != 0){
         game.control.x == 1 ? animationTestDirections.setCurrentAnimation('right') : animationTestDirections.setCurrentAnimation('left');
         animationTestDirections.x += game.control.x;

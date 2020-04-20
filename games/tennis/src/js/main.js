@@ -64,8 +64,7 @@ var drawing = function () {
         return;
     } else {
         computerMovement();
-        ball.move('x');
-        ball.move('y');
+        ball.move({x:true, y:true});
         paddle2.y += game.control.y;
 
         if (ball.collide(paddle2)) {

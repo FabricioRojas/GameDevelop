@@ -45,7 +45,7 @@ var drawing = function () {
     for (var b in bricks) if (bricks[b]) bricks[b].print();
 
     for (var s in shots) {
-        shots[s].move('y');
+        shots[s].move({y:true});
         shots[s].print();
         if (shots[s].y + shots[s].height < 0) removeElement(shots, s);
         for (var b in bricks) if (bricks[b] && shots[s] && shots[s].collide(bricks[b])) {
@@ -73,7 +73,7 @@ function removeElement(arr, index) {
 }
 function aliensMove(alien) {
     alien.print();
-    alien.move('x');
+    alien.move({x:true});
     if (alien.x + alien.width >= game.canvas.width || alien.x <= 0) {
         for (var i in aliens)
             if (aliens[i]) {

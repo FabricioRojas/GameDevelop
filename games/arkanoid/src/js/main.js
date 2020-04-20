@@ -80,12 +80,9 @@ var drawing = function () {
     brickCounter.print();
     livesCounter.print();
 
-    ball.move('x');
-    if (game.canvas.solidBordersX && (ball.x < 0 || ball.x > game.canvas.width - 1)) {
-        ball.playSound('hit_wall');
-    }
-    ball.move('y');
-    if (game.canvas.solidBordersY && (ball.y < 0 || ball.y > game.canvas.height - 1)) {
+    ball.move({x:true, y:true});
+    if ((game.canvas.solidBordersX && (ball.x < 0 || ball.x > game.canvas.width - 1)) || 
+    (game.canvas.solidBordersY && (ball.y < 0 || ball.y > game.canvas.height - 1))) {
         ball.playSound('hit_wall');
     }
 
@@ -102,7 +99,7 @@ var drawing = function () {
     }
     if (powerupDrop) {
         powerup.print();
-        powerup.move('y');
+        powerup.move({y:true});
         powerupPaddleCollision(powerup.collide(paddle))
     }
 };

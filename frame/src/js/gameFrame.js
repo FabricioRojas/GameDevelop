@@ -80,7 +80,6 @@ class Game {
         else this.play();
     }
 
-
     /* Setters */
     setState(state) {
         this.state = state;
@@ -98,16 +97,16 @@ class Game {
         var element;
         switch(type){
             case this.ELEMENT.CIRCLE:
-                element = new CircleElement(this.canvas, this.fui, this.ELEMENT.CIRCLE, color, var1, var2, var3);
+                element = new CircleElement(this, this.ELEMENT.CIRCLE, color, var1, var2, var3);
                 break;
             case this.ELEMENT.RECT:
-                element = new RectElement(this.canvas, this.fui, this.ELEMENT.RECT, color, var1, var2, var3, var4);
+                element = new RectElement(this, this.ELEMENT.RECT, color, var1, var2, var3, var4);
                 break;
             case this.ELEMENT.TEXT:
-                element = new TextElement(this.canvas, this.fui, this.ELEMENT.TEXT, color, var1, var2, var3, var4);
+                element = new TextElement(this, this.ELEMENT.TEXT, color, var1, var2, var3, var4);
                 break;
             case this.ELEMENT.IMAGE:
-                element = new ImageElement(this.canvas, this.fui, this.ELEMENT.IMAGE, color, var1, var2, var3, var4);
+                element = new ImageElement(this, this.ELEMENT.IMAGE, color, var1, var2, var3, var4);
                 break;
         }
         if(this.fui) this.fui.addElement(element);
@@ -193,13 +192,13 @@ class GameUI{
     }
     
     /* Setters */
-
 }
 
 class FrameUI {
     constructor(canvas){
         this.canvas = canvas;
         this.properties = [
+            //General
             'color',
             'width',
             'height',
@@ -211,8 +210,7 @@ class FrameUI {
             'gravitySpeed',
             'bounce',
             'isSolid',
-
-            
+            //Specific
             'radius',
             'text',
             'size',
@@ -417,15 +415,16 @@ class GameCanvas{
 
 class CanvasElement{
 
-    constructor(canvas, fui, type, color, x, y){
-        this.canvas = canvas;
-        this.context = canvas.context;
+    constructor(game, type, color, x, y){
+        this.game = game;
+        this.canvas = game.canvas;
+        this.context = game.canvas.context;
 
         this.isSolid = false;
         this.moveByChunk = false;
 
         this.type = type;
-        this.fui = fui;
+        this.fui = game.fui;
         
         this.id = '_' + Math.random().toString(36).substr(2, 9);
         this.color = color;
@@ -454,7 +453,7 @@ class CanvasElement{
     /* Methods */
     move(vector){
         this.gravitySpeed += this.gravity;
-        if(vector == 'x'){
+        if(vector.x){
             if(this.infiniteMoveX){
                 if(this.x<0) this.x= this.moveByChunk ? this.canvas.width-this.width: this.canvas.width-1;
                 if(this.x>this.canvas.width-1) this.x=0;
@@ -463,7 +462,7 @@ class CanvasElement{
             }
             this.x += this.moveByChunk ? parseInt(this.xSpeed) : this.xSpeed;
         }
-        if(vector == 'y'){
+        if(vector.y){
             if(this.infiniteMoveY){
                 if(this.y<0) this.y=this.moveByChunk ? this.canvas.height-this.height: this.canvas.height-1;
                 if(this.y>this.canvas.height-1) this.y=0;
@@ -546,12 +545,25 @@ class CanvasElement{
         }
     }
     collide(otherobj) {
+        var objX = otherobj.x;
+        var objY = otherobj.y;
+        var objWidth = otherobj.width;
+        var objHeight = otherobj.height;
+        if(otherobj.type == this.game.ELEMENT.CIRCLE){
+            objX = objX + (otherobj.width/2);
+            objY = objY + (otherobj.height/2);
+        }
+        if(otherobj.currentAnimation){
+            objWidth = otherobj.currentAnimation.width;
+            objHeight = otherobj.currentAnimation.height;
+        }
+
         if(this.moveByChunk) return this.collideExact(otherobj);
         var crash = true;
-        if (((this.y + (this.height)) < otherobj.y) ||
-        (this.y > (otherobj.y + (otherobj.height))) ||
-        ((this.x + (this.width)) < otherobj.x) ||
-        (this.x > (otherobj.x + (otherobj.width)))) {
+        if (((this.y + this.height) < objY) ||
+        (this.y > (objY + objHeight)) ||
+        ((this.x + this.width) < objX) ||
+        (this.x > (objX + objWidth))) {
           crash = false;
         }
         return crash;
@@ -589,19 +601,19 @@ class CanvasElement{
         switch(evt.keyCode) {
             case 37:
                 this.setXSpeed(-10);
-                this.move('x');
+                this.move({x:true});
                 break;
             case 38:
                 this.setYSpeed(-10);
-                this.move('y');
+                this.move({y:true});
                 break;
             case 39:
                 this.setXSpeed(10);
-                this.move('x');
+                this.move({x:true});
                 break;
             case 40:
                 this.setYSpeed(10);
-                this.move('y');
+                this.move({y:true});
                 break;
         }
     }
@@ -622,6 +634,12 @@ class CanvasElement{
     }
     setYSpeed(ySpeed) {
         this.ySpeed = ySpeed;
+    }
+    setWidth(width) {
+        this.width = width;
+    }
+    setHeight(height) {
+        this.height = height;
     }
     setGravity(gravity) {
         this.gravity = gravity;
@@ -654,8 +672,8 @@ class CanvasElement{
 
 class CircleElement extends CanvasElement{
 
-    constructor(canvas, fui, type, color, radius, x, y){
-        super(canvas, fui, type, color, x, y);
+    constructor(game, type, color, radius, x, y){
+        super(game, type, color, x, y);
         this.radius = radius;
         this.width = radius*2;
         this.height = radius*2;
@@ -678,8 +696,8 @@ class CircleElement extends CanvasElement{
 
 class RectElement extends CanvasElement{
 
-    constructor(canvas, fui, type, color, width, height, x, y){
-        super(canvas, fui, type, color, x, y);
+    constructor(game, type, color, width, height, x, y){
+        super(game, type, color, x, y);
         this.width = width;
         this.height = height;
     }
@@ -699,20 +717,12 @@ class RectElement extends CanvasElement{
         }
         if(this.fui) this.fui.updateElement(this);
     }
-
-    /* Setters */
-    setWidth(width) {
-        this.width = width;
-    }
-    setHeight(height) {
-        this.height = height;
-    }
 }
 
 class TextElement extends CanvasElement{
 
-    constructor(canvas, fui, type, color, size, text, x, y){
-        super(canvas, fui, type, color, x, y);
+    constructor(game, type, color, size, text, x, y){
+        super(game, type, color, x, y);
         this.size = size;
         this.text = text;
         this.align = "center";
@@ -748,8 +758,8 @@ class TextElement extends CanvasElement{
 
 class ImageElement extends CanvasElement{
 
-    constructor(canvas, fui, type, src, width, height, x, y){
-        super(canvas, fui, type, null, x, y);
+    constructor(game, type, src, width, height, x, y){
+        super(game, type, null, x, y);
         this.src = src;
         this.image = new Image();
         this.image.src = this.src;
@@ -775,7 +785,6 @@ class ImageElement extends CanvasElement{
         }
         if(this.fui) this.fui.updateElement(this);
     }
-
     updateAnimation(){
         if(this.currentAnimation.timeout) return;
         if(!this.currentAnimation.fixedX) this.currentAnimation.currentFrame = ++this.currentAnimation.currentFrame % this.currentAnimation.framesX;

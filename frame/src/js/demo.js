@@ -36,8 +36,7 @@ window.onload=function() {
         text.print();
 
         rect1.print();
-        rect1.move('y');
-        rect1.move('x');
+        rect1.move({x:true, y:true});
         rect1.hitBottom();
 
         rect2.print();
@@ -48,14 +47,14 @@ window.onload=function() {
         rect3.y += game.control.y;
 
         circle1.print();
-        circle1.move('x');
+        circle1.move({x:true});
 
         circle2.print();
-        circle2.move('y');
+        circle2.move({y:true});
         circle2.hitBottom();
 
         circle3.print();
-        circle3.move('y');
+        circle3.move({y:true});
         circle3.hitBottom();
     }
     

@@ -67,7 +67,7 @@ var drawing = function () {
 
     loopBackground();
     printWalls();
-    bird.move('y');
+    bird.move({y:true});
 
     if (game.control.y != 0) {
         bird.playSound("wingspan");
@@ -87,7 +87,7 @@ function printWalls() {
     try {
         for (var i in walls) {
             if (!walls[i]) continue;
-            walls[i].move('x');
+            walls[i].move({x:true});
             walls[i].print();
             if (bird.collide(walls[i])) lose();
             if (walls[parseInt(i) + 1] && bird.collide({ x: walls[i].x, y: (walls[i].y + walls[i].height), width: walls[i].width, height: (walls[parseInt(i) + 1].y - (walls[i].y + walls[i].height)) })) {
@@ -133,8 +133,8 @@ function checkScore() {
 }
 
 function loopBackground() {
-    game.canvas.backgroundImage.move('x');
-    background2.move('x');
+    game.canvas.backgroundImage.move({x:true});
+    background2.move({x:true});
     if (game.canvas.backgroundImage.x == -1 * game.canvas.width) {
         game.canvas.backgroundImage.x = game.canvas.width;
     }
