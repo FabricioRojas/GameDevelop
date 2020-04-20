@@ -30,24 +30,27 @@ game.gui.addItemMenu("difficulty_menu", game.ELEMENT.TEXT, true, "black", 30, "E
     snakeHead.setInfiniteMoveY(true);
     snakeHeadShadow.setInfiniteMoveX(true);
     snakeHeadShadow.setInfiniteMoveY(true);
-    if (gameInterval) clearInterval(gameInterval);
-    gameInterval = setInterval(() => game.draw(drawing), 1000 / 20);
+    if (snakeTimeout) clearTimeout(snakeTimeout); snakeTimeout = null;
+    snakeSpeed = 0.06;
+    pointsValue = 10;
 });
 game.gui.addItemMenu("difficulty_menu", game.ELEMENT.TEXT, true, "black", 30, "MEDIUM", null, null, () => {
     snakeHead.setInfiniteMoveX(false);
     snakeHead.setInfiniteMoveY(false);
     snakeHeadShadow.setInfiniteMoveX(false);
     snakeHeadShadow.setInfiniteMoveY(false);
-    if (gameInterval) clearInterval(gameInterval);
-    gameInterval = setInterval(() => game.draw(drawing), 1000 / 35);
+    if (snakeTimeout) clearTimeout(snakeTimeout); snakeTimeout = null;
+    snakeSpeed = 0.03;
+    pointsValue = 15;
 });
 game.gui.addItemMenu("difficulty_menu", game.ELEMENT.TEXT, true, "black", 30, "DIFICULT", null, null, () => {
     snakeHead.setInfiniteMoveX(false);
     snakeHead.setInfiniteMoveY(false);
     snakeHeadShadow.setInfiniteMoveX(false);
     snakeHeadShadow.setInfiniteMoveY(false);
-    if (gameInterval) clearInterval(gameInterval);
-    gameInterval = setInterval(() => game.draw(drawing), 1000 / 50);
+    if (snakeTimeout) cclearTimeout(snakeTimeout); snakeTimeout = null;
+    snakeSpeed = 0.01;
+    pointsValue = 25;
 });
 game.gui.addItemMenu("difficulty_menu", game.ELEMENT.TEXT, true, "black", 30, "BACK", null, null, () => {
     game.gui.showMenu("main_menu");
@@ -56,10 +59,11 @@ game.gui.addItemMenu("difficulty_menu", game.ELEMENT.TEXT, true, "black", 30, "B
 
 game.canvas.canvas.addEventListener('click', handlemouseClick);
 
-var gameInterval = setInterval(() => game.draw(drawing), 1000 / 20);
+var gameInterval = setInterval(() => game.draw(drawing), 1000 / 60);
 
 var square = 10;
 var points = 0;
+var pointsValue = 10;
 var lastPress = null;
 var LOSETXT = "SCORE: ";
 var losetxt = LOSETXT;
@@ -69,6 +73,8 @@ var SNAKETAIL = 5;
 var snakeTail = SNAKETAIL;
 var snakeTrail = [];
 var snakeTrailShadow = [];
+var snakeTimeout = null;
+var snakeSpeed = 0.06;
 
 var apple = game.addElement(game.ELEMENT.RECT, "red", square, square, 600, 270);
 var snakeHead = game.addElement(game.ELEMENT.RECT, "darkgreen", square, square, 50, 60);
@@ -103,15 +109,13 @@ snakeHeadShadow.setYSpeed(0);
 
 reset();
 var drawing = function () {
-    snakeHead.move({x:true, y:true});
-    snakeHeadShadow.setX(snakeHead.x - 1);
-    snakeHeadShadow.setY(snakeHead.y - 1);
 
+    snakeHeadMovement();
     snakeHeadShadow.print();
     snakeHead.print();
-
+    
     for (var i in snakeTrail) {
-        if ((snakeHead.xSpeed || snakeHead.ySpeed) && snakeHead.collide(snakeTrail[i])) canibalism = true;
+        // if ((snakeHead.xSpeed || snakeHead.ySpeed) && snakeHead.collide(snakeTrail[i])) canibalism = true;
         game.canvas.context.fillStyle = "black";
         game.canvas.context.fillRect(snakeTrailShadow[i].x, snakeTrailShadow[i].y, snakeTrailShadow[i].width, snakeTrailShadow[i].height);
         game.canvas.context.fillStyle = "green";
@@ -121,9 +125,6 @@ var drawing = function () {
     snakeWallCollision(snakeHead);
     if (canibalism) reset(true);
 
-    snakeTrail.push({ x: snakeHead.x, y: snakeHead.y, width: square, height: square });
-    snakeTrailShadow.push({ x: snakeHeadShadow.x, y: snakeHeadShadow.y, width: square + 2, height: square + 2 });
-
     if (snakeTrail.length > snakeTail) snakeTrail.shift();
     if (snakeTrailShadow.length > snakeTail) snakeTrailShadow.shift();
 
@@ -132,7 +133,7 @@ var drawing = function () {
         apple.setX(rand(game.canvas.width - square, square));
         apple.setY(rand(game.canvas.height - square, square));
         snakeTail++;
-        points += 10;
+        points += pointsValue;
         pointsCounter.setText(points);
     }
 
@@ -140,6 +141,19 @@ var drawing = function () {
     pointsCounter.print();
     apple.print();
 };
+function snakeHeadMovement() {
+    if (snakeTimeout) return;
+    
+    snakeTrail.push({ x: snakeHead.x, y: snakeHead.y, width: square, height: square });
+    snakeTrailShadow.push({ x: snakeHeadShadow.x, y: snakeHeadShadow.y, width: square + 2, height: square + 2 });
+    snakeTimeout = setTimeout(() => { clearTimeout(snakeTimeout); snakeTimeout = null; }, 1000 * snakeSpeed);
+
+    snakeHead.move({x:true, y:true});
+    snakeHeadShadow.setX(snakeHead.x - 1);
+    snakeHeadShadow.setY(snakeHead.y - 1);
+
+    for (var i in snakeTrail) if ((snakeHead.xSpeed || snakeHead.ySpeed) && snakeHead.collide(snakeTrail[i])) canibalism = true;
+}
 function handlemouseClick() {
     if (loseState) reset();
 }
