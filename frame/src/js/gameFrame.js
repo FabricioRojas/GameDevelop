@@ -795,22 +795,24 @@ class ImageElement extends CanvasElement {
             this.context.restore();
         } else {
             if (!this.currentAnimation) this.context.drawImage(this.image, this.x, this.y, this.width, this.height);
-            else this.context.drawImage(this.image, this.currentAnimation.x, this.currentAnimation.y, this.currentAnimation.width, this.currentAnimation.height, this.x, this.y, this.currentAnimation.width, this.currentAnimation.height);
+            else this.context.drawImage(this.image, this.currentAnimation.x, this.currentAnimation.y, this.currentAnimation.frameWidth, this.currentAnimation.frameHeight, this.x, this.y, this.currentAnimation.width, this.currentAnimation.height);
         }
         if (this.fui) this.fui.updateElement(this);
     }
     updateAnimation() {
         if (this.currentAnimation.timeout) return;
         if (!this.currentAnimation.fixedX) this.currentAnimation.currentFrame = ++this.currentAnimation.currentFrame % this.currentAnimation.framesX;
-        this.currentAnimation.x = this.currentAnimation.currentFrame * this.currentAnimation.width;
+        this.currentAnimation.x = this.currentAnimation.currentFrame * this.currentAnimation.frameWidth;
         if (this.currentAnimation.currentFrame == 0 && !this.currentAnimation.fixedY) this.currentAnimation.currentRow = ++this.currentAnimation.currentRow % this.currentAnimation.framesY;
-        this.currentAnimation.y = this.currentAnimation.currentRow * this.currentAnimation.height;
+        this.currentAnimation.y = this.currentAnimation.currentRow * this.currentAnimation.frameHeight;
         this.currentAnimation.timeout = setTimeout(() => { clearTimeout(this.currentAnimation.timeout); this.currentAnimation.timeout = null; }, 1000 * this.currentAnimation.update);
     }
     addAnimation(event, params) {
         var animation = params;
-        animation.width = this.width / params.cols;
-        animation.height = this.height / params.rows;
+        animation.frameWidth = this.width / params.cols;
+        animation.frameHeight = this.height / params.rows;
+        animation.width =  params.width ? params.width :animation.frameWidth;
+        animation.height =  params.height ? params.height :animation.frameHeight;
         animation.framesX = params.framesX ? params.framesX : params.cols;
         animation.framesY = params.framesY ? params.framesY : params.rows;
         animation.fixedX = params.fixedX ? params.fixedX : false;

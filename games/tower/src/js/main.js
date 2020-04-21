@@ -24,10 +24,15 @@ var currentLives = INITIAL_LIVES;
 var livesCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, currentLives, game.canvas.width - 80, 55);
 var heart = game.addElement(game.ELEMENT.IMAGE, `${imgDir}heart.png`, 30, 30, game.canvas.width - 50 , 27);
 
-var moneyCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, currentMoney, 115, 55);
-var coin = game.addElement(game.ELEMENT.IMAGE, `${imgDir}coin.png`, 508, 64, 10, 10);
-coin.addAnimation('iddle', { rows: 1, cols: 8, update: 0.1 });
+var moneyCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, currentMoney, 80, 55);
+var coin = game.addElement(game.ELEMENT.IMAGE, `${imgDir}coin.png`, 508, 64, 10, 23);
+coin.addAnimation('iddle', { rows: 1, cols: 8, update: 0.1, width:35, height:35 });
 coin.setCurrentAnimation('iddle');
+
+coinDrop = game.addElement(game.ELEMENT.IMAGE, `${imgDir}coin.png`, 508, 64, -10, -10);
+coinDrop.addAnimation('iddle', { rows: 1, cols: 8, update: 0.1, width:15, height:15 });
+coinDrop.setCurrentAnimation('iddle');
+
 
 setInterval(() => { spanwEnemy(0.5, 20, 5, 'enemy_1.png',572, 256); }, 1000*5);
 setInterval(() => { spanwEnemy(1, 100, 15, 'enemy_2.png',576, 256); }, 1000*23);
@@ -39,6 +44,7 @@ var drawing = function () {
     moneyCounter.print();
     heart.print();
     livesCounter.print();
+    coinDrop.print();
 
     for (var e in enemies) enemyRoutine(enemies[e]);
     for (var s in shots) {
@@ -53,8 +59,16 @@ var drawing = function () {
             enemies[e].lifeBar.width = percentage;
             
             game.removeElement(shots[s]);
-            shots.shift();
-            if(enemies[e].hitPoints < 1){
+            shots.splice(s,1);
+            s--
+            if(enemies[e].hitPoints < 1){   
+                coinDrop.setX(enemies[e].x+(enemies[e].currentAnimation.width/2));
+                coinDrop.setY(enemies[e].y+enemies[e].currentAnimation.height/2);
+                setTimeout(() => {
+                    coinDrop.setX(-10);
+                    coinDrop.setY(-10);
+                }, 1000*1);
+
                 currentMoney += enemies[e].drop;
                 moneyCounter.setText(currentMoney);
                 game.removeElement(enemies[e]);
@@ -62,7 +76,7 @@ var drawing = function () {
             }
         }
         if (shots[s] && shots[s].outOfBounds()) {
-            game.removeElement(shots[s]);            
+            game.removeElement(shots[s]);   
             shots.splice(s,1);
         }
         // game.pause();
