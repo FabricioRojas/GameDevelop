@@ -227,6 +227,9 @@ class FrameUI {
         this.rightPanel = document.createElement('div');
         this.rightPanel.id = 'rightpanel';
 
+        var header = document.createElement('div');
+        header.id = 'pannel-header';
+        var test = document.createElement('br');
         var h2Title = document.createElement('h2');
         h2Title.innerHTML = 'Development Panel';
 
@@ -234,8 +237,10 @@ class FrameUI {
         button.id = 'fui-stop';
         button.innerText = 'Play/Pause';
 
-        this.rightPanel.appendChild(h2Title);
-        this.rightPanel.appendChild(button);
+        header.appendChild(h2Title);
+        header.appendChild(button);
+        this.rightPanel.appendChild(header);
+        this.rightPanel.appendChild(test);
 
         this.canvas.parentNode.insertBefore(this.rightPanel, this.canvas.nextSibling);
         this.addElement('ul', "test");
@@ -367,6 +372,34 @@ class GameCanvas {
         this.canvas.height = this.height;
         this.context = this.canvas.getContext("2d");
         this.fps = 1000 / 60;
+        this.horizontalScrool();
+        this.dragging = false;
+        this.lastX = 0;
+        this.marginLeft = 0;
+    }
+
+    horizontalScrool(){
+        this.canvas.addEventListener('mousedown', (e) => {
+            var evt = e || event;
+            this.dragging = true;
+            this.lastX = evt.clientX;
+            e.preventDefault();
+        }, false);
+        
+        window.addEventListener('mousemove', (e) => {
+            e.preventDefault();
+            var evt = e || event;
+            if (this.dragging) {
+                var delta = evt.clientX - this.lastX;
+                this.lastX = evt.clientX;
+                this.marginLeft += delta;
+                this.canvas.style.marginLeft = this.marginLeft + "px";
+            }
+        }, false);
+        
+        window.addEventListener('mouseup', () => {
+            this.dragging = false;
+        }, false);
     }
 
     /* Methods */

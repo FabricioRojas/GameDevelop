@@ -1,7 +1,10 @@
-var game = new Game("gc", 800, 600, true);
+var game = new Game("gc", 1920, 1080, true);
 const canvas = game.canvas;
 const ctx = game.canvas.context
 const { width: w, height: h } = canvas;
+var dragging = false;
+var lastX;
+var marginLeft = 0;
 
 
 let rectW = 50;
@@ -56,13 +59,20 @@ var loop = function () {
 // requestAnimationFrame(loop);
 setInterval(() => game.draw(loop), 1000 / 60);
 
-// var game = new Game("gc", 800, 600, true);
-// var canvas = game.canvas;
-// var dc     = game.canvas.context;
+// var game = new Game("gc", 1920, 1080, true);
+
+// // var canvas = document.getElementById("gc");
+// var canvas = game.canvas
+// var dc = game.canvas.context
 // var angle = 0;
 
 // var rectWidth = 10;
 // var circleWidth = 10;
+
+
+// var dragging = false;
+// var lastX;
+// var marginLeft = 0;
 // window.setInterval(function(){
 //     angle = (angle + 1) % 360;
 //     dc.clearRect(0, 0, canvas.width, canvas.height);
@@ -73,13 +83,13 @@ setInterval(() => game.draw(loop), 1000 / 60);
 //     dc.fill();
 
 
-//     dc.save();  
-//     dc.fillStyle = "#FF0000";
-//     dc.translate(100,200);
-//     console.log(angle*Math.PI/180);
-//     dc.rotate(angle*Math.PI/180);
-//     dc.translate(-100,-200);
-//     dc.fillRect(100-(rectWidth/2), 200+circleWidth, rectWidth, 200);
-//     dc.restore();
+//     // dc.save();  
+//     // dc.fillStyle = "#FF0000";
+//     // dc.translate(100,200);
+//     // console.log(angle*Math.PI/180);
+//     // dc.rotate(angle*Math.PI/180);
+//     // dc.translate(-100,-200);
+//     // dc.fillRect(100-(rectWidth/2), 200+circleWidth, rectWidth, 200);
+//     // dc.restore();
 
 // }, 5);
