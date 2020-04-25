@@ -39,7 +39,6 @@ var coin = game.addElement(game.ELEMENT.IMAGE, `${imgDir}coin.png`, 508, 64, 10,
 coin.addAnimation('iddle', { rows: 1, cols: 8, update: 0.1, width: 35, height: 35 });
 coin.setCurrentAnimation('iddle');
 
-
 var towerSelectorBackground = game.addElement(game.ELEMENT.RECT, 'rgba(0, 0, 0, 0.7)', 250, 45, (game.canvas.width / 2) - 110, 0);
 var tower1 = game.addElement(game.ELEMENT.IMAGE, `${imgDir}tower_1.png`, 40, 40, towerSelectorBackground.x + 20, 2.5);
 var tower2 = game.addElement(game.ELEMENT.IMAGE, `${imgDir}tower_2.png`, 40, 40, tower1.x + 15 + tower1.width, 2.5);
@@ -208,6 +207,10 @@ function reset(){
     currentLives = INITIAL_LIVES;
     towerPreview = null;
     enemiesCounter = 0;
+    livesCounter.setText(currentLives);
+    livesCounter.print();
+    moneyCounter.setText(currentMoney);
+    moneyCounter.print();
     lastWave = false;
 }
 function lose() {
