@@ -5,9 +5,7 @@ const soundDir = 'src/sound/';
 var game = new Game('gc', 800, 600, true);
 game.canvas.canvas.addEventListener('click', handlemouseClick);
 game.canvas.setBackgroundImage(game.addElement(game.ELEMENT.IMAGE, `${imgDir}background.png`, game.canvas.width, game.canvas.height, 0, 0));
-setInterval(() => game.draw(drawing), 1000 / 60);
-
-
+setInterval(() => game.draw(drawing), 1000 / 60 );
 
 const INITIAL_MONEY = 45;
 const INITIAL_LIVES = 15;
@@ -23,6 +21,9 @@ var currentLives = INITIAL_LIVES;
 var towerPreview = null;
 var enemiesCounter = 0;
 var lastWave = 0;
+var spawnEnemy1Interval;
+var spawnEnemy2Interval;
+
 // var test;
 var loseText = game.addElement(game.ELEMENT.TEXT, 'white', 50, 'You lose', 350, 300);
 var winText = game.addElement(game.ELEMENT.TEXT, 'white', 50, 'You win', 350, 300);
@@ -73,12 +74,7 @@ coinDrop = game.addElement(game.ELEMENT.IMAGE, `${imgDir}coin.png`, 508, 64, -50
 coinDrop.addAnimation('iddle', { rows: 1, cols: 8, update: 0.1, width: 15, height: 15 });
 coinDrop.setCurrentAnimation('iddle');
 
-
-setInterval(() => { if (game.state == game.STATE.PLAY) spanwEnemy(0.5, 20, 5, 'enemy_1.png', 572, 256); }, 1000 * 5);
-setInterval(() => { if (game.state == game.STATE.PLAY) spanwEnemy(1, 100, 15, 'enemy_2.png', 576, 256); }, 1000 * 23);
-
-game.play();
-
+reset();
 var drawing = function () {
     moneyCounterBackground.print();
     coin.print();
@@ -87,12 +83,9 @@ var drawing = function () {
     heart.print();
     livesCounter.print();
     towerSelectorBackground.print();
-    for (var tt in towersTypes) {
-        towersTypes[tt].print();
-    }
+    for (var tt in towersTypes) towersTypes[tt].print();
     coinDrop.print();
     limit.print();
-
 
     if (towerPreview) {
         towerPreview.towerRadiusElm.print();
@@ -126,14 +119,13 @@ var drawing = function () {
                     game.removeElement(enemies[e]);
                     enemies.splice(e, 1); e--;
 
-                    if(enemiesCounter >= 50 && lastWave) win();
+                    if(enemiesCounter >= 50 && lastWave && enemies.length < 1) win();
                 }
             }
         if (shots[s] && shots[s].outOfBounds()) {
             game.removeElement(shots[s]);
             shots.splice(s, 1); s--
         }
-        // game.pause();
     }
     for (var t in towers) {
         for (var e in enemies) if (enemies[e] && enemies[e].whitinOfBounds(towers[t], towers[t].towerRadius)) shoot(enemies[e], towers[t]);
@@ -147,8 +139,6 @@ function spanwEnemy(enemiesSpeed, hitPoints, drop, image, width, height) {
     if(enemiesCounter >= 50) return;
     var newEnemy = game.addElement(game.ELEMENT.IMAGE, `${imgDir}${image}`, width, height, 1, 270);
     var lifeBar = game.addElement(game.ELEMENT.RECT, 'red', 20, 3, newEnemy.x + 10, newEnemy.y + newEnemy.width / 2);
-    // var lifeBarBorder = game.addElement(game.ELEMENT.RECT, 'red', 2, 10, newTower.x-1, newTower.y+newTower.width/2);
-
     newEnemy.addAnimation('up', { rows: 4, cols: 9, currentRow: 0, fixedY: true, update: 0.1 });
     newEnemy.addAnimation('left', { rows: 4, cols: 9, currentRow: 1, fixedY: true, update: 0.1 });
     newEnemy.addAnimation('down', { rows: 4, cols: 9, currentRow: 2, fixedY: true, update: 0.1 });
@@ -158,19 +148,12 @@ function spanwEnemy(enemiesSpeed, hitPoints, drop, image, width, height) {
     newEnemy.hitPoints = hitPoints;
     newEnemy.lifeBar = lifeBar;
     newEnemy.drop = drop;
-    
-
     newEnemy.setCurrentAnimation('right');
     newEnemy.setXSpeed(newEnemy.enemiesSpeed);
     newEnemy.setYSpeed(0);
-
-    
-
     // test = game.addElement(game.ELEMENT.RECT, 'red', 2, 2, (newEnemy.x + newEnemy.currentAnimation.width/2), 
     // (newEnemy.y + newEnemy.currentAnimation.height/2));
-
     enemiesCounter++;
-
     if(enemiesCounter < 50) enemies.push(newEnemy);
     else lastWave = true;
 }
@@ -197,7 +180,6 @@ function enemyRoutine(e, index) {
     // test.setX((e.x + e.currentAnimation.width/2));
     // test.setY((e.y + e.currentAnimation.height/2));
     // test.print();
-
     e.lifeBar.setX(e.x + (e.currentAnimation.width / 3));
     e.lifeBar.setY(e.y);
     e.lifeBar.print();
@@ -205,38 +187,51 @@ function enemyRoutine(e, index) {
     if (limit.collide(e)) {
         currentLives--;
         livesCounter.setText(currentLives);
-
         game.removeElement(e.lifeBar);
         game.removeElement(e);
         enemies.splice(index, 1);
     }
 }
 
+function reset(){
+    game.play();
+    if(spawnEnemy1Interval) clearInterval(spawnEnemy1Interval);
+    spawnEnemy1Interval = setInterval(() => { if (game.state == game.STATE.PLAY) spanwEnemy(0.5, 20, 5, 'enemy_1.png', 572, 256); }, 1000 * 5);
+    if(spawnEnemy2Interval) clearInterval(spawnEnemy2Interval);
+    spawnEnemy2Interval;setInterval(() => { if (game.state == game.STATE.PLAY) spanwEnemy(1, 100, 15, 'enemy_2.png', 576, 256); }, 1000 * 23);
+    shots = [];
+    coins = [];
+    towers = [];
+    enemies = [];
+    loseState = false;
+    currentMoney = INITIAL_MONEY;
+    currentLives = INITIAL_LIVES;
+    towerPreview = null;
+    enemiesCounter = 0;
+    lastWave = false;
+}
 function lose() {
     loseState = true;
     game.pause();
     loseText.print();
 }
-
 function win() {
     loseState = true;
     game.pause();
     winText.print();
 }
 
-function shoot(e, t) {
-    if (t.shot.timeout) return;
+function shoot(e, t) {    
+    if (t.shotTimeout) return;
     var c1 = (e.x + (e.currentAnimation.width / 2)) - t.x;
     var c2 = (e.y + (e.currentAnimation.height / 2)) - t.y;
-    var shot = game.addElement(game.ELEMENT.RECT, t.shot.color, t.shot.width, t.shot.height, t.x, t.y);
-    shot.damage = t.shot.damage;
-
     var angle = getAngle(c1, c2);
-    shot.setRotate(true);
-    shot.setAngle(angle);
     t.pointer.setRotate({ x: t.x, y: t.y, width: 5 });
     t.pointer.setAngle(angle);
-
+    var shot = game.addElement(game.ELEMENT.RECT, t.shot.color, t.shot.width, t.shot.height, t.x, t.y);
+    shot.damage = t.shot.damage;
+    shot.setRotate(true);
+    shot.setAngle(angle);
     var xSpeed = 0;
     var ySpeed = 0;
     var distance = 30;
@@ -258,7 +253,7 @@ function shoot(e, t) {
     shot.setYSpeed(ySpeed * factorY);
 
     shots.push(shot);
-    t.shot.timeout = setTimeout(() => { clearTimeout(t.shot.timeout); t.shot.timeout = null; }, 1000 * t.shot.fireRate);
+    t.shotTimeout = setTimeout(() => { clearTimeout(t.shotTimeout); t.shotTimeout = null; }, 1000 * t.shot.fireRate);
 }
 
 function getAngle(c1, c2) {
@@ -270,6 +265,7 @@ function getAngle(c1, c2) {
 function addTower(tower) {
     var newTower = Object.create(tower);
     newTower.towerRadiusElm = null;
+    newTower.shotTimeout = null;
     newTower.pointer = game.addElement(game.ELEMENT.RECT, tower.pointer.color, tower.pointer.width, tower.pointer.hieght, tower.x - 2.5, tower.y + tower.width / 2);
     newTower.removeListener("keydown");
     newTower.addListener("click", (e) => {

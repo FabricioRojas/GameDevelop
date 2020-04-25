@@ -510,7 +510,8 @@ class CanvasElement {
             objX = this.x+(this.currentAnimation.width/2);
             objY = this.y+(this.currentAnimation.height/2);
         }
-        return objX >= element.x - bounds && objX <= element.x + bounds && objY >= element.y - bounds && objY <= element.y + bounds;
+        return Math.pow(element.x-objX,2) + Math.pow(element.y - objY,2) < Math.pow(bounds, 2);
+        // return objX >= element.x - bounds && objX <= element.x + bounds && objY >= element.y - bounds && objY <= element.y + bounds;
     }
     isClicked(click){
         var objX = this.x;
