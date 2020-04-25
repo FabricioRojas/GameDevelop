@@ -114,14 +114,13 @@ class Game {
         return element;
     }
     removeElement(element) {
-        if (this.elements[element.id + '']) {
+        if (element && this.elements[element.id + '']) {
             this.elements[element.id + ''] = undefined;
             delete this.elements[element.id + ''];
             if (this.fui) this.fui.removeElement(element);
         }
     }
     setCurrentMenu(currentMenu) {
-        console.log("currentMenu", currentMenu)
         this.currentMenu = currentMenu;
     }
 }
@@ -505,7 +504,22 @@ class CanvasElement {
         }
     }
     whitinOfBounds(element, bounds) {
-        return this.x >= element.x - bounds && this.x <= element.x + bounds && this.y >= element.y - bounds && this.y <= element.y + bounds;
+        var objX = this.x+(this.width/2);
+        var objY = this.y+(this.width/2);
+        if (this.currentAnimation) {
+            objX = this.x+(this.currentAnimation.width/2);
+            objY = this.y+(this.currentAnimation.height/2);
+        }
+        return objX >= element.x - bounds && objX <= element.x + bounds && objY >= element.y - bounds && objY <= element.y + bounds;
+    }
+    isClicked(click){
+        var objX = this.x;
+        var objY = this.y;
+        if (this.type == this.game.ELEMENT.CIRCLE) {
+            objX = objX - (this.width / 2);
+            objY = objY - (this.height / 2);
+        }        
+        return (click.x > objX && click.x < (objX + this.width)) && (click.y > objY && click.y < (objY + this.height));
     }
     outOfBounds() {
         return this.y > this.canvas.height
