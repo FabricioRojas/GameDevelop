@@ -25,30 +25,40 @@ class Game {
                 this.canvas.width, this.canvas.height, 0, 0)
             this.canvas.setBackgroundImage(image);
         }
-
         var stopButton = document.getElementById("fui-stop");
         if (stopButton) stopButton.addEventListener('click', () => {
             this.togglePlayState();
         });
+        this.canvas.canvas.addEventListener('mousemove', (event) => {
+            this.canvas.mousePosition.x = event.offsetX || event.layerX;
+            this.canvas.mousePosition.y = event.offsetY || event.layerY;
+        });
+        this.canvas.canvas.addEventListener('mouseup', (event) =>  {
+            this.canvas.mousePressed = false;
+        });
         this.canvas.canvas.addEventListener("mousedown", (e) => {
-            if (this.menuDraw && this.state == this.STATE.MENU) {
-                for (var i in this.gui.listeners) {
-                    var click = this.canvas.getMousePosition(e);
-                    var element = this.gui.listeners[i];
-                    if (this.currentMenu == element.menu) {
-                        var finalX = element.x;
-                        var finalY = element.y;
-                        if (element.type == this.ELEMENT.TEXT) {
-                            finalX -= element.width / 2;
-                            finalY -= element.height;
-                        }
-                        if ((click.x > finalX && click.x < (finalX + element.width)) && (click.y > finalY && click.y < (finalY + element.height))) {
-                            element.action();
-                        }
-                    }
+            this.canvas.dragging = true;
+            this.canvas.mousePressed = true;
+            this.canvas.lastX = e.clientX;
+            if (this.menuDraw && this.state == this.STATE.MENU) this.menuHandling();
+        });
+    }
+    menuHandling(){
+        for (var i in this.gui.listeners) {
+            var click = this.canvas.getMousePosition(e);
+            var element = this.gui.listeners[i];
+            if (this.currentMenu == element.menu) {
+                var finalX = element.x;
+                var finalY = element.y;
+                if (element.type == this.ELEMENT.TEXT) {
+                    finalX -= element.width / 2;
+                    finalY -= element.height;
+                }
+                if ((click.x > finalX && click.x < (finalX + element.width)) && (click.y > finalY && click.y < (finalY + element.height))) {
+                    element.action();
                 }
             }
-        });
+        }
     }
     draw(drawing) {
         if (this.menuDraw && this.state == this.STATE.MENU) {
@@ -93,7 +103,7 @@ class Game {
     setAfterDraw(afterDraw) {
         this.afterDraw = afterDraw;
     }
-    addElement(type, color, var1, var2, var3, var4) {
+    addElement(type, color, var1, var2, var3, var4, shouldTrack) {
         var element;
         switch (type) {
             case this.ELEMENT.CIRCLE:
@@ -109,8 +119,8 @@ class Game {
                 element = new ImageElement(this, this.ELEMENT.IMAGE, color, var1, var2, var3, var4);
                 break;
         }
-        if (this.fui) this.fui.addElement(element);
-        this.elements[element.id + ''] = element;
+        if (this.fui && shouldTrack) this.fui.addElement(element);
+        if (shouldTrack)this.elements[element.id + ''] = element;
         return element;
     }
     removeElement(element) {
@@ -209,6 +219,7 @@ class FrameUI {
             'gravitySpeed',
             'bounce',
             'isSolid',
+            'state',
             //Specific
             'radius',
             'text',
@@ -373,18 +384,13 @@ class GameCanvas {
         this.fps = 1000 / 60;
         this.horizontalScrool();
         this.dragging = false;
+        this.mousePressed = false;
+        this.mousePosition = {x: 0, y: 0};
         this.lastX = 0;
         this.marginLeft = 0;
     }
 
-    horizontalScrool(){
-        this.canvas.addEventListener('mousedown', (e) => {
-            var evt = e || event;
-            this.dragging = true;
-            this.lastX = evt.clientX;
-            e.preventDefault();
-        }, false);
-        
+    horizontalScrool() {
         window.addEventListener('mousemove', (e) => {
             e.preventDefault();
             var evt = e || event;
@@ -395,7 +401,6 @@ class GameCanvas {
                 this.canvas.style.marginLeft = this.marginLeft + "px";
             }
         }, false);
-        
         window.addEventListener('mouseup', () => {
             this.dragging = false;
         }, false);
@@ -450,6 +455,8 @@ class CanvasElement {
         this.game = game;
         this.canvas = game.canvas;
         this.context = game.canvas.context;
+        this.state = 'default';
+        this.isClicking = 'default';
 
         this.isSolid = false;
         this.moveByChunk = false;
@@ -504,22 +511,46 @@ class CanvasElement {
         }
     }
     whitinOfBounds(element, bounds) {
-        var objX = this.x+(this.width/2);
-        var objY = this.y+(this.width/2);
+        var objX = this.x + (this.width / 2);
+        var objY = this.y + (this.width / 2);
         if (this.currentAnimation) {
-            objX = this.x+(this.currentAnimation.width/2);
-            objY = this.y+(this.currentAnimation.height/2);
+            objX = this.x + (this.currentAnimation.width / 2);
+            objY = this.y + (this.currentAnimation.height / 2);
         }
-        return Math.pow(element.x-objX,2) + Math.pow(element.y - objY,2) < Math.pow(bounds, 2);
+        return Math.pow(element.x - objX, 2) + Math.pow(element.y - objY, 2) < Math.pow(bounds, 2);
         // return objX >= element.x - bounds && objX <= element.x + bounds && objY >= element.y - bounds && objY <= element.y + bounds;
     }
-    isClicked(click){
+    updateState() {
+        var objX = this.x;
+        var objY = this.y;
+        var objWidth = this.width;
+        var objHeight = this.height;
+        if (this.currentAnimation) {
+            objWidth = this.currentAnimation.width;
+            objHeight= this.currentAnimation.height;
+        }
+        if (this.type == this.game.ELEMENT.CIRCLE) {
+            objX = objX - (objWidth / 2);
+            objY = objY - (objHeight / 2);
+        }
+        if (this.canvas.mousePosition.x >= objX && this.canvas.mousePosition.x <= objX + objWidth && this.canvas.mousePosition.y >= objY && this.canvas.mousePosition.y <= objY + objHeight) {
+            this.state = 'hover';
+            if (this.canvas.mousePressed) {
+                this.state = 'active';
+                if (!this.isClicking && this.listeners['click']){
+                    this.isClicking = true;
+                    this.listeners['click']({clientX: this.canvas.mousePosition.x, clientY: this.canvas.mousePosition.y});
+                }
+            } else this.isClicking = false;
+        } else this.state = 'default';
+    }
+    isClicked(click) {
         var objX = this.x;
         var objY = this.y;
         if (this.type == this.game.ELEMENT.CIRCLE) {
             objX = objX - (this.width / 2);
             objY = objY - (this.height / 2);
-        }        
+        }
         return (click.x > objX && click.x < (objX + this.width)) && (click.y > objY && click.y < (objY + this.height));
     }
     outOfBounds() {
@@ -570,11 +601,10 @@ class CanvasElement {
                     break;
             }
         }
-        if (!this.listeners[event + '']) this.listeners[event + ''] = document.addEventListener(event, callback);
+        if (!this.listeners[event + '']) this.listeners[event + ''] = callback;
     }
     removeListener(event) {
         if (this.listeners[event + '']) {
-            document.removeEventListener(event);
             this.listeners[event + ''] = undefined;
             delete this.listeners[event + ''];
         }
@@ -667,6 +697,9 @@ class CanvasElement {
 
 
     /* Setters */
+    setState(state) {
+        this.state = state;
+    }
     setColor(color) {
         this.color = color;
     }
@@ -733,6 +766,7 @@ class CircleElement extends CanvasElement {
         this.context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
         this.context.fill();
         if (this.fui) this.fui.updateElement(this);
+        this.updateState();
     }
 
     /* Setters */
@@ -752,21 +786,22 @@ class RectElement extends CanvasElement {
     /* Methods */
     print() {
         if (this.rotate) {
-            if(this.rotate.x) this.rotateOverElement(this.rotate);
-            else this.rotateOverSelf();     
+            if (this.rotate.x) this.rotateOverElement(this.rotate);
+            else this.rotateOverSelf();
         } else {
             this.context.fillStyle = this.color;
             this.context.fillRect(this.x, this.y, this.width, this.height);
         }
         if (this.fui) this.fui.updateElement(this);
+        this.updateState();
     }
 
-    rotateOverSelf(){
+    rotateOverSelf() {
         this.context.save();
         this.context.fillStyle = this.color;
         this.context.translate(this.x + (this.width / 2), this.y + (this.height / 2));
         this.context.rotate(this.angle);
-        this.context.fillRect(this.width/-2, this.height/-2, this.width, this.height);
+        this.context.fillRect(this.width / -2, this.height / -2, this.width, this.height);
         this.context.restore();
     }
 
@@ -776,7 +811,7 @@ class RectElement extends CanvasElement {
         this.context.translate(elm.x, elm.y);
         this.context.rotate(this.angle);
         this.context.translate(-elm.x, -elm.y);
-        this.context.fillRect(elm.x-(this.width/2), elm.y+elm.width, this.width, this.height);
+        this.context.fillRect(elm.x - (this.width / 2), elm.y + elm.width, this.width, this.height);
         this.context.restore();
     }
 }
@@ -801,6 +836,7 @@ class TextElement extends CanvasElement {
         this.context.fillStyle = this.color;
         this.context.fillText(this.text, this.x, this.y);
         if (this.fui) this.fui.updateElement(this);
+        this.updateState();
     }
 
     /* Setters */
@@ -846,6 +882,7 @@ class ImageElement extends CanvasElement {
             else this.context.drawImage(this.image, this.currentAnimation.x, this.currentAnimation.y, this.currentAnimation.frameWidth, this.currentAnimation.frameHeight, this.x, this.y, this.currentAnimation.width, this.currentAnimation.height);
         }
         if (this.fui) this.fui.updateElement(this);
+        this.updateState();
     }
     updateAnimation() {
         if (this.currentAnimation.timeout) return;
@@ -859,8 +896,8 @@ class ImageElement extends CanvasElement {
         var animation = params;
         animation.frameWidth = this.width / params.cols;
         animation.frameHeight = this.height / params.rows;
-        animation.width =  params.width ? params.width :animation.frameWidth;
-        animation.height =  params.height ? params.height :animation.frameHeight;
+        animation.width = params.width ? params.width : animation.frameWidth;
+        animation.height = params.height ? params.height : animation.frameHeight;
         animation.framesX = params.framesX ? params.framesX : params.cols;
         animation.framesY = params.framesY ? params.framesY : params.rows;
         animation.fixedX = params.fixedX ? params.fixedX : false;

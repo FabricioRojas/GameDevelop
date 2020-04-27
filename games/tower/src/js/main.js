@@ -5,7 +5,7 @@ const soundDir = 'src/sound/';
 var game = new Game('gc', 800, 600, true);
 game.canvas.canvas.addEventListener('click', handlemouseClick);
 game.canvas.setBackgroundImage(game.addElement(game.ELEMENT.IMAGE, `${imgDir}background.png`, game.canvas.width, game.canvas.height, 0, 0));
-setInterval(() => game.draw(drawing), 1000 / 60 );
+setInterval(() => game.draw(drawing), 1000 / 60);
 
 const INITIAL_MONEY = 45;
 const INITIAL_LIVES = 15;
@@ -40,29 +40,33 @@ coin.addAnimation('iddle', { rows: 1, cols: 8, update: 0.1, width: 35, height: 3
 coin.setCurrentAnimation('iddle');
 
 var towerSelectorBackground = game.addElement(game.ELEMENT.RECT, 'rgba(0, 0, 0, 0.7)', 250, 45, (game.canvas.width / 2) - 110, 0);
-var tower1 = game.addElement(game.ELEMENT.IMAGE, `${imgDir}tower_1.png`, 40, 40, towerSelectorBackground.x + 20, 2.5);
-var tower2 = game.addElement(game.ELEMENT.IMAGE, `${imgDir}tower_2.png`, 40, 40, tower1.x + 15 + tower1.width, 2.5);
-var tower3 = game.addElement(game.ELEMENT.IMAGE, `${imgDir}tower_3.png`, 40, 40, tower2.x + 15 + tower2.width, 2.5);
-var tower4 = game.addElement(game.ELEMENT.IMAGE, `${imgDir}tower_4.png`, 40, 40, tower3.x + 15 + tower3.width, 2.5);
+var tower1 = game.addElement(game.ELEMENT.IMAGE, `${imgDir}tower_1.png`, 40, 40, towerSelectorBackground.x + 20, 2.5, true);
+var tower2 = game.addElement(game.ELEMENT.IMAGE, `${imgDir}tower_2.png`, 40, 40, tower1.x + 15 + tower1.width, 2.5, true);
+var tower3 = game.addElement(game.ELEMENT.IMAGE, `${imgDir}tower_3.png`, 40, 40, tower2.x + 15 + tower2.width, 2.5, true);
+var tower4 = game.addElement(game.ELEMENT.IMAGE, `${imgDir}tower_4.png`, 40, 40, tower3.x + 15 + tower3.width, 2.5, true);
 tower1.towerRadius = 150;
 tower1.color = '#7e92c4';
-tower1.pointer = {color:'#4f5d7c', width:5, hieght:20};
-tower1.shot = {color: 'grey', width: 5, height:10, speed: 7, fireRate: 0.5, damage: 2, timeout: null};
+tower1.pointer = { color: '#4f5d7c', width: 5, hieght: 20 };
+tower1.shot = { color: 'grey', width: 5, height: 10, speed: 7, fireRate: 0.5, damage: 2, timeout: null };
+tower1.addListener("click", placeTower);
 
 tower2.towerRadius = 125;
 tower2.color = '#ec6401';
-tower2.pointer = {color:'#4f5d7c', width:5, hieght:20};
-tower2.shot = {color: 'yellow', width: 3, height:5, speed: 7, fireRate: 0.1, damage: 0.5, timeout: null};
+tower2.pointer = { color: '#4f5d7c', width: 5, hieght: 20 };
+tower2.shot = { color: 'yellow', width: 3, height: 5, speed: 7, fireRate: 0.1, damage: 0.5, timeout: null };
+tower2.addListener("click", placeTower);
 
 tower3.towerRadius = 160;
 tower3.color = '#e4e4e4';
-tower3.pointer = {color:'red', width:5, hieght:20};
-tower3.shot = {color: 'red', width: 2, height:10, speed: 2, fireRate: 3, damage: 5, timeout: null};
+tower3.pointer = { color: 'red', width: 5, hieght: 20 };
+tower3.shot = { color: 'red', width: 2, height: 10, speed: 2, fireRate: 3, damage: 5, timeout: null };
+tower3.addListener("click", placeTower);
 
 tower4.towerRadius = 400;
 tower4.color = '#ffcb00';
-tower4.pointer = {color:'#4f5d7c', width:5, hieght:20};
-tower4.shot = {color: 'brown', width: 2, height:10, speed: 7, fireRate: 0.1, damage: 1, timeout: null};
+tower4.pointer = { color: '#4f5d7c', width: 5, hieght: 20 };
+tower4.shot = { color: 'brown', width: 2, height: 10, speed: 7, fireRate: 0.1, damage: 1, timeout: null };
+tower4.addListener("click", placeTower);
 
 towersTypes.push(tower1);
 towersTypes.push(tower2);
@@ -118,7 +122,7 @@ var drawing = function () {
                     game.removeElement(enemies[e]);
                     enemies.splice(e, 1); e--;
 
-                    if(enemiesCounter >= 50 && lastWave && enemies.length < 1) win();
+                    if (enemiesCounter >= 50 && lastWave && enemies.length < 1) win();
                 }
             }
         if (shots[s] && shots[s].outOfBounds()) {
@@ -128,15 +132,15 @@ var drawing = function () {
     }
     for (var t in towers) {
         for (var e in enemies) if (enemies[e] && enemies[e].whitinOfBounds(towers[t], towers[t].towerRadius)) shoot(enemies[e], towers[t]);
-        if(towers[t].towerRadiusElm) towers[t].towerRadiusElm.print();
+        if (towers[t].towerRadiusElm) towers[t].towerRadiusElm.print();
         towers[t].print();
-        if(towers[t].pointer) towers[t].pointer.print();
+        if (towers[t].pointer) towers[t].pointer.print();
     }
 };
 
 function spanwEnemy(enemiesSpeed, hitPoints, drop, image, width, height) {
-    if(enemiesCounter >= 50) return;
-    var newEnemy = game.addElement(game.ELEMENT.IMAGE, `${imgDir}${image}`, width, height, 1, 270);
+    if (enemiesCounter >= 50) return;
+    var newEnemy = game.addElement(game.ELEMENT.IMAGE, `${imgDir}${image}`, width, height, 1, 270, true);
     var lifeBar = game.addElement(game.ELEMENT.RECT, 'red', 20, 3, newEnemy.x + 10, newEnemy.y + newEnemy.width / 2);
     newEnemy.addAnimation('up', { rows: 4, cols: 9, currentRow: 0, fixedY: true, update: 0.1 });
     newEnemy.addAnimation('left', { rows: 4, cols: 9, currentRow: 1, fixedY: true, update: 0.1 });
@@ -153,7 +157,7 @@ function spanwEnemy(enemiesSpeed, hitPoints, drop, image, width, height) {
     // test = game.addElement(game.ELEMENT.RECT, 'red', 2, 2, (newEnemy.x + newEnemy.currentAnimation.width/2), 
     // (newEnemy.y + newEnemy.currentAnimation.height/2));
     enemiesCounter++;
-    if(enemiesCounter < 50) enemies.push(newEnemy);
+    if (enemiesCounter < 50) enemies.push(newEnemy);
     else lastWave = true;
 }
 
@@ -192,12 +196,26 @@ function enemyRoutine(e, index) {
     }
 }
 
-function reset(){
+function placeTower(e) {
+    if (e.clientX && e.clientY && currentMoney >= 15) {
+        let x = e.clientX;
+        let y = e.clientY;
+        for (var tt in towersTypes) {
+            var elm = towersTypes[tt];
+            if ((x > elm.x && x < (elm.x + elm.width)) && (y > elm.y && y < (elm.y + elm.height)) && !towerPreview) {
+                towerPreview = addTowerPreview(elm, x, y);
+                return;
+            }
+        }
+    }
+}
+
+function reset() {
     game.play();
-    if(spawnEnemy1Interval) clearInterval(spawnEnemy1Interval);
+    if (spawnEnemy1Interval) clearInterval(spawnEnemy1Interval);
     spawnEnemy1Interval = setInterval(() => { if (game.state == game.STATE.PLAY) spanwEnemy(0.5, 20, 5, 'enemy_1.png', 572, 256); }, 1000 * 5);
-    if(spawnEnemy2Interval) clearInterval(spawnEnemy2Interval);
-    spawnEnemy2Interval;setInterval(() => { if (game.state == game.STATE.PLAY) spanwEnemy(1, 100, 15, 'enemy_2.png', 576, 256); }, 1000 * 23);
+    if (spawnEnemy2Interval) clearInterval(spawnEnemy2Interval);
+    spawnEnemy2Interval; setInterval(() => { if (game.state == game.STATE.PLAY) spanwEnemy(1, 100, 15, 'enemy_2.png', 576, 256); }, 1000 * 23);
     shots = [];
     coins = [];
     towers = [];
@@ -224,7 +242,7 @@ function win() {
     winText.print();
 }
 
-function shoot(e, t) {    
+function shoot(e, t) {
     if (t.shotTimeout) return;
     var c1 = (e.x + (e.currentAnimation.width / 2)) - t.x;
     var c2 = (e.y + (e.currentAnimation.height / 2)) - t.y;
@@ -270,35 +288,39 @@ function addTower(tower) {
     newTower.towerRadiusElm = null;
     newTower.shotTimeout = null;
     newTower.pointer = game.addElement(game.ELEMENT.RECT, tower.pointer.color, tower.pointer.width, tower.pointer.hieght, tower.x - 2.5, tower.y + tower.width / 2);
-    newTower.removeListener("keydown");
+    newTower.removeListener("click");
     newTower.addListener("click", (e) => {
-        let rect = game.canvas.canvas.getBoundingClientRect();
-        let x = e.clientX - rect.left;
-        let y = e.clientY - rect.top;
-        game.removeElement(newTower.towerRadiusElm);
-        newTower.towerRadiusElm = null;
-        if(!newTower.isClicked({x:x, y:y})) return;
-        if(!towerPreview) newTower.towerRadiusElm = game.addElement(game.ELEMENT.CIRCLE, 'rgba(255, 255, 255, 0.2)', newTower.towerRadius, newTower.x, newTower.y);
+        console.log("newTower newTower", e);
+        if (towerPreview) return;
+        if (newTower.towerRadiusElm) newTower.towerRadiusElm = null;
+        else newTower.towerRadiusElm = game.addElement(game.ELEMENT.CIRCLE, 'rgba(255, 255, 255, 0.2)', newTower.towerRadius, newTower.x, newTower.y);
     });
-
     towers.push(newTower);
 }
 
 function addTowerPreview(tower, x, y) {
-    var newTower = game.addElement(game.ELEMENT.CIRCLE, tower.color, 20, x, y);
+    var newTower = game.addElement(game.ELEMENT.CIRCLE, tower.color, 20, x, y, true);
     var towerRadius = game.addElement(game.ELEMENT.CIRCLE, 'rgba(255, 255, 255, 0.2)', tower.towerRadius, x, y);
     newTower.towerRadiusElm = towerRadius;
     newTower.color = tower.color;
     newTower.towerRadius = tower.towerRadius;
     newTower.pointer = tower.pointer;
     newTower.shot = tower.shot;
-    newTower.addListener("keydown", removePreview);
+    newTower.addListener("click", () => {
+        if (currentMoney < towerPreview.cost) return;
+        currentMoney -= 15;
+        moneyCounter.setText(currentMoney);
+        addTower(towerPreview);
+        game.removeElement(towerPreview.towerRadius);
+        game.removeElement(towerPreview);
+        towerPreview = null;
+    });
     return newTower;
 }
 
 /* Custom Listeners */
 function removePreview(evt) {
-    if(evt.keyCode == game.KEY.ESC && towerPreview) {
+    if (evt.keyCode == game.KEY.ESC && towerPreview) {
         game.removeElement(towerPreview.towerRadius);
         game.removeElement(towerPreview);
         towerPreview = null;
@@ -306,29 +328,6 @@ function removePreview(evt) {
 }
 function handlemouseClick(e) {
     if (loseState) return reset();
-    if (e.clientX && e.clientY) {
-        let rect = game.canvas.canvas.getBoundingClientRect();
-        let x = e.clientX - rect.left;
-        let y = e.clientY - rect.top;
-        if (currentMoney >= 15) {
-            for (var tt in towersTypes) {
-                var elm = towersTypes[tt];
-                if ((x > elm.x && x < (elm.x + elm.width)) && (y > elm.y && y < (elm.y + elm.height)) && !towerPreview) {
-                    towerPreview = addTowerPreview(elm, x, y);
-                    return;
-                } else if (towerPreview) {
-                    currentMoney -= 15;
-                    moneyCounter.setText(currentMoney);
-                    addTower(towerPreview);
-                    towerPreview.removeListener("keydown");
-                    game.removeElement(towerPreview.towerRadius);
-                    game.removeElement(towerPreview);
-                    towerPreview = null;
-                    return;
-                }
-            }
-        }
-    }
 }
 game.canvas.canvas.addEventListener('mousemove', (e) => {
     e.preventDefault();
@@ -342,8 +341,8 @@ game.canvas.canvas.addEventListener('mousemove', (e) => {
     for (var i = 0; i < game.canvas.width; i += grid) {
         for (var j = 0; j < game.canvas.height; j += grid) {
             if ((x > i && x < (i + grid)) && (y > j && y < (j + grid))) {
-                x =  i + (grid / 2);
-                y =  j + (grid / 2);
+                x = i + (grid / 2);
+                y = j + (grid / 2);
                 towerPreview.towerRadiusElm.setX(x);
                 towerPreview.towerRadiusElm.setY(y);
                 towerPreview.setX(x);
@@ -352,5 +351,4 @@ game.canvas.canvas.addEventListener('mousemove', (e) => {
             }
         }
     }
-
 }, false);

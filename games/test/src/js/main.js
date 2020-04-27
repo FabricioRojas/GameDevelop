@@ -15,6 +15,7 @@ let y = h / 2 - rectH / 2;
 var portalA = game.addElement(game.ELEMENT.RECT, 'orange', 10, 155, w-10, 345);
 var portalB = game.addElement(game.ELEMENT.RECT, 'blue', 10, 155, 0, 345);
 var floor = game.addElement(game.ELEMENT.RECT, 'red', w, 10, 0, 500);
+var ball = game.addElement(game.ELEMENT.CIRCLE, 'green', 20, 100, 100);
 var animationTestDirections = game.addElement(game.ELEMENT.IMAGE, `src/img/animation_test_3.png`, 572, 256, 300, 150);
 // var animationTest = game.addElement(game.ELEMENT.IMAGE, `src/img/animation_test_2.png`, 1536, 2565, 0, 360);
 var animationTest = game.addElement(game.ELEMENT.IMAGE, `src/img/animation_test_full.png`, 913, 609, 0, 360);
@@ -46,11 +47,13 @@ var loop = function () {
     }else{
         animationTestDirections.setCurrentAnimation('stop')
     }
+    console.log("state", ball.state);
 
     floor.print();
     animationTest.print();
     portalA.print();
     portalB.print();
+    ball.print();
 
     
     if(animationTestDirections.currentAnimation) animationTestDirections.print();
