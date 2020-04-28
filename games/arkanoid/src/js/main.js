@@ -6,7 +6,7 @@ var game = new Game("gc", 800, 600, false);
 game.control.setStep(10);
 game.canvas.setSolidBordersX(true);
 game.canvas.setSolidBordersY(true);
-game.canvas.canvas.addEventListener('click', handlemouseClick);
+game.canvas.addListener('click', handlemouseClick);
 game.gui.addMenu("main_menu", "white", game.canvas.width / 2,
     game.canvas.height - 200, game.canvas.width / 2 - (game.canvas.width / 4), (game.canvas.height / 2 - (game.canvas.height / 3)), "white", 2);
 

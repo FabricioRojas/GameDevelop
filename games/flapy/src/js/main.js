@@ -6,7 +6,7 @@ var game = new Game("gc", 800, 600, true);
 game.control.setStep(13);
 game.canvas.setBackgroundImage(game.addElement(game.ELEMENT.IMAGE, `${imgDir}background.png`, game.canvas.width * 2, game.canvas.height, 0, 0));
 game.canvas.backgroundImage.setXSpeed(-0.3);
-game.canvas.canvas.addEventListener('click', handlemouseClick);
+game.canvas.addListener('click', handlemouseClick);
 
 game.gui.addMenu("main_menu", "white", game.canvas.width / 2,
     game.canvas.height - 200, game.canvas.width / 2 - (game.canvas.width / 4), (game.canvas.height / 2 - (game.canvas.height / 3)), "white", 2);

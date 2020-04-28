@@ -57,7 +57,7 @@ game.gui.addItemMenu("difficulty_menu", game.ELEMENT.TEXT, true, "black", 30, "B
 });
 
 
-game.canvas.canvas.addEventListener('click', handlemouseClick);
+game.canvas.addListener('click', handlemouseClick);
 
 var gameInterval = setInterval(() => game.draw(drawing), 1000 / 60);
 
@@ -93,7 +93,7 @@ snakeHead.addSound('die', `${soundDir}die_2.mp3`);
 snakeHead.setSoundDuration('die', 0.5);
 snakeHead.setSoundVolume('die', 0.4);
 
-// snakeHead.addListener("keydown", keyPress);
+snakeHead.addListener("keydown", keyPress);
 
 snakeHead.setMoveByChunk(true);
 snakeHead.setInfiniteMoveX(true);
@@ -109,7 +109,6 @@ snakeHeadShadow.setYSpeed(0);
 
 reset();
 var drawing = function () {
-    keyPress();
     snakeHeadMovement();
     snakeHeadShadow.print();
     snakeHead.print();

@@ -33,7 +33,7 @@ class Game {
         this.canvas.canvas.addEventListener('mousemove', (e) => {
             this.canvas.mousePosition.x = e.offsetX || e.layerX;
             this.canvas.mousePosition.y = e.offsetY || e.layerY;
-            this.canvas.executeListeners('mousemove');
+            this.canvas.executeListeners('mousemove', e);
         });
         this.canvas.canvas.addEventListener('mouseup', (e) => {
             this.canvas.mousePressed = false;
@@ -49,7 +49,7 @@ class Game {
         document.addEventListener('keydown', (e) => {
             this.canvas.executeListeners('keydown', e);
         });
-        document.canvas.addEventListener('keyup', (e) => {
+        document.addEventListener('keyup', (e) => {
             this.canvas.executeListeners('keyup', e);
         });
     }

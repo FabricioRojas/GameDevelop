@@ -3,7 +3,7 @@ const soundDir = 'src/sound/';
 
 
 var game = new Game('gc', 800, 600, true);
-game.canvas.canvas.addEventListener('click', handlemouseClick);
+game.canvas.addListener('click', handlemouseClick);
 game.canvas.setBackgroundImage(game.addElement(game.ELEMENT.IMAGE, `${imgDir}background.png`, game.canvas.width, game.canvas.height, 0, 0));
 setInterval(() => game.draw(drawing), 1000 / 60);
 

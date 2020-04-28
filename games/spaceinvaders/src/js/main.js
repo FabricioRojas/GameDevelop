@@ -4,7 +4,7 @@ const soundDir = "src/sound/";
 
 var game = new Game("gc", 800, 600, true);
 game.control.setStep(5);
-game.canvas.canvas.addEventListener('click', handlemouseClick);
+game.canvas.addListener('click', handlemouseClick);
 setInterval(() => game.draw(drawing), 1000 / 60);
 
 var ship = game.addElement(game.ELEMENT.RECT, "white", 50, 25, game.canvas.width / 2 - 50 / 2, 500);

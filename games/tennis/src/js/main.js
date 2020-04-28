@@ -125,8 +125,8 @@ function computerMovement() {
 }
 
 /* Custom Listeners */
-game.canvas.canvas.addEventListener('click', handlemouseClick);
-game.canvas.canvas.addEventListener('mousemove', function (e) {
+game.canvas.addListener('click', handlemouseClick);
+game.canvas.addListener('mousemove', function (e) {
     var mousePos = getMousePosition(e); paddle1.y = mousePos.y;
 });
 function reset() {
