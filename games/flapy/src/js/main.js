@@ -15,7 +15,7 @@ game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "black", 30, "Resume"
     game.play();
 });
 game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "black", 30, "Restart", null, null, () => {
-    reset();
+    game.reset();
 });
 game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "black", 30, "Exit", null, null, () => {
     confirm("Sure you want to go?");
@@ -58,7 +58,7 @@ bird.setSoundDuration("point", "1");
 
 background2.setXSpeed(-0.3);
 
-reset();
+game.reset();
 game.pause();
 var drawing = function () {
     if (!wallsInterval) wallsInterval = setInterval(() => {
@@ -155,7 +155,7 @@ function lose() {
     clickMessage.print();
 
 }
-function reset() {
+game.setReset( () => {
     loseState = false;
     game.canvas.clear();
     game.canvas.print();
@@ -179,7 +179,7 @@ function reset() {
     bird.resetSound('background');
     bird.playSound('background');
     game.play();
-}
+});
 function handlemouseClick() {
-    if (loseState) reset();
+    if (loseState) game.reset();
 }

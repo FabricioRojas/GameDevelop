@@ -77,7 +77,30 @@ coinDrop = game.addElement(game.ELEMENT.IMAGE, `${imgDir}coin.png`, 508, 64, -50
 coinDrop.addAnimation('iddle', { rows: 1, cols: 8, update: 0.1, width: 15, height: 15 });
 coinDrop.setCurrentAnimation('iddle');
 
-reset();
+
+game.setReset( () => {
+    game.play();
+    if (spawnEnemy1Interval) clearInterval(spawnEnemy1Interval);
+    spawnEnemy1Interval = setInterval(() => { if (game.state == game.STATE.PLAY) spanwEnemy(0.5, 20, 5, 'enemy_1.png', 572, 256); }, 1000 * 5);
+    if (spawnEnemy2Interval) clearInterval(spawnEnemy2Interval);
+    spawnEnemy2Interval; setInterval(() => { if (game.state == game.STATE.PLAY) spanwEnemy(1, 100, 15, 'enemy_2.png', 576, 256); }, 1000 * 23);
+    shots = [];
+    coins = [];
+    towers = [];
+    enemies = [];
+    loseState = false;
+    currentMoney = INITIAL_MONEY;
+    currentLives = INITIAL_LIVES;
+    towerPreview = null;
+    enemiesCounter = 0;
+    livesCounter.setText(currentLives);
+    livesCounter.print();
+    moneyCounter.setText(currentMoney);
+    moneyCounter.print();
+    lastWave = false;
+});
+
+game.reset();
 var drawing = function () {
     moneyCounterBackground.print();
     coin.print();
@@ -210,27 +233,7 @@ function placeTower(e) {
     }
 }
 
-function reset() {
-    game.play();
-    if (spawnEnemy1Interval) clearInterval(spawnEnemy1Interval);
-    spawnEnemy1Interval = setInterval(() => { if (game.state == game.STATE.PLAY) spanwEnemy(0.5, 20, 5, 'enemy_1.png', 572, 256); }, 1000 * 5);
-    if (spawnEnemy2Interval) clearInterval(spawnEnemy2Interval);
-    spawnEnemy2Interval; setInterval(() => { if (game.state == game.STATE.PLAY) spanwEnemy(1, 100, 15, 'enemy_2.png', 576, 256); }, 1000 * 23);
-    shots = [];
-    coins = [];
-    towers = [];
-    enemies = [];
-    loseState = false;
-    currentMoney = INITIAL_MONEY;
-    currentLives = INITIAL_LIVES;
-    towerPreview = null;
-    enemiesCounter = 0;
-    livesCounter.setText(currentLives);
-    livesCounter.print();
-    moneyCounter.setText(currentMoney);
-    moneyCounter.print();
-    lastWave = false;
-}
+
 function lose() {
     loseState = true;
     game.pause();
@@ -327,7 +330,7 @@ function removePreview(evt) {
     }
 }
 function handlemouseClick(e) {
-    if (loseState) return reset();
+    if (loseState) return game.reset();
 }
 
 game.canvas.addListener('mousemove', () => {

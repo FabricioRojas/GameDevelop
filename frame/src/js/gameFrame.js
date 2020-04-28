@@ -12,6 +12,7 @@ class Game {
         this.gui = new GameUI(this);
         this.elements = {};
         this.currentMenu;
+        this.reset = null;
         this.init();
     }
 
@@ -29,6 +30,10 @@ class Game {
         var stopButton = document.getElementById("fui-stop");
         if (stopButton) stopButton.addEventListener('click', () => {
             this.togglePlayState();
+        });
+        var resetButton = document.getElementById("fui-reset");
+        if (resetButton) resetButton.addEventListener('click', () => {
+            this.reset();
         });
         this.canvas.canvas.addEventListener('mousemove', (e) => {
             this.canvas.mousePosition.x = e.offsetX || e.layerX;
@@ -52,6 +57,9 @@ class Game {
         document.addEventListener('keyup', (e) => {
             this.canvas.executeListeners('keyup', e);
         });
+    }
+    reset(){
+        this.reset();
     }
     menuHandling() {
         for (var i in this.gui.listeners) {
@@ -142,6 +150,9 @@ class Game {
     }
     setCurrentMenu(currentMenu) {
         this.currentMenu = currentMenu;
+    }
+    setReset(reset) {
+        this.reset = reset;
     }
 }
 
@@ -253,12 +264,17 @@ class FrameUI {
         var h2Title = document.createElement('h2');
         h2Title.innerHTML = 'Development Panel';
 
-        var button = document.createElement('button');
-        button.id = 'fui-stop';
-        button.innerText = 'Play/Pause';
+        var buttonS = document.createElement('button');
+        buttonS.id = 'fui-stop';
+        buttonS.innerText = 'Play/Pause';
+
+        var buttonR = document.createElement('button');
+        buttonR.id = 'fui-reset';
+        buttonR.innerText = 'Reset';
 
         header.appendChild(h2Title);
-        header.appendChild(button);
+        header.appendChild(buttonS);
+        header.appendChild(buttonR);
         this.rightPanel.appendChild(header);
         this.rightPanel.appendChild(test);
 

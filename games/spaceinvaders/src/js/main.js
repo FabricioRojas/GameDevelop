@@ -36,7 +36,7 @@ var aliesSpeed = 0.3;
 var brickLives = 10;
 var loseState = false;
 
-reset();
+game.reset();
 var drawing = function () {
     shipGun.print();
     ship.print();
@@ -96,12 +96,12 @@ function lose() {
     loseText.playSound('lose');
     loseText.print();
 }
-function reset() {
+game.setReset(() => {
     aliens = generateElementsArray(3, 7, 50, 50, 25, 60, 'lightgreen', 'alien');
     bricks = generateElementsArray(1, 9, 25, 50, 25, 400, 'white', ' brick');
     ship.playSound('background');
     game.play();
-}
+});
 function shoot() {
     if (shotTimeout) return;
     ship.playSound('shot');
@@ -132,5 +132,5 @@ function generateElementsArray(rows, columns, separation, elementWidth, elementH
 }
 
 function handlemouseClick() {
-    if (loseState) return reset();
+    if (loseState) return game.reset();
 }

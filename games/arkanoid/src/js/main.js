@@ -14,7 +14,7 @@ game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "black", 30, "Resume"
     game.play();
 });
 game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "black", 30, "Restart", null, null, () => {
-    reset();
+    game.reset();
 });
 game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "black", 30, "Exit", null, null, () => {
     if (confirm("Sure you want to go?")) window.close();
@@ -73,7 +73,7 @@ ball.addSound('background', `${soundDir}background.mp3`);
 ball.setSoundLoop('background', true);
 ball.setSoundVolume('background', 0.1);
 
-reset();
+game.reset();
 var drawing = function () {
     keydown();
     ball.print();
@@ -134,7 +134,7 @@ function lose() {
     bricks = [];
     loseText.print();
 }
-function reset() {
+game.setReset(() =>{
     loseState = false;
     game.canvas.clear();
     game.canvas.print();
@@ -146,7 +146,7 @@ function reset() {
     ball.resetSound('background');
     ball.playSound('background');
     game.play();
-}
+});
 function win() {
     game.pause();
     ball.pauseSound('background');
@@ -286,5 +286,5 @@ function keydown(evt) {
     }
 }
 function handlemouseClick() {
-    if (loseState) return reset();
+    if (loseState) return game.reset();
 }

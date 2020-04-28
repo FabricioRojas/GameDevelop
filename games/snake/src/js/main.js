@@ -15,7 +15,7 @@ game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "black", 30, "Resume"
     game.play();
 });
 game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "black", 30, "Restart", null, null, () => {
-    reset();
+    game.reset();
 });
 game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "black", 30, "Dificulty", null, null, () => {
     game.gui.showMenu("difficulty_menu");
@@ -107,7 +107,7 @@ snakeHeadShadow.setInfiniteMoveY(true);
 snakeHeadShadow.setXSpeed(0);
 snakeHeadShadow.setYSpeed(0);
 
-reset();
+game.reset();
 var drawing = function () {
     snakeHeadMovement();
     snakeHeadShadow.print();
@@ -122,7 +122,7 @@ var drawing = function () {
     }
 
     snakeWallCollision(snakeHead);
-    if (canibalism) reset(true);
+    if (canibalism) game.reset(true);
 
     if (snakeTrail.length > snakeTail) snakeTrail.shift();
     if (snakeTrailShadow.length > snakeTail) snakeTrailShadow.shift();
@@ -154,13 +154,13 @@ function snakeHeadMovement() {
     for (var i in snakeTrail) if ((snakeHead.xSpeed || snakeHead.ySpeed) && snakeHead.collide(snakeTrail[i])) canibalism = true;
 }
 function handlemouseClick() {
-    if (loseState) reset();
+    if (loseState) game.reset();
 }
 function snakeWallCollision(elm) {
     if (snakeHead.infiniteMoveX) return;
-    if (elm.x < 0 || elm.x > game.canvas.width - 1 || elm.y < 0 || elm.y > game.canvas.height - 1) reset(true);
+    if (elm.x < 0 || elm.x > game.canvas.width - 1 || elm.y < 0 || elm.y > game.canvas.height - 1) game.reset(true);
 }
-function reset(playSound) {
+game.setReset( (playSound) => {
     snakeHead.resetSound('background');
     snakeHead.playSound('background');
     game.pause();
@@ -188,7 +188,7 @@ function reset(playSound) {
     canibalism = false;
     highScore.setText(localStorage.getItem("snake-highscore") ? localStorage.getItem("snake-highscore") : 0);
     if (!playSound) game.play();
-}
+});
 function checkScore() {
     if (!localStorage.getItem("snake-highscore")) localStorage.setItem("snake-highscore", 0);
     if (points > 0 && points > parseInt(localStorage.getItem("snake-highscore"))) {

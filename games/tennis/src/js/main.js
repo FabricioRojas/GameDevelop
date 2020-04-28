@@ -48,7 +48,7 @@ paddle2.setSoundDuration('hit_paddle', 0.5);
 winMessage.addSound('win', `${soundDir}wining.mp3`);
 winMessage.addSound('lose', `${soundDir}losing.mp3`);
 winMessage.setSoundVolume('win', 0.2);
-reset();
+game.reset();
 var drawing = function () {
     if (showingWinScreen) {
         if (score1Val == winningScore) {
@@ -129,7 +129,7 @@ game.canvas.addListener('click', handlemouseClick);
 game.canvas.addListener('mousemove', function (e) {
     var mousePos = getMousePosition(e); paddle1.y = mousePos.y;
 });
-function reset() {
+game.setReset(() => {
     showingWinScreen = false;
     score1Val = 0, score2Val = 0;
     score1.setText(score1Val);
@@ -139,9 +139,9 @@ function reset() {
     ball.resetSound('background');
     ball.playSound('background');
     game.play();
-}
+});
 function handlemouseClick() {
-    if (showingWinScreen) return reset();
+    if (showingWinScreen) return game.reset();
 }
 function getMousePosition(e) {
     var rect = game.canvas.canvas.getBoundingClientRect();
