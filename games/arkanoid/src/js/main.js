@@ -53,7 +53,7 @@ winText.setSoundVolume('win', 0.2);
 loseText.addSound('lose', `${soundDir}losing.mp3`);
 loseText.setSoundVolume('lose', 0.2);
 
-paddle.addListener("keydown", keydown);
+// paddle.addListener("keydown", keydown);
 paddle.setIsSolid(true);
 paddle.addSound('powerup', `${soundDir}powerup.mp3`);
 // paddle.addSound('slide','slide.mp3');
@@ -75,6 +75,7 @@ ball.setSoundVolume('background', 0.1);
 
 reset();
 var drawing = function () {
+    keydown();
     ball.print();
     paddle.print();
     brickCounter.print();
@@ -240,14 +241,7 @@ function ballBrickCollision(collided, brick, index) {
             break;
     }
 }
-function moveBall() {
-    if (gameStarted) return;
-    if (game.control.x < 0) ball.setXSpeed(-ballSpeed);
-    if (game.control.x > 0) ball.setXSpeed(ballSpeed);
-    ball.setYSpeed(-ballSpeed);
-    gameStarted = true;
-    ball.playSound('hit_paddle');
-}
+
 function generateBlocks(rows, columns, separation, brickWidth, brickHeight, powerupsBlocks) {
     bricks = [];
     var bricksSize = ((brickWidth + separation) * columns) - separation;
@@ -282,7 +276,14 @@ function rand(maxNum, factorial) {
 };
 /* Custom listeners */
 function keydown(evt) {
-    if (evt.keyCode == game.KEY.LEFT || evt.keyCode == game.KEY.RIGHT) moveBall();
+    console.log(game.control.x);
+    if (gameStarted) return;
+    if (game.control.x != 0){
+        gameStarted = true;
+        if( game.control.x > 0) ball.setXSpeed(ballSpeed);
+        if( game.control.x < 0) ball.setXSpeed(-ballSpeed);
+        ball.playSound('hit_paddle');
+    }
 }
 function handlemouseClick() {
     if (loseState) return reset();

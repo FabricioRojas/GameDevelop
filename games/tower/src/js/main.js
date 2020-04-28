@@ -329,14 +329,11 @@ function removePreview(evt) {
 function handlemouseClick(e) {
     if (loseState) return reset();
 }
-game.canvas.canvas.addEventListener('mousemove', (e) => {
-    e.preventDefault();
+
+game.canvas.addListener('mousemove', () => {
     if (!towerPreview) return;
-
-    let rect = game.canvas.canvas.getBoundingClientRect();
-    let x = e.clientX - rect.left;
-    let y = e.clientY - rect.top;
-
+    let x = game.canvas.mousePosition.x;
+    let y = game.canvas.mousePosition.y;
     var grid = 50;
     for (var i = 0; i < game.canvas.width; i += grid) {
         for (var j = 0; j < game.canvas.height; j += grid) {
@@ -351,4 +348,4 @@ game.canvas.canvas.addEventListener('mousemove', (e) => {
             }
         }
     }
-}, false);
+})

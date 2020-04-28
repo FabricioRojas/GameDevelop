@@ -21,7 +21,8 @@ class Game {
         this.canvas.clear();
         this.canvas.print();
         if (this.develop) {
-            var image = this.addElement(this.ELEMENT.IMAGE, "../../frame/src/img/background-grid.svg",
+            var scripts = document.getElementsByTagName("script");
+            var image = this.addElement(this.ELEMENT.IMAGE, scripts[0].src+"../../../img/background-grid.svg",
                 this.canvas.width, this.canvas.height, 0, 0)
             this.canvas.setBackgroundImage(image);
         }
@@ -29,23 +30,32 @@ class Game {
         if (stopButton) stopButton.addEventListener('click', () => {
             this.togglePlayState();
         });
-        this.canvas.canvas.addEventListener('mousemove', (event) => {
-            this.canvas.mousePosition.x = event.offsetX || event.layerX;
-            this.canvas.mousePosition.y = event.offsetY || event.layerY;
+        this.canvas.canvas.addEventListener('mousemove', (e) => {
+            this.canvas.mousePosition.x = e.offsetX || e.layerX;
+            this.canvas.mousePosition.y = e.offsetY || e.layerY;
+            this.canvas.executeListeners('mousemove');
         });
-        this.canvas.canvas.addEventListener('mouseup', (event) =>  {
+        this.canvas.canvas.addEventListener('mouseup', (e) => {
             this.canvas.mousePressed = false;
+            this.canvas.executeListeners('mouseup', e);
         });
         this.canvas.canvas.addEventListener("mousedown", (e) => {
             this.canvas.dragging = true;
             this.canvas.mousePressed = true;
             this.canvas.lastX = e.clientX;
             if (this.menuDraw && this.state == this.STATE.MENU) this.menuHandling();
+            this.canvas.executeListeners('mousedown', e);
+        });
+        document.addEventListener('keydown', (e) => {
+            this.canvas.executeListeners('keydown', e);
+        });
+        document.canvas.addEventListener('keyup', (e) => {
+            this.canvas.executeListeners('keyup', e);
         });
     }
-    menuHandling(){
+    menuHandling() {
         for (var i in this.gui.listeners) {
-            var click = this.canvas.getMousePosition(e);
+            var click = this.canvas.getMousePosition();
             var element = this.gui.listeners[i];
             if (this.currentMenu == element.menu) {
                 var finalX = element.x;
@@ -120,7 +130,7 @@ class Game {
                 break;
         }
         if (this.fui && shouldTrack) this.fui.addElement(element);
-        if (shouldTrack)this.elements[element.id + ''] = element;
+        if (shouldTrack) this.elements[element.id + ''] = element;
         return element;
     }
     removeElement(element) {
@@ -385,9 +395,10 @@ class GameCanvas {
         this.horizontalScrool();
         this.dragging = false;
         this.mousePressed = false;
-        this.mousePosition = {x: 0, y: 0};
+        this.mousePosition = { x: 0, y: 0 };
         this.lastX = 0;
         this.marginLeft = 0;
+        this.listeners = {};
     }
 
     horizontalScrool() {
@@ -415,11 +426,28 @@ class GameCanvas {
     clear() {
         this.context.clearRect(0, 0, this.width, this.height);
     }
-    getMousePosition(event) {
+    getMousePosition() {
         let rect = this.canvas.getBoundingClientRect();
-        let x = event.clientX - rect.left;
-        let y = event.clientY - rect.top;
+        let x = this.mousePosition.x - rect.left;
+        let y = this.mousePosition.y - rect.top;
         return { x: x, y: y };
+    }
+    addListener(event, callback) {
+        if (!this.listeners[event + '']) this.listeners[event + ''] = [];
+        this.listeners[event + ''].push(callback);
+    }
+    removeListener(event) {
+        if (this.listeners[event + '']) {
+            this.listeners[event + ''] = undefined;
+            delete this.listeners[event + ''];
+        }
+    }
+    executeListeners(event, evt) {
+        for (var i in this.listeners[event]) {
+            if (this.listeners[event][i] && typeof this.listeners[event][i] == 'function') {
+                this.listeners[event][i](evt);
+            }
+        }
     }
 
     /* Setters */
@@ -527,7 +555,7 @@ class CanvasElement {
         var objHeight = this.height;
         if (this.currentAnimation) {
             objWidth = this.currentAnimation.width;
-            objHeight= this.currentAnimation.height;
+            objHeight = this.currentAnimation.height;
         }
         if (this.type == this.game.ELEMENT.CIRCLE) {
             objX = objX - (objWidth / 2);
@@ -537,9 +565,9 @@ class CanvasElement {
             this.state = 'hover';
             if (this.canvas.mousePressed) {
                 this.state = 'active';
-                if (!this.isClicking && this.listeners['click']){
+                if (!this.isClicking && this.listeners['click']) {
                     this.isClicking = true;
-                    this.listeners['click']({clientX: this.canvas.mousePosition.x, clientY: this.canvas.mousePosition.y});
+                    this.listeners['click']({ clientX: this.canvas.mousePosition.x, clientY: this.canvas.mousePosition.y });
                 }
             } else this.isClicking = false;
         } else this.state = 'default';
@@ -601,7 +629,10 @@ class CanvasElement {
                     break;
             }
         }
-        if (!this.listeners[event + '']) this.listeners[event + ''] = callback;
+        if (!this.listeners[event + '']) {
+            this.listeners[event + ''] = callback;
+            this.game.canvas.addListener(event, callback);
+        }
     }
     removeListener(event) {
         if (this.listeners[event + '']) {
@@ -675,20 +706,22 @@ class CanvasElement {
 
     /* Listeners */
     keyDown(evt) {
-        switch (evt.keyCode) {
-            case 37:
+        switch (this.game.control.x) {
+            case -1:
                 this.setXSpeed(-10);
                 this.move({ x: true });
                 break;
-            case 38:
-                this.setYSpeed(-10);
-                this.move({ y: true });
-                break;
-            case 39:
+            case 1:
                 this.setXSpeed(10);
                 this.move({ x: true });
                 break;
-            case 40:
+        }
+        switch (this.game.control.y) {
+            case -1:
+                this.setYSpeed(-10);
+                this.move({ y: true });
+                break;
+            case 1:
                 this.setYSpeed(10);
                 this.move({ y: true });
                 break;

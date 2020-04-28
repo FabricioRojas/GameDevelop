@@ -93,7 +93,7 @@ snakeHead.addSound('die', `${soundDir}die_2.mp3`);
 snakeHead.setSoundDuration('die', 0.5);
 snakeHead.setSoundVolume('die', 0.4);
 
-snakeHead.addListener("keydown", keyPress);
+// snakeHead.addListener("keydown", keyPress);
 
 snakeHead.setMoveByChunk(true);
 snakeHead.setInfiniteMoveX(true);
@@ -109,7 +109,7 @@ snakeHeadShadow.setYSpeed(0);
 
 reset();
 var drawing = function () {
-
+    keyPress();
     snakeHeadMovement();
     snakeHeadShadow.print();
     snakeHead.print();
@@ -204,8 +204,8 @@ function rand(maxNum, factorial) {
 };
 /* Custom listeners */
 function keyPress(evt) {
-    switch (evt.keyCode) {
-        case game.KEY.LEFT:
+    switch (game.control.x) {
+        case -1:
             if (lastPress == game.KEY.RIGHT) return;
             snakeHead.setXSpeed(-square);
             snakeHead.setYSpeed(0);
@@ -213,15 +213,7 @@ function keyPress(evt) {
             snakeHeadShadow.setYSpeed(0);
             lastPress = game.KEY.LEFT;
             break;
-        case game.KEY.UP:
-            if (lastPress == game.KEY.DOWN) return;
-            snakeHead.setXSpeed(0);
-            snakeHead.setYSpeed(-square);
-            snakeHeadShadow.setXSpeed(0);
-            snakeHeadShadow.setYSpeed(-square);
-            lastPress = game.KEY.UP;
-            break;
-        case game.KEY.RIGHT:
+        case 1:
             if (lastPress == game.KEY.LEFT) return;
             snakeHead.setXSpeed(square);
             snakeHead.setYSpeed(0);
@@ -229,7 +221,17 @@ function keyPress(evt) {
             snakeHeadShadow.setYSpeed(0);
             lastPress = game.KEY.RIGHT;
             break;
-        case game.KEY.DOWN:
+    }
+    switch (game.control.y) {
+        case -1:
+            if (lastPress == game.KEY.DOWN) return;
+            snakeHead.setXSpeed(0);
+            snakeHead.setYSpeed(-square);
+            snakeHeadShadow.setXSpeed(0);
+            snakeHeadShadow.setYSpeed(-square);
+            lastPress = game.KEY.UP;
+            break;
+        case 1:
             if (lastPress == game.KEY.UP) return;
             snakeHead.setXSpeed(0);
             snakeHead.setYSpeed(square);
