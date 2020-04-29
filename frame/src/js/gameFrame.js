@@ -65,6 +65,7 @@ class Game {
         for (var i in this.gui.listeners) {
             var click = this.canvas.getMousePosition();
             var element = this.gui.listeners[i];
+            
             if (this.currentMenu == element.menu) {
                 var finalX = element.x;
                 var finalY = element.y;
