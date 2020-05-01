@@ -167,8 +167,7 @@ class GameUI {
 
     addMenu(menu, color, width, height, x, y, borderColor, borderWidth) {
         if (!this.menus[menu + '']) {
-            this.menus[menu + ''] = this.game.addElement(this.game.ELEMENT.RECT, color, width, height, x, y);
-            this.menus[menu + ''] = this.game.addElement(this.game.ELEMENT.RECT, color, width, height, x, y);
+            this.menus[menu + ''] = this.game.addElement(this.game.ELEMENT.RECT, color, width, height, x, y, true);
             if (menu == "main_menu") this.menus[menu + ''].addListener("keydown", (evt) => this.menuKeyDown(evt));
         }
     }
