@@ -36,19 +36,19 @@ var path = [
     { x: 79.5, y: 150 }, { x: 503.5, y: 210 },
 ];
 var waves = [{
-    enemy1: { speed: 0.5, hitPoints: 20, drop: 3, image: 'enemy_1.png', w: 572, h: 256, qty: 40 },
-    enemy2: { speed: 1, hitPoints: 100, drop: 5, image: 'enemy_2.png', w: 572, h: 256, qty: 10 },
-    boss: { speed: 1, hitPoints: 10000, drop: 15, image: 'enemy_2.png', w: 572, h: 256, qty: 1 }
+    enemy1: { speed: 0.5, hitPoints: 50, drop: 3, image: 'enemy_1.png', w: 572, h: 256, qty: 40 },
+    enemy2: { speed: 1, hitPoints: 150, drop: 5, image: 'enemy_2.png', w: 572, h: 256, qty: 10 },
+    boss: { speed: 0.5, hitPoints: 1000, drop: 15, image: 'enemy_2.png', w: 572, h: 256, qty: 1 }
 },
 {
-    enemy1: { speed: 0.5, hitPoints: 80, drop: 5, image: 'enemy_1.png', w: 572, h: 256, qty: 50 },
-    enemy2: { speed: 1, hitPoints: 500, drop: 15, image: 'enemy_2.png', w: 572, h: 256, qty: 11 },
-    boss: { speed: 1, hitPoints: 50000, drop: 30, image: 'enemy_2.png', w: 572, h: 256, qty: 1 }
+    enemy1: { speed: 0.5, hitPoints: 100, drop: 5, image: 'enemy_1.png', w: 572, h: 256, qty: 50 },
+    enemy2: { speed: 1, hitPoints: 200, drop: 15, image: 'enemy_2.png', w: 572, h: 256, qty: 12 },
+    boss: { speed: 1, hitPoints: 1200, drop: 30, image: 'enemy_2.png', w: 572, h: 256, qty: 1 }
 },
 {
-    enemy1: { speed: 0.5, hitPoints: 200, drop: 5, image: 'enemy_1.png', w: 572, h: 256, qty: 60 },
-    enemy2: { speed: 1, hitPoints: 1000, drop: 15, image: 'enemy_2.png', w: 572, h: 256, qty: 12 },
-    boss: { speed: 1, hitPoints: 100000, drop: 30, image: 'enemy_2.png', w: 572, h: 256, qty: 1 }
+    enemy1: { speed: 0.5, hitPoints: 150, drop: 5, image: 'enemy_1.png', w: 572, h: 256, qty: 60 },
+    enemy2: { speed: 1, hitPoints: 250, drop: 15, image: 'enemy_2.png', w: 572, h: 256, qty: 13 },
+    boss: { speed: 1, hitPoints: 1500, drop: 30, image: 'enemy_2.png', w: 572, h: 256, qty: 1 }
 }
 ];
 
@@ -136,7 +136,7 @@ game.setReset(() => {
     moneyCounter.setText(currentMoney);
     moneyCounter.print();
     ingameTime = 0;
-    currentPoints = 0; 
+    currentPoints = 0;
     currentWave = 1;
     enemiesCounter = 0;
     enemyCounter = 0;
@@ -144,14 +144,14 @@ game.setReset(() => {
     towerPreview = null;
     messageTimeout = null;
     showMessage(`First wave!`, 2);
-    programWave(1);
+    programWave(1, ingameTime);
 });
 
 game.reset();
 var drawing = function () {
     ingameTime++;
     if (enemiesQueue[1000 * ingameTime / 60]) {
-        var e = enemiesQueue[1000 * ingameTime / 60].e;
+        var e = enemiesQueue[1000 * ingameTime / 60];
         spanwEnemy(e.speed, e.hitPoints, e.drop, e.image, e.w, e.h);
     }
     for (var t in towers) if (towers[t].towerRadiusElm) towers[t].towerRadiusElm.print();
@@ -185,22 +185,23 @@ var drawing = function () {
     for (var e in enemies) enemyRoutine(enemies[e], e);
     printTowerPreview();
     if (currentLives < 1) lose();
-    if (enemiesCounter >= enemyCounter && enemies.length < 1){
-        if(currentWave == waves.length) win();
-        currentWave++;
-        if(currentWave == waves.length) showMessage(`Final wave!`, 2);
-        else showMessage(`Next wave!`, 2);
-        programWave(currentWave);
-    }
+
     printGameUI();
+    if (enemiesCounter >= enemyCounter && enemies.length < 1) {
+        if (currentWave == waves.length) return win();
+        currentWave++;
+        if (currentWave == waves.length) showMessage(`Final wave!`, 2);
+        else showMessage(`Next wave!`, 2);
+        programWave(currentWave, ingameTime);
+    }
 };
 
-function removeElement(arr, index){
+function removeElement(arr, index) {
     game.removeElement(arr[index]);
     arr.splice(index, 1);
 }
 
-function hitEnemy(e,s) {
+function hitEnemy(e, s) {
     var aux = e.hitPoints;
     e.hitPoints -= s.damage;
     var percentage = (e.hitPoints * e.lifeBar.width) / aux;
@@ -244,22 +245,27 @@ function printGameUI() {
     generalMessage.print();
 }
 
-function programWave(i) {
+function programWave(i, time) {
+    time = Math.round(time/60);
     var curWave = waves[i - 1];
-    var subWave = curWave.enemy1.qty / curWave.enemy2.qty;
+    var subWave = Math.round(curWave.enemy1.qty / curWave.enemy2.qty);
     var gap = 1;
     var waveGap = 10;
+    enemyCounter = 0;
+    enemiesCounter = 0;
     for (var j = 0; j < curWave.enemy1.qty + curWave.boss.qty; j++) {
         if (j % subWave < 1 && j > 0) {
             gap += 10;
-            enemiesQueue[1000 * (j + gap + waveGap + 0.1)] = { e: curWave.enemy2 };
+            enemiesQueue[1000 * (j + gap + waveGap + 0.1 + time)] = curWave.enemy2;
             enemyCounter++;
         }
-        enemiesQueue[1000 * (j + gap + waveGap)] = { e: curWave.enemy1 };
-        enemyCounter++;
-        if (enemyCounter == curWave.enemy1.qty + curWave.enemy2.qty + curWave.boss.qty) {
-            enemiesQueue[1000 * (j + gap + waveGap + 0.2)] = { e: curWave.boss };
-            waveGap += 30;
+        if (enemyCounter == curWave.enemy1.qty + curWave.enemy2.qty) {
+            enemiesQueue[1000 * (j + gap + waveGap + 0.3 + time)] = curWave.boss;
+            enemyCounter++;
+        } else {
+            var timeout = 1000 * (j + gap + waveGap + time);
+            enemiesQueue[timeout] = curWave.enemy1;
+            enemyCounter++;
         }
     }
 }
@@ -281,9 +287,8 @@ function spanwEnemy(enemiesSpeed, hitPoints, drop, image, width, height) {
     newEnemy.setCurrentAnimation('right');
     newEnemy.setXSpeed(newEnemy.enemiesSpeed);
     newEnemy.setYSpeed(0);
+    enemies.push(newEnemy);
     enemiesCounter++;
-    if (enemiesCounter <= enemyCounter) enemies.push(newEnemy);
-    else lastWave = true;
 }
 
 function enemyRoutine(e, index) {
@@ -418,7 +423,7 @@ function addTowerPreview(tower, x, y) {
     newTower.cost = tower.cost;
     newTower.addListener('keydown', removePreview);
     newTower.addListener('click', () => {
-        if (currentMoney < towerPreview.cost) 
+        if (currentMoney < towerPreview.cost)
             return showMessage(`You dont't have enought money`, 2);
         for (var t in towers) if (towers[t].x == towerPreview.x && towers[t].y == towerPreview.y)
             return showMessage(`You can't place the tower over an other tower`, 2);
