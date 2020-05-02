@@ -35,6 +35,8 @@ class Game {
         if (resetButton) resetButton.addEventListener('click', () => {
             this.reset();
         });
+
+
         this.canvas.canvas.addEventListener('mousemove', (e) => {
             this.canvas.mousePosition.x = e.offsetX || e.layerX;
             this.canvas.mousePosition.y = e.offsetY || e.layerY;
@@ -44,7 +46,7 @@ class Game {
             this.canvas.mousePressed = false;
             this.canvas.executeListeners('mouseup', e);
         });
-        this.canvas.canvas.addEventListener("mousedown", (e) => {
+        this.canvas.canvas.addEventListener('mousedown', (e) => {
             this.canvas.dragging = true;
             this.canvas.mousePressed = true;
             this.canvas.lastX = e.clientX;

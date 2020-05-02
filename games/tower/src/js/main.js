@@ -3,7 +3,7 @@ const soundDir = 'src/sound/';
 
 
 var game = new Game('gc', 800, 600, true);
-game.canvas.addListener('click', handlemouseClick);
+game.canvas.addListener('mousedown', handlemouseClick);
 game.canvas.setBackgroundImage(game.addElement(game.ELEMENT.IMAGE, `${imgDir}background.png`, game.canvas.width, game.canvas.height, 0, 0));
 
 game.gui.addMenu("main_menu", "rgba(0, 0, 0, 0.6)", game.canvas.width / 2,
@@ -74,17 +74,20 @@ var loseText = game.addElement(game.ELEMENT.TEXT, 'white', 50, 'You lose', 350, 
 var winText = game.addElement(game.ELEMENT.TEXT, 'white', 50, 'You win', 350, 300);
 var scoreCounter = game.addElement(game.ELEMENT.TEXT, 'white', 35, SCORE_TEXT + currentPoints, 350, 350);
 var livesCounter = game.addElement(game.ELEMENT.TEXT, 'white', 35, currentLives, game.canvas.width - 80, 55);
-var livesCounterBackground = game.addElement(game.ELEMENT.RECT, 'rgba(0, 0, 0, 0.6)', 110, 45, game.canvas.width - 110, 20);
+var livesCounterBackground = game.addElement(game.ELEMENT.RECT, 'rgba(0, 0, 0, 0.7)', 110, 45, game.canvas.width - 110, 20);
 var heart = game.addElement(game.ELEMENT.IMAGE, `${imgDir}heart.png`, 30, 30, game.canvas.width - 50, 27);
 var limit = game.addElement(game.ELEMENT.RECT, `red`, 10, 60, game.canvas.width + 10, 240);
 var moneyCounter = game.addElement(game.ELEMENT.TEXT, 'white', 35, currentMoney, 80, 55);
 var moneyCounterBackground = game.addElement(game.ELEMENT.RECT, 'rgba(0, 0, 0, 0.7)', 110, 45, 0, 20);
 var coin = game.addElement(game.ELEMENT.IMAGE, `${imgDir}coin.png`, 508, 64, 10, 23);
-var towerSelectorBackground = game.addElement(game.ELEMENT.RECT, 'rgba(0, 0, 0, 0.7)', 250, 45, (game.canvas.width / 2) - 110, 0);
+var towerSelectorBackground = game.addElement(game.ELEMENT.RECT, 'rgba(0, 0, 0, 0.7)', 250, 65, (game.canvas.width / 2) - 110, 0);
 var tower1 = game.addElement(game.ELEMENT.IMAGE, `${imgDir}tower_1.png`, 40, 40, towerSelectorBackground.x + 20, 2.5, true);
 var tower2 = game.addElement(game.ELEMENT.IMAGE, `${imgDir}tower_2.png`, 40, 40, tower1.x + 15 + tower1.width, 2.5, true);
 var tower3 = game.addElement(game.ELEMENT.IMAGE, `${imgDir}tower_3.png`, 40, 40, tower2.x + 15 + tower2.width, 2.5, true);
 var tower4 = game.addElement(game.ELEMENT.IMAGE, `${imgDir}tower_4.png`, 40, 40, tower3.x + 15 + tower3.width, 2.5, true);
+var towerUpgrade = game.addElement(game.ELEMENT.RECT, 'rgba(0, 0, 0, 0.7)', 65, 80, -100, -100);
+var towerRadiusElm = game.addElement(game.ELEMENT.CIRCLE, 'rgba(255, 255, 255, 0.1)', 0, 0, 0);
+towerUpgrade.addListener('click', upgradeTower);
 
 coin.addAnimation('iddle', { rows: 1, cols: 8, update: 0.1, width: 35, height: 35 });
 coin.setCurrentAnimation('iddle');
@@ -95,6 +98,10 @@ tower1.color = '#7e92c4';
 tower1.pointer = { color: '#4f5d7c', width: 5, hieght: 20 };
 tower1.shot = { color: 'grey', width: 5, height: 10, speed: 7, fireRate: 0.5, damage: 2, timeout: null };
 tower1.addListener('click', placeTower);
+tower1.coinImage = game.addElement(game.ELEMENT.IMAGE, `${imgDir}coin.png`, 508, 64, tower1.x+25, tower1.y + tower1.height + 6);
+tower1.coinImage.addAnimation('iddle', { rows: 1, cols: 8, currentFrame:0, fixedX: true, update: 0.1, width: 10, height: 10 });
+tower1.coinImage.setCurrentAnimation('iddle');
+tower1.costText = game.addElement(game.ELEMENT.TEXT, 'yellow', 13, tower1.cost, tower1.coinImage.x-10, tower1.coinImage.y+9);
 
 tower2.towerRadius = 125;
 tower2.cost = 20;
@@ -102,6 +109,10 @@ tower2.color = '#ec6401';
 tower2.pointer = { color: '#4f5d7c', width: 5, hieght: 20 };
 tower2.shot = { color: 'yellow', width: 3, height: 5, speed: 7, fireRate: 0.1, damage: 0.5, timeout: null };
 tower2.addListener('click', placeTower);
+tower2.coinImage = game.addElement(game.ELEMENT.IMAGE, `${imgDir}coin.png`, 508, 64, tower2.x+25, tower2.y + tower2.height + 6);
+tower2.coinImage.addAnimation('iddle', { rows: 1, cols: 8, currentFrame:0, fixedX: true, update: 0.1, width: 10, height: 10 });
+tower2.coinImage.setCurrentAnimation('iddle');
+tower2.costText = game.addElement(game.ELEMENT.TEXT, 'yellow', 13, tower2.cost, tower2.coinImage.x-10, tower2.coinImage.y+9);
 
 tower3.towerRadius = 160;
 tower3.cost = 25;
@@ -109,6 +120,10 @@ tower3.color = '#e4e4e4';
 tower3.pointer = { color: 'red', width: 5, hieght: 20 };
 tower3.shot = { color: 'red', width: 2, height: 10, speed: 2, fireRate: 3, damage: 5, timeout: null };
 tower3.addListener('click', placeTower);
+tower3.coinImage = game.addElement(game.ELEMENT.IMAGE, `${imgDir}coin.png`, 508, 64, tower3.x+25, tower3.y + tower3.height + 6);
+tower3.coinImage.addAnimation('iddle', { rows: 1, cols: 8, currentFrame:0, fixedX: true, update: 0.1, width: 10, height: 10 });
+tower3.coinImage.setCurrentAnimation('iddle');
+tower3.costText = game.addElement(game.ELEMENT.TEXT, 'yellow', 13, tower3.cost, tower3.coinImage.x-10, tower3.coinImage.y+9);
 
 tower4.towerRadius = 400;
 tower4.cost = 50;
@@ -116,6 +131,10 @@ tower4.color = '#ffcb00';
 tower4.pointer = { color: '#4f5d7c', width: 5, hieght: 20 };
 tower4.shot = { color: 'brown', width: 2, height: 10, speed: 7, fireRate: 0.1, damage: 1, timeout: null };
 tower4.addListener('click', placeTower);
+tower4.coinImage = game.addElement(game.ELEMENT.IMAGE, `${imgDir}coin.png`, 508, 64, tower4.x+25, tower4.y + tower4.height + 6);
+tower4.coinImage.addAnimation('iddle', { rows: 1, cols: 8, currentFrame:0, fixedX: true, update: 0.1, width: 10, height: 10 });
+tower4.coinImage.setCurrentAnimation('iddle');
+tower4.costText = game.addElement(game.ELEMENT.TEXT, 'yellow', 13, tower4.cost, tower4.coinImage.x-10, tower4.coinImage.y+9);
 
 towersTypes.push(tower1);
 towersTypes.push(tower2);
@@ -154,7 +173,7 @@ var drawing = function () {
         var e = enemiesQueue[1000 * ingameTime / 60];
         spanwEnemy(e.speed, e.hitPoints, e.drop, e.image, e.w, e.h);
     }
-    for (var t in towers) if (towers[t].towerRadiusElm) towers[t].towerRadiusElm.print();
+    towerRadiusElm.print();
     for (var s in shots) {
         shots[s].move({ x: true, y: true });
         shots[s].print();
@@ -181,11 +200,15 @@ var drawing = function () {
         towers[t].print();
         if (towers[t].pointer) towers[t].pointer.print();
     }
-    for (var c in coins) coins[c].print();
+
     for (var e in enemies) enemyRoutine(enemies[e], e);
+    
+    for (var c in coins){
+        coins[c].print();
+        coins[c].coinText.print();
+    }
     printTowerPreview();
     if (currentLives < 1) lose();
-
     printGameUI();
     if (enemiesCounter >= enemyCounter && enemies.length < 1) {
         if (currentWave == waves.length) return win();
@@ -209,14 +232,19 @@ function hitEnemy(e, s) {
 }
 
 function dropCoin(e) {
+    var coinText = game.addElement(game.ELEMENT.TEXT, 'yellow', 13, e.drop, 80, 55);
     var coinDrop = game.addElement(game.ELEMENT.IMAGE, `${imgDir}coin.png`, 508, 64, -50, -50);
     coinDrop.addAnimation('iddle', { rows: 1, cols: 8, update: 0.1, width: 15, height: 15 });
     coinDrop.setCurrentAnimation('iddle');
     coinDrop.setX(e.x + (e.currentAnimation.width / 2));
-    coinDrop.setY(e.y + e.currentAnimation.height / 2);
+    coinDrop.setY(e.y + (e.currentAnimation.height / 2));
+    coinText.setX(coinDrop.x-8);
+    coinText.setY(coinDrop.y+11);
+    coinDrop.coinText = coinText;
     coins.push(coinDrop);
     setTimeout(() => {
-        game.addElement(coinDrop.id);
+        game.removeElement(coinDrop.id);
+        game.removeElement(coinText.id);
         coins.shift();
     }, 1000 * 1);
     currentPoints += 15;
@@ -227,7 +255,6 @@ function dropCoin(e) {
 function printTowerPreview() {
     if (towerPreview) {
         grid.print();
-        towerPreview.towerRadiusElm.print();
         towerPreview.print();
     }
 }
@@ -240,9 +267,14 @@ function printGameUI() {
     heart.print();
     livesCounter.print();
     towerSelectorBackground.print();
-    for (var tt in towersTypes) towersTypes[tt].print();
+    for (var tt in towersTypes){
+        towersTypes[tt].print();
+        if(towersTypes[tt].coinImage) towersTypes[tt].coinImage.print();
+        if(towersTypes[tt].costText) towersTypes[tt].costText.print();
+    }
     limit.print();
     generalMessage.print();
+    towerUpgrade.print();
 }
 
 function programWave(i, time) {
@@ -386,16 +418,29 @@ function getAngle(c1, c2) {
 
 function addTower(tower) {
     var newTower = Object.create(tower);
-    newTower.towerRadiusElm = null;
     newTower.shotTimeout = null;
     newTower.pointer = game.addElement(game.ELEMENT.RECT, tower.pointer.color, tower.pointer.width, tower.pointer.hieght, tower.x - 2.5, tower.y + tower.width / 2);
     newTower.removeListener('click');
     newTower.addListener('click', (e) => {
         if (towerPreview) return;
-        if (newTower.towerRadiusElm) newTower.towerRadiusElm = null;
-        else newTower.towerRadiusElm = game.addElement(game.ELEMENT.CIRCLE, 'rgba(255, 255, 255, 0.1)', newTower.towerRadius, newTower.x, newTower.y);
+        towerRadiusElm.setRadius(newTower.towerRadius);
+        towerRadiusElm.setX(newTower.x);
+        towerRadiusElm.setY(newTower.y);
+        upgradeMenu(newTower);
     });
     towers.push(newTower);
+}
+
+function upgradeMenu(t){
+    var positionX = t.x + t.width/2 + 10;
+    var positionY= t.y - t.height/2  + 10;
+    if(positionX+towerUpgrade.width >= game.canvas.width) positionX = t.x - t.width/2 - 10 - towerUpgrade.width;
+    if(positionY+towerUpgrade.height >= game.canvas.height) positionY = t.y + t.height/2  - 10 - towerUpgrade.height;
+    towerUpgrade.setX(positionX);
+    towerUpgrade.setY(positionY);
+}
+function upgradeTower(){
+    // speed: 7, fireRate: 0.5, damage: 2
 }
 
 function placeTower(e) {
@@ -414,8 +459,9 @@ function placeTower(e) {
 
 function addTowerPreview(tower, x, y) {
     var newTower = game.addElement(game.ELEMENT.CIRCLE, tower.color, 20, x, y, true);
-    var towerRadius = game.addElement(game.ELEMENT.CIRCLE, 'rgba(255, 255, 255, 0.1)', tower.towerRadius, x, y);
-    newTower.towerRadiusElm = towerRadius;
+    towerRadiusElm.setRadius(tower.towerRadius);
+    towerRadiusElm.setX(tower.x);
+    towerRadiusElm.setY(tower.y);
     newTower.color = tower.color;
     newTower.towerRadius = tower.towerRadius;
     newTower.pointer = tower.pointer;
@@ -454,6 +500,11 @@ function removePreview(evt) {
 }
 function handlemouseClick(e) {
     if (loseState) return game.reset();
+    towerUpgrade.setX(-100);
+    towerUpgrade.setY(-100);
+    towerRadiusElm.setRadius(0);
+    towerRadiusElm.setX(0);
+    towerRadiusElm.setY(0);
 }
 
 game.canvas.addListener('mousemove', () => {
@@ -467,11 +518,9 @@ game.canvas.addListener('mousemove', () => {
             if ((x > i && x < (i + gridX)) && (y > j && y < (j + gridY))) {
                 x = i + (gridX / 2);
                 y = j + (gridY / 2);
-
                 for (var p in path) if (path[p].x == x && path[p].y == y || y == 30 || y >= 510) return;
-
-                towerPreview.towerRadiusElm.setX(x);
-                towerPreview.towerRadiusElm.setY(y);
+                towerRadiusElm.setX(x);
+                towerRadiusElm.setY(y);
                 towerPreview.setX(x);
                 towerPreview.setY(y);
                 return;
