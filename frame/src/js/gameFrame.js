@@ -453,11 +453,11 @@ class GameCanvas {
     addListener(event, callback) {
         if (!this.listeners[event + '']) this.listeners[event + ''] = [];
         this.listeners[event + ''].push(callback);
+        return  this.listeners[event + ''].length-1;
     }
-    removeListener(event) {
+    removeListener(event, index) {
         if (this.listeners[event + '']) {
-            this.listeners[event + ''] = undefined;
-            delete this.listeners[event + ''];
+            this.listeners[event + ''].splice(index,1);
         }
     }
     executeListeners(event, evt) {
@@ -587,7 +587,7 @@ class CanvasElement {
                 this.state = 'active';
                 if (!this.isClicking && this.listeners['click']) {
                     this.isClicking = true;
-                    this.listeners['click']({ clientX: this.canvas.mousePosition.x, clientY: this.canvas.mousePosition.y });
+                    this.listeners['click'].f({ clientX: this.canvas.mousePosition.x, clientY: this.canvas.mousePosition.y });
                 }
             } else this.isClicking = false;
         } else this.state = 'default';
@@ -650,12 +650,15 @@ class CanvasElement {
             }
         }
         if (!this.listeners[event + '']) {
-            this.listeners[event + ''] = callback;
-            this.game.canvas.addListener(event, callback);
+            this.listeners[event + ''] = {
+                f:callback,
+                i:this.game.canvas.addListener(event, callback)
+            }
         }
     }
     removeListener(event) {
         if (this.listeners[event + '']) {
+            this.game.canvas.removeListener(event, this.listeners[event + ''].i);
             this.listeners[event + ''] = undefined;
             delete this.listeners[event + ''];
         }

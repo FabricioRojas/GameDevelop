@@ -431,6 +431,7 @@ function getAngle(c1, c2) {
 
 function addTower(tower) {
     var newTower = Object.create(tower);
+    newTower.shot = Object.create(tower.shot);
     newTower.shotTimeout = null;
     newTower.pointer = game.addElement(game.ELEMENT.RECT, tower.pointer.color, tower.pointer.width, tower.pointer.hieght, tower.x - 2.5, tower.y + tower.width / 2);
     newTower.removeListener('click');
@@ -458,7 +459,7 @@ function upgradeMenu(t) {
     towerUpgrade.damage.setY(towerUpgrade.y + 5);
     towerUpgrade.damage.removeListener('mousedown');
     towerUpgrade.damage.tower = t;
-    if (!towerUpgrade.damage.tower.buyed) {
+    if (!t.damage) {
         towerUpgrade.damage.coinImage.setX(towerUpgrade.x + towerUpgrade.width - 14);
         towerUpgrade.damage.coinImage.setY(towerUpgrade.damage.y + 10);
         towerUpgrade.damage.costText.setX(towerUpgrade.damage.coinImage.x - 9);
@@ -471,7 +472,7 @@ function upgradeMenu(t) {
                     towerUpgrade.damage.tower.shot.damage += 0.5;
                     currentMoney -= parseInt(towerUpgrade.speed.tower.cost / 1.8);
                     moneyCounter.setText(currentMoney);
-                    towerUpgrade.damage.tower.buyed = true;
+                    towerUpgrade.damage.tower.damage = true;
                     towerUpgrade.damage.removeListener('mousedown');
                     towerUpgrade.damage.coinImage.setVisible(false);
                     towerUpgrade.damage.costText.setVisible(false);
@@ -489,7 +490,7 @@ function upgradeMenu(t) {
     towerUpgrade.speed.setY(towerUpgrade.damage.y + towerUpgrade.damage.height);
     towerUpgrade.speed.removeListener('mousedown');
     towerUpgrade.speed.tower = t;
-    if (!towerUpgrade.speed.tower.buyed) {
+    if (!t.speed) {
         towerUpgrade.speed.coinImage.setX(towerUpgrade.x + towerUpgrade.width - 14);
         towerUpgrade.speed.coinImage.setY(towerUpgrade.speed.y + 10);
         towerUpgrade.speed.costText.setX(towerUpgrade.speed.coinImage.x - 9);
@@ -502,7 +503,7 @@ function upgradeMenu(t) {
                     towerUpgrade.speed.tower.shot.speed += 1.5;
                     currentMoney -= parseInt(towerUpgrade.speed.tower.cost / 2);
                     moneyCounter.setText(currentMoney);
-                    towerUpgrade.speed.tower.buyed = true;
+                    towerUpgrade.speed.tower.speed = true;
                     towerUpgrade.speed.removeListener('mousedown');
                     towerUpgrade.speed.coinImage.setVisible(false);
                     towerUpgrade.speed.costText.setVisible(false);
@@ -520,7 +521,7 @@ function upgradeMenu(t) {
     towerUpgrade.rate.setY(towerUpgrade.damage.y + towerUpgrade.damage.height * 2);
     towerUpgrade.rate.removeListener('mousedown');
     towerUpgrade.rate.tower = t;
-    if (!towerUpgrade.rate.tower.buyed) {
+    if (!t.rate) {
         towerUpgrade.rate.coinImage.setX(towerUpgrade.x + towerUpgrade.width - 14);
         towerUpgrade.rate.coinImage.setY(towerUpgrade.rate.y + 10);
         towerUpgrade.rate.costText.setX(towerUpgrade.rate.coinImage.x - 9);
@@ -533,7 +534,7 @@ function upgradeMenu(t) {
                     towerUpgrade.rate.tower.shot.fireRate -= 0.25;
                     currentMoney -= parseInt(towerUpgrade.speed.tower.cost / 2.5);
                     moneyCounter.setText(currentMoney);
-                    towerUpgrade.rate.tower.buyed = true;
+                    towerUpgrade.rate.tower.rate = true;
                     towerUpgrade.rate.removeListener('mousedown');
                     towerUpgrade.rate.coinImage.setVisible(false);
                     towerUpgrade.rate.costText.setVisible(false);
