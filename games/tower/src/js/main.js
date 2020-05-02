@@ -89,6 +89,17 @@ var tower4 = game.addElement(game.ELEMENT.IMAGE, `${imgDir}tower_4.png`, 40, 40,
 var towerUpgrade = game.addElement(game.ELEMENT.RECT, 'rgba(0, 0, 0, 0.7)', 65, 100, 0, 0);
 var towerRadiusElm = game.addElement(game.ELEMENT.CIRCLE, 'rgba(255, 255, 255, 0.1)', 0, 0, 0);
 
+tower1.addSound('background',`${soundDir}background.mp3`);
+tower1.setSoundLoop('background',true);
+tower1.setSoundVolume('background',0.3);
+
+tower1.addSound('shot',`${soundDir}shot_1.mp3`);
+tower1.setSoundDuration('shot',0.1);
+
+tower3.addSound('shot',`${soundDir}shot_3.mp3`);
+tower3.setSoundDuration('shot',0.6);
+
+
 towerUpgrade.damage = game.addElement(game.ELEMENT.IMAGE, `${imgDir}damage.png`, 30, 30, 0, 0);
 towerUpgrade.speed = game.addElement(game.ELEMENT.IMAGE, `${imgDir}range.webp`, 30, 30, 0, 0);
 towerUpgrade.rate = game.addElement(game.ELEMENT.IMAGE, `${imgDir}rate.png`, 30, 30, 0, 0);
@@ -152,6 +163,7 @@ towersTypes.push(tower4);
 
 game.setReset(() => {
     game.play();
+    tower1.playSound('background');
     shots = [];
     coins = [];
     towers = [];
@@ -418,7 +430,8 @@ function shoot(e, t) {
     }
     shot.setXSpeed(xSpeed * factorX);
     shot.setYSpeed(ySpeed * factorY);
-
+    // tower1.playSound('shot');
+    t.playSound('shot');
     shots.push(shot);
     t.shotTimeout = setTimeout(() => { clearTimeout(t.shotTimeout); t.shotTimeout = null; }, 1000 * t.shot.fireRate);
 }
