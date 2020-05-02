@@ -461,7 +461,8 @@ class GameCanvas {
         }
     }
     executeListeners(event, evt) {
-        for (var i in this.listeners[event]) {
+        if(!this.listeners[event]) return;
+        for(var i = this.listeners[event].length-1;i>-1; i--){
             if (this.listeners[event][i] && typeof this.listeners[event][i] == 'function') {
                 this.listeners[event][i](evt);
             }
@@ -504,6 +505,7 @@ class CanvasElement {
         this.state = 'default';
         this.isClicking = 'default';
 
+        this.isVisible = true;
         this.isSolid = false;
         this.moveByChunk = false;
 
@@ -799,6 +801,9 @@ class CanvasElement {
     setMoveByChunk(moveByChunk) {
         this.moveByChunk = moveByChunk;
     }
+    setVisible(isVisible) {
+        this.isVisible = isVisible;
+    }
 }
 
 class CircleElement extends CanvasElement {
@@ -812,6 +817,7 @@ class CircleElement extends CanvasElement {
 
     /* Methods */
     print() {
+        if(!this.isVisible) return;
         this.context.fillStyle = this.color;
         this.context.beginPath();
         this.context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
@@ -836,6 +842,7 @@ class RectElement extends CanvasElement {
 
     /* Methods */
     print() {
+        if(!this.isVisible) return;
         if (this.rotate) {
             if (this.rotate.x) this.rotateOverElement(this.rotate);
             else this.rotateOverSelf();
@@ -882,6 +889,7 @@ class TextElement extends CanvasElement {
 
     /* Methods */
     print() {
+        if(!this.isVisible) return;
         this.context.font = this.size + "px " + this.font;
         this.context.textAlign = this.align;
         this.context.fillStyle = this.color;
@@ -920,6 +928,7 @@ class ImageElement extends CanvasElement {
 
     /* Methods */
     print() {
+        if(!this.isVisible) return;
         if (this.currentAnimation) this.updateAnimation();
         if (this.rotate) {
             this.context.save();
