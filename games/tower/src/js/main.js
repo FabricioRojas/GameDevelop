@@ -93,12 +93,6 @@ tower1.addSound('background',`${soundDir}background.mp3`);
 tower1.setSoundLoop('background',true);
 tower1.setSoundVolume('background',0.3);
 
-tower1.addSound('shot',`${soundDir}shot_1.mp3`);
-tower1.setSoundDuration('shot',0.1);
-
-tower3.addSound('shot',`${soundDir}shot_3.mp3`);
-tower3.setSoundDuration('shot',0.6);
-
 
 towerUpgrade.damage = game.addElement(game.ELEMENT.IMAGE, `${imgDir}damage.png`, 30, 30, 0, 0);
 towerUpgrade.speed = game.addElement(game.ELEMENT.IMAGE, `${imgDir}range.webp`, 30, 30, 0, 0);
