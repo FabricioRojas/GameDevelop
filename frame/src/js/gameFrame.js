@@ -12,6 +12,8 @@ class Game {
         this.gui = new GameUI(this);
         this.elements = {};
         this.currentMenu;
+        this.currentFPS;
+        this.FPSCap;
         this.reset = null;
         this.init();
     }
@@ -156,6 +158,12 @@ class Game {
     }
     setReset(reset) {
         this.reset = reset;
+    }
+    setCurrentFPS(currentFPS) {
+        this.currentFPS = currentFPS.toFixed(2);
+    }
+    setFPSCap(FPSCap) {
+        this.FPSCap = FPSCap;
     }
 }
 
@@ -454,9 +462,9 @@ class GameCanvas {
         let y = this.mousePosition.y - rect.top;
         return { x: x, y: y };
     }
-    addListener(event, callback) {
+    addListener(event, callback, elm) {
         if (!this.listeners[event + '']) this.listeners[event + ''] = [];
-        this.listeners[event + ''].push(callback);
+        this.listeners[event + ''].push({e:elm, c:callback});
         return this.listeners[event + ''].length - 1;
     }
     removeListener(event, index) {
@@ -467,8 +475,8 @@ class GameCanvas {
     executeListeners(event, evt) {
         if (!this.listeners[event]) return;
         for (var i = this.listeners[event].length - 1; i > -1; i--) {
-            if (this.listeners[event][i] && typeof this.listeners[event][i] == 'function') {
-                this.listeners[event][i](evt);
+            if (this.listeners[event][i] && typeof this.listeners[event][i].c == 'function') {
+                this.listeners[event][i].c(evt, this.listeners[event][i].e);
             }
         }
     }
@@ -660,7 +668,7 @@ class CanvasElement {
         if (!this.listeners[event + '']) {
             this.listeners[event + ''] = {
                 f: callback,
-                i: this.game.canvas.addListener(event, callback)
+                i: this.game.canvas.addListener(event, callback, this)
             }
         }
     }

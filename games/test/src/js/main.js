@@ -1,4 +1,5 @@
 var game = new Game('gc', 1920, 1080, true);
+
 const canvas = game.canvas;
 const ctx = game.canvas.context
 const { width: w, height: h } = canvas;
@@ -33,10 +34,24 @@ animationTestDirections.addAnimation('right', {rows: 4,cols: 9, currentRow:3, fi
 animationTestDirections.addAnimation('stop', {rows: 4,cols: 9, currentRow:2, currentFrame:1, fixedX: true, fixedY: true, update: 0.1});
 
 
-game.play();
-var loop = function () {
-    // requestAnimationFrame(loop);
 
+var lastTime = 0;
+
+
+// (function loop(timeStamp) {
+//     var deltaTime = timeStamp - lastTime;
+//     lastTime = timeStamp;
+//     game.setCurrentFPS(1000/deltaTime);
+//     game.draw(drawing);
+//     requestAnimationFrame(loop);
+// })();
+
+// var timeStamp = p 
+
+
+
+game.play();
+var drawing = function () {
     animationTest.move({x:true});
     if(game.control.x != 0){
         game.control.x == 1 ? animationTestDirections.setCurrentAnimation('right') : animationTestDirections.setCurrentAnimation('left');
@@ -47,7 +62,7 @@ var loop = function () {
     }else{
         animationTestDirections.setCurrentAnimation('stop')
     }
-    console.log('state', ball.state);
+    console.log('state', ball.state, game.currentFPS);
 
     floor.print();
     animationTest.print();
@@ -55,12 +70,9 @@ var loop = function () {
     portalB.print();
     ball.print();
 
-    
     if(animationTestDirections.currentAnimation) animationTestDirections.print();
 }
 
-// requestAnimationFrame(loop);
-setInterval(() => game.draw(loop), 1000 / 60);
 
 // var game = new Game('gc', 1920, 1080, true);
 
