@@ -6,18 +6,26 @@ var game = new Game('gc', 800, 600, true);
 game.canvas.addListener('mousedown', handlemouseClick);
 game.canvas.setBackgroundImage(game.addElement(game.ELEMENT.IMAGE, `${imgDir}background.png`, game.canvas.width, game.canvas.height, 0, 0));
 
-game.gui.addMenu("main_menu", "rgba(0, 0, 0, 0.6)", game.canvas.width / 2,
-    game.canvas.height - 200, game.canvas.width / 2 - (game.canvas.width / 4), (game.canvas.height / 2 - (game.canvas.height / 3)), "white", 2);
+game.gui.addMenu('main_menu', 'rgba(0, 0, 0, 0.6)', game.canvas.width / 2,
+    game.canvas.height - 200, game.canvas.width / 2 - (game.canvas.width / 4), (game.canvas.height / 2 - (game.canvas.height / 3)), 'white', 2);
 
-game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "white", 30, "Resume", null, null, () => {
-    game.play();
+game.gui.addItemMenu('main_menu', game.ELEMENT.TEXT, 'white', 30, 'Resume', null, null, {
+    click: () => {
+        game.play();
+    }
 });
-game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "white", 30, "Restart", null, null, () => {
-    game.reset();
+game.gui.addItemMenu('main_menu', game.ELEMENT.TEXT, 'white', 30, 'Restart', null, null, {
+    click: () => {
+        game.reset();
+    }
 });
-game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "white", 30, "Exit", null, null, () => {
-    confirm("Sure you want to go?");
+game.gui.addItemMenu('main_menu', game.ELEMENT.TEXT, 'white', 30, 'Exit', null, null, {
+    click: () => {
+        confirm('Sure you want to go?');
+    }
 });
+
+
 
 setInterval(() => game.draw(drawing), 1000 / 60);
 
@@ -89,9 +97,9 @@ var tower4 = game.addElement(game.ELEMENT.IMAGE, `${imgDir}tower_4.png`, 40, 40,
 var towerUpgrade = game.addElement(game.ELEMENT.RECT, 'rgba(0, 0, 0, 0.7)', 65, 100, 0, 0);
 var towerRadiusElm = game.addElement(game.ELEMENT.CIRCLE, 'rgba(255, 255, 255, 0.1)', 0, 0, 0);
 
-tower1.addSound('background',`${soundDir}background.mp3`);
-tower1.setSoundLoop('background',true);
-tower1.setSoundVolume('background',0.3);
+tower1.addSound('background', `${soundDir}background.mp3`);
+tower1.setSoundLoop('background', true);
+tower1.setSoundVolume('background', 0.3);
 
 
 towerUpgrade.damage = game.addElement(game.ELEMENT.IMAGE, `${imgDir}damage.png`, 30, 30, 0, 0);
@@ -324,7 +332,7 @@ function programWave(i, time) {
 function spanwEnemy(enemiesSpeed, hitPoints, drop, image, width, height) {
     var newEnemy = game.addElement(game.ELEMENT.IMAGE, `${imgDir}${image}`, width, height, 1, 270, true);
     var lifeBar = game.addElement(game.ELEMENT.RECT, 'red', 20, 3, newEnemy.x + 10, newEnemy.y + newEnemy.width / 2);
-    var lifeBarBackground = game.addElement(game.ELEMENT.RECT, "rgba(0, 0, 0, 0.6)", 22, 5, newEnemy.x + 10 - 1, newEnemy.y + newEnemy.width / 2 - 1);
+    var lifeBarBackground = game.addElement(game.ELEMENT.RECT, 'rgba(0, 0, 0, 0.6)', 22, 5, newEnemy.x + 10 - 1, newEnemy.y + newEnemy.width / 2 - 1);
     newEnemy.addAnimation('up', { rows: 4, cols: 9, currentRow: 0, fixedY: true, update: 0.1 });
     newEnemy.addAnimation('left', { rows: 4, cols: 9, currentRow: 1, fixedY: true, update: 0.1 });
     newEnemy.addAnimation('down', { rows: 4, cols: 9, currentRow: 2, fixedY: true, update: 0.1 });

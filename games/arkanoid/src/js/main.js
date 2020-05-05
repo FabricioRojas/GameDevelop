@@ -1,23 +1,29 @@
-const imgDir = "src/img/";
-const soundDir = "src/sound/";
+const imgDir = 'src/img/';
+const soundDir = 'src/sound/';
 
 
-var game = new Game("gc", 800, 600, false);
+var game = new Game('gc', 800, 600, false);
 game.control.setStep(10);
 game.canvas.setSolidBordersX(true);
 game.canvas.setSolidBordersY(true);
 game.canvas.addListener('click', handlemouseClick);
-game.gui.addMenu("main_menu", "white", game.canvas.width / 2,
-    game.canvas.height - 200, game.canvas.width / 2 - (game.canvas.width / 4), (game.canvas.height / 2 - (game.canvas.height / 3)), "white", 2);
+game.gui.addMenu('main_menu', 'white', game.canvas.width / 2,
+    game.canvas.height - 200, game.canvas.width / 2 - (game.canvas.width / 4), (game.canvas.height / 2 - (game.canvas.height / 3)), 'white', 2);
 
-game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "black", 30, "Resume", null, null, () => {
-    game.play();
+game.gui.addItemMenu('main_menu', game.ELEMENT.TEXT, 'black', 30, 'Resume', null, null, {
+    click: () => {
+        game.play();
+    }
 });
-game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "black", 30, "Restart", null, null, () => {
-    game.reset();
+game.gui.addItemMenu('main_menu', game.ELEMENT.TEXT, 'black', 30, 'Restart', null, null, {
+    click: () => {
+        game.reset();
+    }
 });
-game.gui.addItemMenu("main_menu", game.ELEMENT.TEXT, true, "black", 30, "Exit", null, null, () => {
-    if (confirm("Sure you want to go?")) window.close();
+game.gui.addItemMenu('main_menu', game.ELEMENT.TEXT, 'black', 30, 'Exit', null, null, {
+    click: () => {
+        if (confirm('Sure you want to go?')) window.close();
+    }
 });
 
 setInterval(() => game.draw(drawing), 1000 / 60);
@@ -30,20 +36,21 @@ var lives = 3;
 const BALLSPEDD = 4;
 const BALLSPEDDLIMIT = BALLSPEDD + 4;
 var ballSpeed = BALLSPEDD;
-var powerups = ["pad-smaller", "pad-bigger", "pad-faster"];
+var powerups = ['pad-smaller', 'pad-bigger', 'pad-faster'];
 var powerupDrop = false;
 var powerupsTimeout = 20;
 var loseState = false;
 
-var paddle = game.addElement(game.ELEMENT.RECT, "white", 100, 10, 0, 0);
-var ball = game.addElement(game.ELEMENT.CIRCLE, "white", 5, 0, 0);
-// var ball = game.addElement(game.ELEMENT.RECT, "white", 10, 10, 395, 540);
-var brickCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, bricks.length, game.canvas.width - 30, 50);
-var livesCounter = game.addElement(game.ELEMENT.TEXT, "white", 35, lives, 30, 50);
-var winText = game.addElement(game.ELEMENT.TEXT, "white", 50, "Stage cleared!", 300, 300);
-var loseText = game.addElement(game.ELEMENT.TEXT, "white", 50, "You lose!", 300, 300);
 
-var powerup = game.addElement(game.ELEMENT.CIRCLE, "red", 10, -20, -20);
+var paddle = game.addElement(game.ELEMENT.RECT, 'white', 100, 10, 0, 0);
+var ball = game.addElement(game.ELEMENT.CIRCLE, 'white', 5, 0, 0);
+// var ball = game.addElement(game.ELEMENT.RECT, 'white', 10, 10, 395, 540);
+var brickCounter = game.addElement(game.ELEMENT.TEXT, 'white', 35, bricks.length, game.canvas.width - 30, 50);
+var livesCounter = game.addElement(game.ELEMENT.TEXT, 'white', 35, lives, 30, 50);
+var winText = game.addElement(game.ELEMENT.TEXT, 'white', 50, 'Stage cleared!', 300, 300);
+var loseText = game.addElement(game.ELEMENT.TEXT, 'white', 50, 'You lose!', 300, 300);
+
+var powerup = game.addElement(game.ELEMENT.CIRCLE, 'red', 10, -20, -20);
 powerup.setXSpeed(0);
 powerup.setYSpeed(1);
 
@@ -53,7 +60,7 @@ winText.setSoundVolume('win', 0.2);
 loseText.addSound('lose', `${soundDir}losing.mp3`);
 loseText.setSoundVolume('lose', 0.2);
 
-// paddle.addListener("keydown", keydown);
+// paddle.addListener('keydown', keydown);
 paddle.setIsSolid(true);
 paddle.addSound('powerup', `${soundDir}powerup.mp3`);
 // paddle.addSound('slide','slide.mp3');
@@ -73,6 +80,20 @@ ball.addSound('background', `${soundDir}background.mp3`);
 ball.setSoundLoop('background', true);
 ball.setSoundVolume('background', 0.1);
 
+game.setReset(() => {
+    loseState = false;
+    game.canvas.clear();
+    game.canvas.print();
+    resetBall();
+    lives = 3;
+    livesCounter.setText(lives);
+    generateBlocks(4, 7, 20, brickWidth, brickHeight, 3);
+    brickCounter.setText(bricks.length);
+    ball.resetSound('background');
+    ball.playSound('background');
+    game.play();
+});
+
 game.reset();
 var drawing = function () {
     keydown();
@@ -81,9 +102,9 @@ var drawing = function () {
     brickCounter.print();
     livesCounter.print();
 
-    ball.move({x:true, y:true});
-    if ((game.canvas.solidBordersX && (ball.x < 0 || ball.x > game.canvas.width - 1)) || 
-    (game.canvas.solidBordersY && (ball.y < 0 || ball.y > game.canvas.height - 1))) {
+    ball.move({ x: true, y: true });
+    if ((game.canvas.solidBordersX && (ball.x < 0 || ball.x > game.canvas.width - 1)) ||
+        (game.canvas.solidBordersY && (ball.y < 0 || ball.y > game.canvas.height - 1))) {
         ball.playSound('hit_wall');
     }
 
@@ -100,7 +121,7 @@ var drawing = function () {
     }
     if (powerupDrop) {
         powerup.print();
-        powerup.move({y:true});
+        powerup.move({ y: true });
         powerupPaddleCollision(powerup.collide(paddle))
     }
 };
@@ -134,19 +155,6 @@ function lose() {
     bricks = [];
     loseText.print();
 }
-game.setReset(() =>{
-    loseState = false;
-    game.canvas.clear();
-    game.canvas.print();
-    resetBall();
-    lives = 3;
-    livesCounter.setText(lives);
-    generateBlocks(4, 7, 20, brickWidth, brickHeight, 3);
-    brickCounter.setText(bricks.length);
-    ball.resetSound('background');
-    ball.playSound('background');
-    game.play();
-});
 function win() {
     game.pause();
     ball.pauseSound('background');
@@ -176,7 +184,7 @@ function ballPaddleCollision(collided) {
 function applyProwerUpEffect(effect) {
     paddle.playSound('powerup');
     switch (effect) {
-        case "pad-bigger":
+        case 'pad-bigger':
             paddle.setX(paddle.x - paddle.width);
             paddle.setWidth(paddle.width * 2);
             setTimeout(() => {
@@ -184,7 +192,7 @@ function applyProwerUpEffect(effect) {
                 paddle.setX(paddle.x + paddle.width);
             }, 1000 * powerupsTimeout);
             break;
-        case "pad-smaller":
+        case 'pad-smaller':
             paddle.setX(paddle.x + paddle.width);
             paddle.setWidth(paddle.width / 2);
             setTimeout(() => {
@@ -192,7 +200,7 @@ function applyProwerUpEffect(effect) {
                 paddle.setX(paddle.x - paddle.width);
             }, 1000 * powerupsTimeout);
             break;
-        case "pad-faster":
+        case 'pad-faster':
             ballSpeed = BALLSPEDDLIMIT;
             setTimeout(() => {
                 ballSpeed = BALLSPEDD;
@@ -247,7 +255,7 @@ function generateBlocks(rows, columns, separation, brickWidth, brickHeight, powe
     var bricksSize = ((brickWidth + separation) * columns) - separation;
     var bricksStart = (game.canvas.width - bricksSize) / 2;
     var yStart = 70;
-    var color = "white";
+    var color = 'white';
     var bricksX = bricksStart;
     var powerupsBlock = {};
     for (var p = 0; p < powerupsBlocks; p++) {
@@ -258,8 +266,8 @@ function generateBlocks(rows, columns, separation, brickWidth, brickHeight, powe
     }
     for (var i = 0; i < rows; i++) {
         for (var j = 0; j < columns; j++) {
-            if (powerupsBlock[i] ? powerupsBlock[i][j] : false) color = "yellow";
-            else color = "white";
+            if (powerupsBlock[i] ? powerupsBlock[i][j] : false) color = 'yellow';
+            else color = 'white';
             var newBrick = game.addElement(game.ELEMENT.RECT, color, brickWidth, brickHeight, bricksX, yStart);
             newBrick.addSound('crash', `${soundDir}brick_crash_2.mp3`);
             newBrick.setSoundDuration('crash', 0.2);
@@ -278,10 +286,10 @@ function rand(maxNum, factorial) {
 function keydown(evt) {
     console.log(game.control.x);
     if (gameStarted) return;
-    if (game.control.x != 0){
+    if (game.control.x != 0) {
         gameStarted = true;
-        if( game.control.x > 0) ball.setXSpeed(ballSpeed);
-        if( game.control.x < 0) ball.setXSpeed(-ballSpeed);
+        if (game.control.x > 0) ball.setXSpeed(ballSpeed);
+        if (game.control.x < 0) ball.setXSpeed(-ballSpeed);
         ball.playSound('hit_paddle');
     }
 }

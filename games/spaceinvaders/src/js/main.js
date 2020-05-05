@@ -1,16 +1,16 @@
-const imgDir = "src/img/";
-const soundDir = "src/sound/";
+const imgDir = 'src/img/';
+const soundDir = 'src/sound/';
 
 
-var game = new Game("gc", 800, 600, true);
+var game = new Game('gc', 800, 600, true);
 game.control.setStep(5);
 game.canvas.addListener('click', handlemouseClick);
 setInterval(() => game.draw(drawing), 1000 / 60);
 
-var ship = game.addElement(game.ELEMENT.RECT, "white", 50, 25, game.canvas.width / 2 - 50 / 2, 500);
-var shipGun = game.addElement(game.ELEMENT.RECT, "white", 9, 8, game.canvas.width / 2 - 9 / 2, ship.y - 8);
-var winText = game.addElement(game.ELEMENT.TEXT, "white", 50, "Aliens defeated!", 300, 300);
-var loseText = game.addElement(game.ELEMENT.TEXT, "white", 50, "You've been invaded!", 300, 300);
+var ship = game.addElement(game.ELEMENT.RECT, 'white', 50, 25, game.canvas.width / 2 - 50 / 2, 500);
+var shipGun = game.addElement(game.ELEMENT.RECT, 'white', 9, 8, game.canvas.width / 2 - 9 / 2, ship.y - 8);
+var winText = game.addElement(game.ELEMENT.TEXT, 'white', 50, 'Aliens defeated!', 300, 300);
+var loseText = game.addElement(game.ELEMENT.TEXT, 'white', 50, `You've been invaded!`, 300, 300);
 
 ship.addSound('background', `${soundDir}background.mp3`);
 ship.setSoundVolume('background', 0.3);
@@ -35,6 +35,13 @@ var alienLives = 5;
 var aliesSpeed = 0.3;
 var brickLives = 10;
 var loseState = false;
+
+game.setReset(() => {
+    aliens = generateElementsArray(3, 7, 50, 50, 25, 60, 'lightgreen', 'alien');
+    bricks = generateElementsArray(1, 9, 25, 50, 25, 400, 'white', ' brick');
+    ship.playSound('background');
+    game.play();
+});
 
 game.reset();
 var drawing = function () {
@@ -96,16 +103,11 @@ function lose() {
     loseText.playSound('lose');
     loseText.print();
 }
-game.setReset(() => {
-    aliens = generateElementsArray(3, 7, 50, 50, 25, 60, 'lightgreen', 'alien');
-    bricks = generateElementsArray(1, 9, 25, 50, 25, 400, 'white', ' brick');
-    ship.playSound('background');
-    game.play();
-});
+
 function shoot() {
     if (shotTimeout) return;
     ship.playSound('shot');
-    var shot = game.addElement(game.ELEMENT.RECT, "white", 2, 10, ship.x + (ship.width / 2) - (2 / 2), ship.y - 20);
+    var shot = game.addElement(game.ELEMENT.RECT, 'white', 2, 10, ship.x + (ship.width / 2) - (2 / 2), ship.y - 20);
     shot.setYSpeed(-2.5);
     shots.push(shot);
     shotTimeout = setTimeout(() => { clearTimeout(shotTimeout); shotTimeout = null; }, 1000 * 0.2);

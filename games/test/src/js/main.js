@@ -1,4 +1,4 @@
-var game = new Game("gc", 1920, 1080, true);
+var game = new Game('gc', 1920, 1080, true);
 const canvas = game.canvas;
 const ctx = game.canvas.context
 const { width: w, height: h } = canvas;
@@ -47,7 +47,7 @@ var loop = function () {
     }else{
         animationTestDirections.setCurrentAnimation('stop')
     }
-    console.log("state", ball.state);
+    console.log('state', ball.state);
 
     floor.print();
     animationTest.print();
@@ -62,9 +62,9 @@ var loop = function () {
 // requestAnimationFrame(loop);
 setInterval(() => game.draw(loop), 1000 / 60);
 
-// var game = new Game("gc", 1920, 1080, true);
+// var game = new Game('gc', 1920, 1080, true);
 
-// // var canvas = document.getElementById("gc");
+// // var canvas = document.getElementById('gc');
 // var canvas = game.canvas
 // var dc = game.canvas.context
 // var angle = 0;
@@ -80,14 +80,14 @@ setInterval(() => game.draw(loop), 1000 / 60);
 //     angle = (angle + 1) % 360;
 //     dc.clearRect(0, 0, canvas.width, canvas.height);
 
-//     dc.fillStyle = "white";
+//     dc.fillStyle = 'white';
 //     dc.beginPath();
 //     dc.arc(100, 200, circleWidth, 0, Math.PI * 2, true);
 //     dc.fill();
 
 
 //     // dc.save();  
-//     // dc.fillStyle = "#FF0000";
+//     // dc.fillStyle = '#FF0000';
 //     // dc.translate(100,200);
 //     // console.log(angle*Math.PI/180);
 //     // dc.rotate(angle*Math.PI/180);

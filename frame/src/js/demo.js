@@ -1,17 +1,17 @@
 window.onload=function() {
-    var game = new Game("gc", 800, 600, true);
+    var game = new Game('gc', 800, 600, true);
     
-    var circle1 = game.addElement(game.ELEMENT.CIRCLE, "red", 5, 22, 33);
-    var circle2 = game.addElement(game.ELEMENT.CIRCLE, "blue", 5, 22, 43);
-    var circle3 = game.addElement(game.ELEMENT.CIRCLE, "orange", 5, 12, 43);
-    var rect1 = game.addElement(game.ELEMENT.RECT, "red", 10, 50, 40, 60);
-    var rect2 = game.addElement(game.ELEMENT.RECT, "blue", 10, 50, 50, 60);
-    var rect3 = game.addElement(game.ELEMENT.RECT, "orange", 20, 20, 390, 290);
-    var text = game.addElement(game.ELEMENT.TEXT, "orange", 50, "Functions testing", 370, 200);
-    var image = game.addElement(game.ELEMENT.IMAGE, "src/img/game-development.png", 
+    var circle1 = game.addElement(game.ELEMENT.CIRCLE, 'red', 5, 22, 33);
+    var circle2 = game.addElement(game.ELEMENT.CIRCLE, 'blue', 5, 22, 43);
+    var circle3 = game.addElement(game.ELEMENT.CIRCLE, 'orange', 5, 12, 43);
+    var rect1 = game.addElement(game.ELEMENT.RECT, 'red', 10, 50, 40, 60);
+    var rect2 = game.addElement(game.ELEMENT.RECT, 'blue', 10, 50, 50, 60);
+    var rect3 = game.addElement(game.ELEMENT.RECT, 'orange', 20, 20, 390, 290);
+    var text = game.addElement(game.ELEMENT.TEXT, 'orange', 50, 'Functions testing', 370, 200);
+    var image = game.addElement(game.ELEMENT.IMAGE, 'src/img/game-development.png', 
     40, 40, 100, 160);
     
-    game.canvas.setBackgroundColor("white");
+    game.canvas.setBackgroundColor('white');
     game.control.setStep(10);
 
     rect1.setGravity(0.1);
@@ -58,6 +58,6 @@ window.onload=function() {
         circle3.hitBottom();
     }
     
-    rect3.addListener("keydown");
+    rect3.addListener('keydown');
     setInterval(() => game.draw(drawing), 1000/60);     
 }

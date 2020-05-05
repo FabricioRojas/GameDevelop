@@ -22,16 +22,16 @@ class Game {
         this.canvas.clear();
         this.canvas.print();
         if (this.develop) {
-            var scripts = document.getElementsByTagName("script");
-            var image = this.addElement(this.ELEMENT.IMAGE, scripts[0].src+"../../../img/background-grid.svg",
+            var scripts = document.getElementsByTagName('script');
+            var image = this.addElement(this.ELEMENT.IMAGE, scripts[0].src + '../../../img/background-grid.svg',
                 this.canvas.width, this.canvas.height, 0, 0)
             this.canvas.setBackgroundImage(image);
         }
-        var stopButton = document.getElementById("fui-stop");
+        var stopButton = document.getElementById('fui-stop');
         if (stopButton) stopButton.addEventListener('click', () => {
             this.togglePlayState();
         });
-        var resetButton = document.getElementById("fui-reset");
+        var resetButton = document.getElementById('fui-reset');
         if (resetButton) resetButton.addEventListener('click', () => {
             this.reset();
         });
@@ -60,14 +60,14 @@ class Game {
             this.canvas.executeListeners('keyup', e);
         });
     }
-    reset(){
+    reset() {
         this.reset();
     }
     menuHandling() {
         for (var i in this.gui.listeners) {
             var click = this.canvas.getMousePosition();
             var element = this.gui.listeners[i];
-            
+
             if (this.currentMenu == element.menu) {
                 var finalX = element.x;
                 var finalY = element.y;
@@ -76,7 +76,7 @@ class Game {
                     finalY -= element.height;
                 }
                 if ((click.x > finalX && click.x < (finalX + element.width)) && (click.y > finalY && click.y < (finalY + element.height))) {
-                    element.action();
+                    element.click();
                 }
             }
         }
@@ -170,27 +170,31 @@ class GameUI {
     addMenu(menu, color, width, height, x, y, borderColor, borderWidth) {
         if (!this.menus[menu + '']) {
             this.menus[menu + ''] = this.game.addElement(this.game.ELEMENT.RECT, color, width, height, x, y, true);
-            if (menu == "main_menu") this.menus[menu + ''].addListener("keydown", (evt) => this.menuKeyDown(evt));
+            if (menu == 'main_menu') this.menus[menu + ''].addListener('keydown', (evt) => this.menuKeyDown(evt));
         }
     }
     menuKeyDown(evt) {
         if (evt.keyCode == this.game.KEY.ESC) {
             this.game.toggleMenuState();
-            this.showMenu("main_menu");
+            this.showMenu('main_menu');
         }
     }
-    addItemMenu(menu, type, listener, color, var1, var2, var3, var4, action) {
+    addItemMenu(menu, type, color, var1, var2, var3, var4, events) {
         if (this.menus[menu + '']) {
             if (!this.menus[menu + ''].items) this.menus[menu + ''].items = [];
             if (!var3 && !var4) {
-                this.game.canvas.context.font = var1 + "px Verdana";
+                this.game.canvas.context.font = var1 + 'px Verdana';
                 var3 = (this.game.canvas.width / 2);
                 var4 = this.menus[menu + ''].x + (this.menus[menu + ''].items.length * 50);
             }
             var newItemMenu = game.addElement(type, color, var1, var2, var3, var4);
-            newItemMenu.action = action;
             newItemMenu.menu = menu;
-            if (listener) this.addListener(newItemMenu);
+            if (events.hover) newItemMenu.hover = events.hover;
+            if (events.iddle) newItemMenu.iddle = events.iddle;
+            if (events.click) {
+                newItemMenu.click = events.click;
+                this.addListener(newItemMenu);
+            }
             this.menus[menu + ''].items.push(newItemMenu);
         }
     }
@@ -281,18 +285,18 @@ class FrameUI {
         this.rightPanel.appendChild(test);
 
         this.canvas.parentNode.insertBefore(this.rightPanel, this.canvas.nextSibling);
-        this.addElement('ul', "test");
+        this.addElement('ul', 'test');
     }
 
     addElement(element) {
         if (!element.id) return;
 
-        let divElement = document.createElement("div");
-        let textElement = document.createElement("h3");
-        let ulElementL = document.createElement("ul");
-        let ulElementR = document.createElement("ul");
-        let divColumnL = document.createElement("div");
-        let divColumnR = document.createElement("div");
+        let divElement = document.createElement('div');
+        let textElement = document.createElement('h3');
+        let ulElementL = document.createElement('ul');
+        let ulElementR = document.createElement('ul');
+        let divColumnL = document.createElement('div');
+        let divColumnR = document.createElement('div');
 
         divElement.className = 'containerDiv';
         textElement.className = 'elementText';
@@ -302,18 +306,18 @@ class FrameUI {
 
         ulElementL.className = 'elementUl';
         ulElementR.className = 'elementUl';
-        ulElementL.id = 'elementUl-' + element.id + "-L";
-        ulElementR.id = 'elementUl-' + element.id + "-R";
+        ulElementL.id = 'elementUl-' + element.id + '-L';
+        ulElementR.id = 'elementUl-' + element.id + '-R';
 
         textElement.innerHTML = element.type + ': ' + element.id;
 
         for (var i in this.properties) {
             var propertyVal = element[this.properties[i]];
             if (element[this.properties[i]]) {
-                var liElement = document.createElement("li");
+                var liElement = document.createElement('li');
                 if (typeof propertyVal == 'number' && propertyVal != parseInt(propertyVal))
                     propertyVal = propertyVal.toFixed(2);
-                liElement.innerHTML = "<b>" + this.properties[i].toUpperCase() + ":</b> " + propertyVal + (this.properties[i] == 'width' || this.properties[i] == 'height' ? "px" : "");
+                liElement.innerHTML = '<b>' + this.properties[i].toUpperCase() + ':</b> ' + propertyVal + (this.properties[i] == 'width' || this.properties[i] == 'height' ? 'px' : '');
                 if (i < 10) ulElementL.appendChild(liElement);
                 else ulElementR.appendChild(liElement);
             }
@@ -329,18 +333,18 @@ class FrameUI {
         this.rightPanel.appendChild(divElement);
     }
     updateElement(element) {
-        let ulElementL = document.getElementById('elementUl-' + element.id + "-L");
-        let ulElementR = document.getElementById('elementUl-' + element.id + "-R");
+        let ulElementL = document.getElementById('elementUl-' + element.id + '-L');
+        let ulElementR = document.getElementById('elementUl-' + element.id + '-R');
         if (!ulElementL || !ulElementR) return;
         ulElementL.innerHTML = '';
         ulElementR.innerHTML = '';
         for (var i in this.properties) {
             var propertyVal = element[this.properties[i]];
             if (propertyVal) {
-                var liElement = document.createElement("li");
+                var liElement = document.createElement('li');
                 if (typeof propertyVal == 'number' && propertyVal != parseInt(propertyVal))
                     propertyVal = propertyVal.toFixed(2);
-                liElement.innerHTML = "<b>" + this.properties[i].toUpperCase() + ":</b> " + propertyVal + (this.properties[i] == 'width' || this.properties[i] == 'height' ? "px" : "");
+                liElement.innerHTML = '<b>' + this.properties[i].toUpperCase() + ':</b> ' + propertyVal + (this.properties[i] == 'width' || this.properties[i] == 'height' ? 'px' : '');
                 if (i < 10) ulElementL.appendChild(liElement);
                 else ulElementR.appendChild(liElement);
             }
@@ -400,7 +404,7 @@ class GameCanvas {
 
     constructor(element, width, height) {
         this.canvas = document.getElementById(element);
-        this.backgroundColor = "black";
+        this.backgroundColor = 'black';
         this.shouldClear = true;
         this.solidBordersX = false;
         this.solidBordersY = false;
@@ -408,7 +412,7 @@ class GameCanvas {
         this.height = height;
         this.canvas.width = this.width;
         this.canvas.height = this.height;
-        this.context = this.canvas.getContext("2d");
+        this.context = this.canvas.getContext('2d');
         this.fps = 1000 / 60;
         this.horizontalScrool();
         this.dragging = false;
@@ -427,7 +431,7 @@ class GameCanvas {
                 var delta = evt.clientX - this.lastX;
                 this.lastX = evt.clientX;
                 this.marginLeft += delta;
-                this.canvas.style.marginLeft = this.marginLeft + "px";
+                this.canvas.style.marginLeft = this.marginLeft + 'px';
             }
         }, false);
         window.addEventListener('mouseup', () => {
@@ -453,16 +457,16 @@ class GameCanvas {
     addListener(event, callback) {
         if (!this.listeners[event + '']) this.listeners[event + ''] = [];
         this.listeners[event + ''].push(callback);
-        return  this.listeners[event + ''].length-1;
+        return this.listeners[event + ''].length - 1;
     }
     removeListener(event, index) {
         if (this.listeners[event + '']) {
-            this.listeners[event + ''].splice(index,1);
+            this.listeners[event + ''].splice(index, 1);
         }
     }
     executeListeners(event, evt) {
-        if(!this.listeners[event]) return;
-        for(var i = this.listeners[event].length-1;i>-1; i--){
+        if (!this.listeners[event]) return;
+        for (var i = this.listeners[event].length - 1; i > -1; i--) {
             if (this.listeners[event][i] && typeof this.listeners[event][i] == 'function') {
                 this.listeners[event][i](evt);
             }
@@ -583,6 +587,7 @@ class CanvasElement {
         }
         if (this.canvas.mousePosition.x >= objX && this.canvas.mousePosition.x <= objX + objWidth && this.canvas.mousePosition.y >= objY && this.canvas.mousePosition.y <= objY + objHeight) {
             this.state = 'hover';
+            if(this.hover) this.hover();
             if (this.canvas.mousePressed) {
                 this.state = 'active';
                 if (!this.isClicking && this.listeners['click']) {
@@ -590,7 +595,10 @@ class CanvasElement {
                     this.listeners['click'].f({ clientX: this.canvas.mousePosition.x, clientY: this.canvas.mousePosition.y });
                 }
             } else this.isClicking = false;
-        } else this.state = 'default';
+        } else{
+            this.state = 'default';
+            if(this.iddle) this.iddle();
+        }
     }
     isClicked(click) {
         var objX = this.x;
@@ -644,15 +652,15 @@ class CanvasElement {
     addListener(event, callback) {
         if (!callback) {
             switch (event) {
-                case "keydown":
+                case 'keydown':
                     callback = (evt) => this.keyDown(evt);
                     break;
             }
         }
         if (!this.listeners[event + '']) {
             this.listeners[event + ''] = {
-                f:callback,
-                i:this.game.canvas.addListener(event, callback)
+                f: callback,
+                i: this.game.canvas.addListener(event, callback)
             }
         }
     }
@@ -820,7 +828,7 @@ class CircleElement extends CanvasElement {
 
     /* Methods */
     print() {
-        if(!this.isVisible) return;
+        if (!this.isVisible) return;
         this.context.fillStyle = this.color;
         this.context.beginPath();
         this.context.arc(this.x, this.y, this.radius, 0, Math.PI * 2, true);
@@ -845,7 +853,7 @@ class RectElement extends CanvasElement {
 
     /* Methods */
     print() {
-        if(!this.isVisible) return;
+        if (!this.isVisible) return;
         if (this.rotate) {
             if (this.rotate.x) this.rotateOverElement(this.rotate);
             else this.rotateOverSelf();
@@ -883,17 +891,17 @@ class TextElement extends CanvasElement {
         super(game, type, color, x, y);
         this.size = size;
         this.text = text;
-        this.align = "center";
-        this.font = "Verdana";
-        this.canvas.context.font = this.size + "px " + this.font;
+        this.align = 'center';
+        this.font = 'Verdana';
+        this.canvas.context.font = this.size + 'px ' + this.font;
         this.width = this.canvas.context.measureText(this.text).width;
         this.height = this.size;
     }
 
     /* Methods */
     print() {
-        if(!this.isVisible) return;
-        this.context.font = this.size + "px " + this.font;
+        if (!this.isVisible) return;
+        this.context.font = this.size + 'px ' + this.font;
         this.context.textAlign = this.align;
         this.context.fillStyle = this.color;
         this.context.fillText(this.text, this.x, this.y);
@@ -931,7 +939,7 @@ class ImageElement extends CanvasElement {
 
     /* Methods */
     print() {
-        if(!this.isVisible) return;
+        if (!this.isVisible) return;
         if (this.currentAnimation) this.updateAnimation();
         if (this.rotate) {
             this.context.save();
@@ -992,5 +1000,10 @@ class ImageElement extends CanvasElement {
             this.currentAnimation = this.animations[event + ''];
             this.currentAnimation.timeout = null;
         }
+    }
+    setSrc(src) {
+        this.src = src;
+        this.image = new Image();
+        this.image.src = this.src;
     }
 }

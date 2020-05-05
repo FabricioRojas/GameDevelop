@@ -1,8 +1,8 @@
-const imgDir = "src/img/";
-const soundDir = "src/sound/";
+const imgDir = 'src/img/';
+const soundDir = 'src/sound/';
 
 
-var game = new Game("gc", 800, 600, false);
+var game = new Game('gc', 800, 600, false);
 game.control.setStep(30);
 game.canvas.setSolidBordersY(true);
 setInterval(() => game.draw(drawing), 1000 / 30);
@@ -12,14 +12,14 @@ var score1Val = 0, score2Val = 0;
 var showingWinScreen = true;
 var winningScore = 10;
 
-var ball = game.addElement(game.ELEMENT.RECT, "white", square, square, game.canvas.width / 2 - (square / 2), game.canvas.height / 2 - (square / 2));
-var paddle2 = game.addElement(game.ELEMENT.RECT, "white", 10, 100, 15, 50);
-var paddle1 = game.addElement(game.ELEMENT.RECT, "white", 10, 100, game.canvas.width - paddle2.width * 2, 40);
-var score1 = game.addElement(game.ELEMENT.TEXT, "white", 20, score1Val, 150, 80);
-var score2 = game.addElement(game.ELEMENT.TEXT, "white", 20, score2Val, game.canvas.width - score1.x, 80);
-var winMessage = game.addElement(game.ELEMENT.TEXT, "white", 30, "", game.canvas.width / 2, game.canvas.height / 2);
-var readyMessage = game.addElement(game.ELEMENT.TEXT, "white", 30, "Ready?", game.canvas.width / 2, game.canvas.height / 2);
-var clickMessage = game.addElement(game.ELEMENT.TEXT, "white", 15, "Click to start", game.canvas.width / 2, game.canvas.height / 2 + 50);
+var ball = game.addElement(game.ELEMENT.RECT, 'white', square, square, game.canvas.width / 2 - (square / 2), game.canvas.height / 2 - (square / 2));
+var paddle2 = game.addElement(game.ELEMENT.RECT, 'white', 10, 100, 15, 50);
+var paddle1 = game.addElement(game.ELEMENT.RECT, 'white', 10, 100, game.canvas.width - paddle2.width * 2, 40);
+var score1 = game.addElement(game.ELEMENT.TEXT, 'white', 20, score1Val, 150, 80);
+var score2 = game.addElement(game.ELEMENT.TEXT, 'white', 20, score2Val, game.canvas.width - score1.x, 80);
+var winMessage = game.addElement(game.ELEMENT.TEXT, 'white', 30, '', game.canvas.width / 2, game.canvas.height / 2);
+var readyMessage = game.addElement(game.ELEMENT.TEXT, 'white', 30, 'Ready?', game.canvas.width / 2, game.canvas.height / 2);
+var clickMessage = game.addElement(game.ELEMENT.TEXT, 'white', 15, 'Click to start', game.canvas.width / 2, game.canvas.height / 2 + 50);
 
 var BALLSPEEDX = 7;
 var ballSpeedX = BALLSPEEDX;
@@ -48,16 +48,28 @@ paddle2.setSoundDuration('hit_paddle', 0.5);
 winMessage.addSound('win', `${soundDir}wining.mp3`);
 winMessage.addSound('lose', `${soundDir}losing.mp3`);
 winMessage.setSoundVolume('win', 0.2);
+
+game.setReset(() => {
+    showingWinScreen = false;
+    score1Val = 0, score2Val = 0;
+    score1.setText(score1Val);
+    score2.setText(score2Val);
+    ball.setX(game.canvas.width / 2 - (ball.width / 2));
+    ball.setY(game.canvas.height / 2 - (ball.height / 2));
+    ball.resetSound('background');
+    ball.playSound('background');
+    game.play();
+});
 game.reset();
 var drawing = function () {
     if (showingWinScreen) {
         if (score1Val == winningScore) {
             winMessage.playSound('win');
-            winMessage.setText("Player 1 wins");
+            winMessage.setText('Player 1 wins');
             winMessage.print();
         } else if (score2Val == winningScore) {
             winMessage.playSound('lose');
-            winMessage.setText("Player 2 wins");
+            winMessage.setText('Player 2 wins');
             winMessage.print();
         } else readyMessage.print();
         clickMessage.print();
@@ -129,17 +141,7 @@ game.canvas.addListener('click', handlemouseClick);
 game.canvas.addListener('mousemove', function (e) {
     var mousePos = getMousePosition(e); paddle1.y = mousePos.y;
 });
-game.setReset(() => {
-    showingWinScreen = false;
-    score1Val = 0, score2Val = 0;
-    score1.setText(score1Val);
-    score2.setText(score2Val);
-    ball.setX(game.canvas.width / 2 - (ball.width / 2));
-    ball.setY(game.canvas.height / 2 - (ball.height / 2));
-    ball.resetSound('background');
-    ball.playSound('background');
-    game.play();
-});
+
 function handlemouseClick() {
     if (showingWinScreen) return game.reset();
 }
